@@ -1,0 +1,70 @@
+=pod
+
+=head1 NAME
+
+Net::Appliance::Session::Cookbook - The Cookbook
+
+=head1 NOTE
+
+This Cookbook was contributed to the L<Net::Appliance::Session> project by
+Nigel Bowden. Source code from the Cookbook is shipped in the C<examples>
+folder of this module's distribution.
+
+=head1 CONTENTS
+
+=over 4
+
+=item *
+
+L<Net::Appliance::Session::Cookbook::Intro> - Getting Started
+
+=item *
+
+L<Net::Appliance::Session::Cookbook::Recipe01> - Get Running Config with Telnet
+
+=item *
+
+L<Net::Appliance::Session::Cookbook::Recipe02> - Get Running Config with SSH
+
+=item *
+
+L<Net::Appliance::Session::Cookbook::Recipe03> - Simple Error Handling
+
+=item *
+
+L<Net::Appliance::Session::Cookbook::Recipe04> - Not-So Simple Error Handling
+
+=item *
+
+L<Net::Appliance::Session::Cookbook::Recipe05> - Getting In To Enable Mode
+
+=item *
+
+L<Net::Appliance::Session::Cookbook::Recipe06> - Storing Device Configurations in Files
+
+=item *
+
+L<Net::Appliance::Session::Cookbook::Recipe07> - Changing Device Configurations
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Net::Appliance::Session>
+
+=back
+
+=head1 AUTHOR
+
+Nigel Bowden, with POD formatting by Oliver Gorwits.
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright (c) Nigel Bowden 2007. All Rights Reserved.
+
+You may distribute and/or modify this documentation under the same terms as
+Perl itself.
+
+=cut

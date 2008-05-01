@@ -1,0 +1,24 @@
+Source: libnet-appliance-session-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 4.0.2)
+Build-Depends-Indep: perl (>= 5.8.0-7)
+Maintainer: Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>
+Standards-Version: 3.6.1
+
+Package: libnet-appliance-session-perl
+Architecture: all
+Depends: ${perl:Depends}, ${misc:Depends}, libyaml-perl, libnet-telnet-perl, libio-pty-perl, libexception-class-perl, libuniversal-require-perl, libclass-accessor-fast-contained-perl, libnet-appliance-phrasebook-perl
+Description:  SSH-based interactive command session to network appliances
+ Use this module to establish an interactive SSH session with your network
+ appliances. There is special support for moving into privileged mode
+ and configure mode, with all other commands being sent through a
+ generic call to your session object.
+ .
+ There are other CPAN modules that cover similar ground, including Net::SSH and
+ Net::Telnet::Cisco, but they are quite buggy or do not handle SSH properly.
+ This module is based upon Net::Telnet so the majority of your interaction will
+ be with methods in that module. It is recommended that you read the
+ Net::Telnet manual page for further details.
+ .
+ This description was automagically extracted from the module by dh-make-perl.
