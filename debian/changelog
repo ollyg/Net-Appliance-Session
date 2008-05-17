@@ -1,3 +1,10 @@
+libnet-appliance-session-perl (0.22-1) UNRELEASED; urgency=low
+
+  * Add disconnect method to Transport, as a noop except for Serial
+    (see RT.cpan#35937)
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat, 17 May 2008 20:28:32 +0100
+
 libnet-appliance-session-perl (0.21-1) unstable; urgency=low
 
   * Send SIGKILL to child if we're running in cygwin 

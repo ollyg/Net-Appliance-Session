@@ -12,6 +12,6 @@ else {
 }
 
 pod_coverage_ok('Net::Appliance::Session');
-pod_coverage_ok('Net::Appliance::Session::Transport', {also_private => [ qr/^new/, qr/^connect/, 'REAPER' ]});
+pod_coverage_ok('Net::Appliance::Session::Transport', {also_private => [ qr/^new/, qr/connect/, 'REAPER' ]});
 pod_coverage_ok('Net::Appliance::Session::Transport::SSH', {also_private => [ qr/^new/ ]});
 

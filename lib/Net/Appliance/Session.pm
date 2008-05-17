@@ -11,10 +11,10 @@ use base qw(
     Class::Data::Inheritable
 ); # eventually, would Moosify this ?
 
-our $VERSION = 0.21;
+our $VERSION = 0.22;
 
 use Net::Appliance::Session::Exceptions;
-use Net::Appliance::Phrasebook;
+use Net::Appliance::Phrasebook 0.1;
 use UNIVERSAL::require;
 use Carp;
 
@@ -139,6 +139,9 @@ sub close {
 
         # re-enable paging
         $self->enable_paging if $self->do_paging;
+
+        # transport-specific work
+        $self->disconnect;
     }
 
     $self->SUPER::close(@_);
@@ -266,7 +269,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-This document refers to version 0.21 of Net::Appliance::Session.
+This document refers to version 0.22 of Net::Appliance::Session.
 
 =head1 SYNOPSIS
 

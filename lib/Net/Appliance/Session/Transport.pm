@@ -48,6 +48,10 @@ sub connect {
     return $self;
 }
 
+sub disconnect {
+    return shift; # a noop unless overridden in the Transport subclass
+}
+
 sub _connect_core { 
     raise_error 'Incomplete Transport or there is no Transport loaded!';
 }

@@ -1,55 +1,112 @@
-0.21  Sat,  2 Feb 2008 19:12:28 +0000
-    - Send SIGKILL to child if we're running in cygwin
-    - Minor fix to typo in Cookbook
-0.19  Sat, 19 Jan 2008 21:51:29 +0000
-    - Bug fix for not setting last prompt (thx miky)
-    - Minor change to docs to mention setting in_foo_mode
-0.18  Sun Dec 23 14:35:03 GMT 2007
-    - Now automatically reap child processes
-0.17  Tue Dec 03 21:08:00 GMT 2007
-    - Minor fixes to Cookbook POD to improve CPAN rendering
-0.16  Tue Dec 03 19:06:00 GMT 2007
-    - Add Cookbook courtesy of Nigel Bowden
-0.15  Tue Jul 03 13:23:00 GMT 2007
-    - Users report that the child reaping isn't stable across all systems, so
-      revert to old system of doing nothing
-0.14  Tue Jul 03 16:40:00 GMT 2007
-    - Allow SSH Transport to handle username prompts, courtesy of Nigel Bowden
-    - Set Unix systems to automatically reap child processes
-0.13  Mon Jan 29 16:48:00 GMT 2007
-    - Bug in my use of Class::Data::Inheritable. A schoolboy-error :(
-0.12  Sun Jan 28 23:46:00 GMT 2007
-    - Bug in SSH Transport that would catch someone out one day
-0.11  Sun Jan 28 20:54:00 GMT 2007
-    - Add CheckPB option to allow (almost) complete disabling of phrasebook
-      entry checks
-    - Separate out phrasebook entry checking in case not all required (e.g.
-      not going to use configure mode)
-    - Add special Match argument to cmd() allowing operation more like
-      Net::Telnet's waitfor()
-    - Add Opts option to SSH Engine to support arbitrary openssh args
-0.09  Tue Nov 14 11:59:00 GMT 2006
-    - Remove all hard-coded command phrases and prompt regexps, they are now
-      pulled from the loaded phrasebook so can be overridden
-    - Check all phrases are actually in the loaded phrasebook at instantiation
-      time and die if any are not available
-    - As a result, now require Net::Appliance::Phrasebook >= 0.07
-    - Allow user to disable login (user/pass) negotiation e.g. for public
-      route servers
-    - Also allow user to disable paging management, or override the number of
-      lines used to re-enable paging
-    - Also allow user to disable privileged and configure modes (see docs)
-    - New Transport for Serial Line access, called 'Serial' (not tested much)
-    - New Transport for Telnet access, called 'Telnet' (not tested much)
-    - Factor out the IO::Pty code into Transport base class. Also checked it
-      out, and it's actually pretty sane, so can stay in.
-0.08  Sat Oct 14 12:24:00 BST 2006
-    - Stupid typo in module version, don't know how it slipped through :(
-0.07  Fri Oct 13 13:35:00 BST 2006
-    - various POD and comment fixes
-0.06  Wed Oct 04 12:51:00 BST 2006
-    - Allow Source arg, to pass through to Net::Appliance::Phrasebook
-    - Recursive end_configure attempts to exit up to three times
-    - Fixups to POD
-0.05  Tue Oct 03 16:22:00 BST 2006
-    - Initial Release
+libnet-appliance-session-perl (0.22-1) UNRELEASED; urgency=low
+
+  * Add disconnect method to Transport, as a noop except for Serial
+    (see RT.cpan#35937)
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat, 17 May 2008 20:28:32 +0100
+
+libnet-appliance-session-perl (0.21-1) unstable; urgency=low
+
+  * Send SIGKILL to child if we're running in cygwin 
+  * Minor fix to typo in Cookbook
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat,  2 Feb 2008 19:12:28 +0000
+
+libnet-appliance-session-perl (0.19-1) unstable; urgency=low
+
+  * Bug fix for not setting last prompt (thx miky)
+  * Minor change to docs to mention setting in_foo_mode
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat, 19 Jan 2008 21:51:29 +0000
+
+libnet-appliance-session-perl (0.18-1) unstable; urgency=low
+
+  * Now automatically reap child processes
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sun, 23 Dec 2007 14:35:03 +0000
+
+libnet-appliance-session-perl (0.17-1) unstable; urgency=low
+
+  * Minor fixes to Cookbook POD to improve CPAN rendering.
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  4 Dec 2007 21:08:00 +0000
+
+libnet-appliance-session-perl (0.16-1) unstable; urgency=low
+
+  * Add Cookbook courtesy of Nigel Bowden.
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  4 Dec 2007 19:06:00 +0000
+
+libnet-appliance-session-perl (0.15-1) unstable; urgency=low
+
+  * Users report that the child reaping isn't stable across all systems, so
+    revert to old system of doing nothing
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  3 Jul 2007 16:40:00 +0100
+
+libnet-appliance-session-perl (0.14-1) unstable; urgency=low
+
+  * Allow SSH Transport to handle username prompts,
+    suggestion courtesy of Nigel Bowden
+  * Set Unix systems to automatically reap child processes
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  3 Jul 2007 13:23:00 +0100
+
+libnet-appliance-session-perl (0.13-1) unstable; urgency=low
+
+  * Bug in my use of Class::Data::Inheritable. A schoolboy-error :(
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Mon, 29 Jan 2007 16:48:00 +0000
+
+libnet-appliance-session-perl (0.12-1) unstable; urgency=low
+
+  * Bug in SSH Transport which would catch someone out one day
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sun, 28 Jan 2007 23:46:00 +0000
+
+libnet-appliance-session-perl (0.11-1) unstable; urgency=low
+
+  * Add CheckPB option to allow (almost) complete disabling of phrasebook
+    entry checks
+  * Separate out phrasebook entry checking in case not all required (e.g. not
+    going to use configure mode)
+  * Add special named argument to cmd() allowing operation more like
+    Net::Telnet's waitfor()
+  * Add Opts option to SSH Engine to support arbitrary openssh args
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sun, 28 Jan 2007 20:54:00 +0000
+
+libnet-appliance-session-perl (0.09-1) unstable; urgency=low
+
+  * Remove all hard-coded command phrases and prompt regexps, they are now
+    pulled from the loaded phrasebook so can be overridden
+  * Check all phrases are actually in the loaded phrasebook at instantiation
+    time and die if any are not available
+  * As a result, now require Net::Appliance::Phrasebook >= 0.07
+  * Allow user to disable login (user/pass) negotiation e.g. for public
+    route servers
+  * Also allow user to disable paging management, or override the number of
+    lines used to re-enable paging
+  * Also allow user to disable privileged and configure modes (see docs)
+  * New Transport for Serial Line access, called 'Serial' (not tested much)
+  * New Transport for Telnet access, called 'Telnet' (not tested much)
+  * Factor out the IO::Pty code into Transport base class. Also checked it
+    out, and it's actually pretty sane, so can stay in.
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 14 Nov 2006 11:59:00 +0000
+
+libnet-appliance-session-perl (0.05-1) unstable; urgency=low
+
+  * Major rewrite
+  - move Phrasebook out into Net::Appliance::Phrasebook
+  - remove all the require guff and have it properly inheriting namespaces
+  - rewrite Exception class into a module
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 19 Sep 2006 18:16:17 +0100
+
+libnet-appliance-session-perl (0.01-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 11 Jul 2006 18:16:17 +0100
+

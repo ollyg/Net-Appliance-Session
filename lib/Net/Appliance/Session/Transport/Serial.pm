@@ -23,6 +23,14 @@ sub new {
     return $self;
 }
 
+# issues a proper exit command to the device, as close() will just drop
+# the serial line connection but not log the user out (RT.cpan#35937)
+sub disconnect {
+    my $self = shift;
+    $self->print( $self->pb->fetch('disconnect') );
+    return $self;
+}
+
 # sets up new pseudo terminal connected to cu, running in
 # a child process.
 
