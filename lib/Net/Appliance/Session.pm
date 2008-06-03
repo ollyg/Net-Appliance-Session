@@ -124,7 +124,7 @@ sub new {
     $self->do_login(1);
     $self->do_privileged_mode(1);
     $self->do_configure_mode(1);
-    $self->last_comamnd_sent('');
+    $self->last_command_sent('');
 
     return $self;
 }
