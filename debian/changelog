@@ -1,3 +1,10 @@
+libnet-appliance-session-perl (1.23-1) UNRELEASED; urgency=low
+
+  * Added support for debugging shell on failure,
+    see Devel::REPL::Plugin::NAS
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  3 Jun 2008 17:41:01 +0100
+
 libnet-appliance-session-perl (0.22-1) UNRELEASED; urgency=low
 
   * Add disconnect method to Transport, as a noop except for Serial

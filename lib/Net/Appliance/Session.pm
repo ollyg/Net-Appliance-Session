@@ -11,10 +11,10 @@ use base qw(
     Class::Data::Inheritable
 ); # eventually, would Moosify this ?
 
-our $VERSION = 0.22;
+our $VERSION = 1.23;
 
 use Net::Appliance::Session::Exceptions;
-use Net::Appliance::Phrasebook 0.1;
+use Net::Appliance::Phrasebook 1.2;
 use UNIVERSAL::require;
 use Carp;
 
@@ -29,6 +29,8 @@ __PACKAGE__->mk_accessors(qw(
     do_configure_mode
     check_pb
     childpid
+    fail_with_repl
+    last_command_sent
 ));
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(qw(
@@ -72,6 +74,7 @@ sub new {
     my $tprt = exists $args{Transport} ? delete $args{Transport} : 'SSH';
     my $host = exists $args{Host}      ? delete $args{Host}      : undef;
     my $chpb = exists $args{CheckPB}   ? delete $args{CheckPB}   : 1;
+    my $repl = exists $args{REPL}      ? delete $args{REPL}      : 0;
 
     my %pbargs = (); # arguments to Net::Appliance::Phrasebook->load
     $pbargs{platform} =
@@ -111,6 +114,9 @@ sub new {
     # set Net::Telnet prompt from platform's phrasebook
     $self->prompt( $self->pb->fetch('prompt') );
 
+    # set failure mode
+    $self->fail_with_repl($repl);
+
     # set some operation defaults
     $self->set_pager_disable_lines(0);
     $self->set_pager_enable_lines(24);
@@ -118,6 +124,7 @@ sub new {
     $self->do_login(1);
     $self->do_privileged_mode(1);
     $self->do_configure_mode(1);
+    $self->last_comamnd_sent('');
 
     return $self;
 }
@@ -190,13 +197,37 @@ sub error {
 
     return $self->SUPER::error(@_) if scalar caller !~ m/^Net::Appliance::Session/;
 
-    Net::Appliance::Session::Exception->throw(
+    my $e =  Net::Appliance::Session::Exception->new(
         message  => join (', ', @_). Carp::shortmess,
         errmsg   => $self->errmsg,
         lastline => $self->lastline,
     );
 
-    return $self; # but hopefully not, because we died
+    if ($self->fail_with_repl) {
+        # don't use REPL, even if asked, if we're not interactive
+        eval {
+            require IO::Interactive;
+            $e->throw if ! IO::Interactive::is_interactive();
+        };
+
+        # start up a REPL shell
+        eval {
+            require Devel::REPL;
+            my $repl = Devel::REPL->new;
+            $repl->load_plugin('NAS');
+
+            ${ $repl->lexical_environment->get_member_ref('$', '_', '$s') }
+                = $self;
+            $repl->nas_cli_mode(1);
+            $repl->nas_command_cache($self->last_command_sent);
+            $repl->print( $repl->format_error($e) );
+            $repl->run;
+        };
+    }
+
+    $e->throw if $@ or !$self->fail_with_repl;
+
+    return $self; # but hopefully not, because we died or started a REPL
 }
 
 # override Net::Telnet::cmd() to check responses against error strings in
@@ -219,11 +250,16 @@ sub cmd {
             if exists $args{Match};
     }
 
-    $self->print($string)
+    $self->last_command_sent($string); # to pass to error handler
+    my $completion = ($string =~ s/\?$//); # command line completion?
+
+    $self->put($string . ($completion ? $self->pb->fetch('completion') : "\n"))
         or $self->error('Incomplete command write: only '.
                         $self->print_length .' bytes have been sent');
 
-    my @retvals = $self->waitfor( Match => $self->prompt, @nt_args );
+    my $prompt = $self->prompt;
+    $prompt =~ s/\$/\\s*$string\$/ if $completion;
+    my @retvals = $self->waitfor( Match => $prompt, @nt_args );
 
     $self->error('Timeout, EOF or other failure waiting for command response')
         if scalar @retvals == 0; # empty list
@@ -233,6 +269,9 @@ sub cmd {
 
     # Save the most recently matched prompt.
     $self->last_prompt($retvals[1]);
+
+    # Reset the cli input (ctrl-u), for a new command.
+    $self->put( chr(21) );
 
     my @output;
     my $irs = $self->input_record_separator || "\n";
@@ -269,7 +308,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-This document refers to version 0.22 of Net::Appliance::Session.
+This document refers to version 1.23 of Net::Appliance::Session.
 
 =head1 SYNOPSIS
 
@@ -323,8 +362,9 @@ The significant difference with this module is that the actual connection to
 the remote device is delayed until you C<connect()>.
 
 Named Parameters, passed as a hash to this constructor, are optional. Some are
-described in L</"TRANSPORTS"> and L</"CONFIGURATION"> below. Any others are
-passed directly to L<Net::Telnet> (which dies on unknown parameters).
+described in L</"TRANSPORTS">, L</"DIAGNOSTICS">, and L</"CONFIGURATION">
+below. Any others are passed directly to L<Net::Telnet> (which dies on unknown
+parameters).
 
 This method returns a new C<Net::Appliance::Session> object.
 
@@ -666,6 +706,27 @@ C<Net::Appliance::Session::Exception> exception objects have two
 additional methods (a.k.a. fields), C<errmsg> and C<lastline> which
 contain output from Net::Telnet diagnostics.
 
+=head2 Using a C<Devel::REPL> shell
+
+This module supports an additional mode of failure which can be useful when
+debugging C<Net::Appliance::Session> scripts. Instead of having an exception
+thrown as described above, you can be dropped into an interactive shell at the
+connected device, if possible, instead.
+
+A L<Devel::REPL> shell is used, which means you also have the bonus of a full
+Perl environment from which you can execute Perl code, test network device
+commands, and save and load data from disk. Further information on how to use
+the shell and its features is given in the L<Devel::REPL::Plugin::NAS> manual
+page.
+
+As well as installing the C<Devel::REPL> and C<Devel::REPL::Plugin::NAS>
+modules, you'll need to change the call to C<new()> for this module, like so:
+
+ my $s = Net::Appliance::Session->new(
+     Host => 'hostname.example',
+     REPL => 1,
+ );
+
 =head1 INTERNALS
 
 The guts of this module are pretty tricky, although I would also hope elegant,
@@ -688,31 +749,50 @@ following:
 
 =item *
 
-Exception::Class
+L<Exception::Class>
 
 =item *
 
-Net::Telnet
+L<Net::Telnet>
 
 =item *
 
-IO::Pty
+L<IO::Pty>
 
 =item *
 
-UNIVERSAL::require
+L<UNIVERSAL::require>
 
 =item *
 
-Class::Accessor >= 0.25
+L<Class::Accessor> >= 0.25
 
 =item *
 
-Class::Accessor::Fast::Contained
+L<Class::Accessor::Fast::Contained>
 
 =item *
 
-Net::Appliance::Phrasebook >= 0.07
+L<Net::Appliance::Phrasebook> >= 1.2
+
+=back
+
+You can also make use of certain features by installing the following optional
+modules:
+
+=over 4
+
+=item *
+
+L<Devel::REPL::Plugin::NAS>
+
+=item *
+
+L<Devel::REPL>
+
+=item *
+
+L<IO::Interactive>
 
 =back
 

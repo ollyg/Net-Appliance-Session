@@ -3,7 +3,7 @@ NAME
     appliances
 
 VERSION
-    This document refers to version 0.22 of Net::Appliance::Session.
+    This document refers to version 1.23 of Net::Appliance::Session.
 
 SYNOPSIS
      use Net::Appliance::Session;
@@ -55,8 +55,9 @@ METHODS
     connection to the remote device is delayed until you "connect()".
 
     Named Parameters, passed as a hash to this constructor, are optional.
-    Some are described in "TRANSPORTS" and "CONFIGURATION" below. Any others
-    are passed directly to Net::Telnet (which dies on unknown parameters).
+    Some are described in "TRANSPORTS", "DIAGNOSTICS", and "CONFIGURATION"
+    below. Any others are passed directly to Net::Telnet (which dies on
+    unknown parameters).
 
     This method returns a new "Net::Appliance::Session" object.
 
@@ -377,6 +378,27 @@ DIAGNOSTICS
     additional methods (a.k.a. fields), "errmsg" and "lastline" which
     contain output from Net::Telnet diagnostics.
 
+  Using a "Devel::REPL" shell
+    This module supports an additional mode of failure which can be useful
+    when debugging "Net::Appliance::Session" scripts. Instead of having an
+    exception thrown as described above, you can be dropped into an
+    interactive shell at the connected device, if possible, instead.
+
+    A Devel::REPL shell is used, which means you also have the bonus of a
+    full Perl environment from which you can execute Perl code, test network
+    device commands, and save and load data from disk. Further information
+    on how to use the shell and its features is given in the
+    Devel::REPL::Plugin::NAS manual page.
+
+    As well as installing the "Devel::REPL" and "Devel::REPL::Plugin::NAS"
+    modules, you'll need to change the call to "new()" for this module, like
+    so:
+
+     my $s = Net::Appliance::Session->new(
+         Host => 'hostname.example',
+         REPL => 1,
+     );
+
 INTERNALS
     The guts of this module are pretty tricky, although I would also hope
     elegant, in parts ;-) In particular, the following "Net::Telnet" method
@@ -405,7 +427,16 @@ DEPENDENCIES
 
     *   Class::Accessor::Fast::Contained
 
-    *   Net::Appliance::Phrasebook >= 0.07
+    *   Net::Appliance::Phrasebook >= 1.2
+
+    You can also make use of certain features by installing the following
+    optional modules:
+
+    *   Devel::REPL::Plugin::NAS
+
+    *   Devel::REPL
+
+    *   IO::Interactive
 
 AUTHOR
     Oliver Gorwits "<oliver.gorwits@oucs.ox.ac.uk>"

@@ -15,7 +15,7 @@ WriteMakefile(
         'UNIVERSAL::require' => 0,
         'Class::Accessor::Fast::Contained' => 0,
         'Class::Accessor' => 0.25,
-        'Net::Appliance::Phrasebook' => 0.1,
+        'Net::Appliance::Phrasebook' => 1.2,
     },
     LICENSE             => 'GPLv2',
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
