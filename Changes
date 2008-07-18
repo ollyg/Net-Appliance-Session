@@ -1,3 +1,9 @@
+libnet-appliance-session-perl (1.24-1) UNRELEASED; urgency=low
+
+  * Add use of FileHandle in the Transport - seems to be a 5.10 issue?
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Fri, 18 Jul 2008 14:08:27 +0100
+
 libnet-appliance-session-perl (1.23-1) UNRELEASED; urgency=low
 
   * Added support for debugging shell on failure,

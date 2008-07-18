@@ -5,6 +5,7 @@ use warnings FATAL => 'all';
 
 use Net::Appliance::Session::Exceptions;
 use Net::Telnet;
+use FileHandle;
 use IO::Pty;
 use POSIX;
 
