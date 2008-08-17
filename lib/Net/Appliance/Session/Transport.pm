@@ -64,7 +64,9 @@ sub _connect_core {
 # minor alterations to use CORE::close and raise_error, and to reap child
 
 sub REAPER {
-    my $waitedpid = wait;
+    # http://www.perlmonks.org/?node_id=10516
+    my $stiff;
+    1 while (($stiff = waitpid(-1, &WNOHANG)) > 0);
     $SIG{CHLD} = \&REAPER;
 }
 
