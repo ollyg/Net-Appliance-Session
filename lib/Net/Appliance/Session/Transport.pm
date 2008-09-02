@@ -28,7 +28,7 @@ sub connect {
     if (scalar @_ % 2) {
         raise_error 'Odd number of arguments to connect()';
     }
-    my %args = Net::Appliance::Session::Util::_normalize(@_);
+    my %args = _normalize(@_);
 
     $self->_connect_core( %args );
 

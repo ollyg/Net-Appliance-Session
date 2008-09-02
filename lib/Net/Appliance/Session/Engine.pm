@@ -96,7 +96,7 @@ sub begin_privileged {
         ($username, $password) = @_;
     }
     elsif (scalar @_ == 4) {
-        my %args = Net::Appliance::Session::Util::_normalize(@_);
+        my %args = _normalize(@_);
         $username = $args{name};
         $password = $args{password};
     }
