@@ -4,6 +4,7 @@ lib/Net/Appliance/Session/Transport/Telnet.pm
 lib/Net/Appliance/Session/Transport/SSH.pm
 lib/Net/Appliance/Session/Transport.pm
 lib/Net/Appliance/Session/Engine.pm
+lib/Net/Appliance/Session/Util.pm
 lib/Net/Appliance/Session.pm
 lib/Net/Appliance/Session/Cookbook.pod
 lib/Net/Appliance/Session/Cookbook/Intro.pod
