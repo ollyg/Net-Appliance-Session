@@ -5,6 +5,7 @@ use warnings FATAL => 'all';
 
 use base 'Class::Data::Inheritable';
 use Net::Appliance::Session::Exceptions;
+use Net::Appliance::Session::Util;
 
 __PACKAGE__->mk_classdata(
     privileged_phrases => [qw/
@@ -95,9 +96,9 @@ sub begin_privileged {
         ($username, $password) = @_;
     }
     elsif (scalar @_ == 4) {
-        my %args = @_;
-        $username = $args{Name};
-        $password = $args{Password};
+        my %args = _normalize(@_);
+        $username = $args{name};
+        $password = $args{password};
     }
 
     if (! $password) {
@@ -155,22 +156,9 @@ sub end_privileged {
     raise_error 'Must leave configure mode before leaving privileged mode'
         if $self->in_configure_mode;
 
-    # XXX: don't try to optimise away this print() and waitfor() into a cmd()
-    # because they are needed to get the $match back!
-
-#    $self->print($self->pb->fetch('end_privileged_cmd'));
-#    my (undef, $match) = $self->waitfor($self->prompt)
-#        or $self->error('Failed to get prompt after leaving privileged mode');
-#
-#    # fairly dumb check to see that we're actually out of privileged
-#    # and back at a regular prompt
-#
-#    $self->error('Failed to leave privileged mode')
-#        if $match !~ eval 'qr'. $self->pb->fetch('basic_prompt');
-
     $self->cmd(
-    	String => $self->pb->fetch('end_privileged_cmd'),
-	Match  => [$self->pb->fetch('basic_prompt')],
+        String => $self->pb->fetch('end_privileged_cmd'),
+        Match  => [$self->pb->fetch('basic_prompt')],
     );
 
     $self->in_privileged_mode(0);

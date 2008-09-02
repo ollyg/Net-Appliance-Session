@@ -38,33 +38,33 @@ sub _connect_core {
     my $self = shift;
     my %args = @_;
 
-    $args{Parity} = 'none'        if !exists $args{Parity};
-    $args{Nostop} = 1             if !exists $args{Nostop};
-    $args{Line}   = '/dev/ttyS0'  if !exists $args{Line};
-    $args{Speed}  = 9600          if !exists $args{Speed};
-    $args{Sleep}  = 0             if !exists $args{Sleep};
-    $args{App}    = '/usr/bin/cu' if !exists $args{App};
+    $args{parity} = 'none'        if !exists $args{parity};
+    $args{nostop} = 1             if !exists $args{nostop};
+    $args{line}   = '/dev/ttyS0'  if !exists $args{line};
+    $args{speed}  = 9600          if !exists $args{speed};
+    $args{sleep}  = 0             if !exists $args{sleep};
+    $args{app}    = '/usr/bin/cu' if !exists $args{app};
 
-    if ($self->do_login and ! defined $args{Password}) {
+    if ($self->do_login and ! defined $args{password}) {
         raise_error "'Password' is a required parameter to connect"
                     . "when using active login";
     }
 
     # start the cu session, and get a pty for it
     my $pty = $self->_spawn_command(
-        $args{App},
-        ($args{Nostop} ? '--nostop' : '' ),
+        $args{app},
+        ($args{nostop} ? '--nostop' : '' ),
         '--line',   $args{Line},
         '--parity', $args{Parity},
         '--speed',  $args{Speed},
     )
-        or raise_error 'Unable to launch cu subprocess';
+        or raise_error 'Unable to launch subprocess for serial line';
 
     # set new pty as Net::Telnet's IO
     $self->fhopen($pty);
 
     # wake the serial connection up
-    sleep $args{Sleep};
+    sleep $args{sleep};
     $self->put("\r");
 
     # optionally, log in to the remote host
@@ -80,17 +80,17 @@ sub _connect_core {
         if ($match =~ eval 'qr'. $self->pb->fetch('user_prompt')) {
 
             # delayed check, only at this point know if Name was required
-            if (! defined $args{Name}) {
+            if (! defined $args{name}) {
                 raise_error "'Name' is a required parameter to connect"
                             . "when connecting to this host";
             }
 
-            $self->print($args{Name});
+            $self->print($args{name});
             $self->waitfor($self->pb->fetch('pass_prompt'))
                 or $self->error('Failed to get password prompt');
         }
 
-        $self->cmd($args{Password})
+        $self->cmd($args{password})
             or $self->error('Login failed at password prompt');
     }
     else {

@@ -11,9 +11,10 @@ use base qw(
     Class::Data::Inheritable
 ); # eventually, would Moosify this ?
 
-our $VERSION = 1.25;
+our $VERSION = 1.26;
 
 use Net::Appliance::Session::Exceptions;
+use Net::Appliance::Session::Util;
 use Net::Appliance::Phrasebook 1.2;
 use UNIVERSAL::require;
 use Carp;
@@ -59,10 +60,10 @@ sub new {
 
     # interpret params into hash so we can augment safely
     if (scalar @_ == 1) {
-        $args{Host} = shift @_;
+        $args{host} = shift @_;
     }
     elsif (! scalar @_ % 2) {
-        %args = @_;
+        %args = _normalize(@_);
     }
     else {
         raise_error "Error: odd number of paramters supplied to new()";
@@ -71,15 +72,15 @@ sub new {
     # our primary base is Net::Telnet, and it's quite sensitive to
     # unrecognized args, so take them out. this also prevents auto-connect
 
-    my $tprt = exists $args{Transport} ? delete $args{Transport} : 'SSH';
-    my $host = exists $args{Host}      ? delete $args{Host}      : undef;
-    my $chpb = exists $args{CheckPB}   ? delete $args{CheckPB}   : 1;
-    my $repl = exists $args{REPL}      ? delete $args{REPL}      : 0;
+    my $tprt = exists $args{transport} ? delete $args{transport} : 'SSH';
+    my $host = exists $args{host}      ? delete $args{host}      : undef;
+    my $chpb = exists $args{checkpb}   ? delete $args{checkpb}   : 1;
+    my $repl = exists $args{repl}      ? delete $args{repl}      : 0;
 
     my %pbargs = (); # arguments to Net::Appliance::Phrasebook->load
     $pbargs{platform} =
-        exists $args{Platform} ? delete $args{Platform} : 'IOS';
-    $pbargs{source} = delete $args{Source} if exists $args{Source};
+        exists $args{platform} ? delete $args{platform} : 'IOS';
+    $pbargs{source} = delete $args{source} if exists $args{source};
 
     # load up the transport, which is a wrapper for Net::Telnet
 
@@ -242,12 +243,12 @@ sub cmd {
         $string = shift @_;
     }
     else {
-        %args = @_;
-        ($string, $output) = @args{'String', 'Output'};
+        %args = _normalize(@_);
+        ($string, $output) = @args{'string', 'output'};
 
-        push @nt_args, ('Timeout', $args{Timeout}) if exists $args{Timeout};
-        push @nt_args, (map {( Match => $_ )} @{$args{Match}})
-            if exists $args{Match};
+        push @nt_args, ('Timeout', $args{timeout}) if exists $args{timeout};
+        push @nt_args, (map {( Match => $_ )} @{$args{match}})
+            if exists $args{match};
     }
 
     $self->last_command_sent($string); # to pass to error handler
@@ -308,7 +309,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-This document refers to version 1.25 of Net::Appliance::Session.
+This document refers to version 1.26 of Net::Appliance::Session.
 
 =head1 SYNOPSIS
 

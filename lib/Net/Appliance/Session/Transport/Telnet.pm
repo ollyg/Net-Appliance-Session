@@ -25,9 +25,9 @@ sub _connect_core {
     my $self = shift;
     my %args = @_;
     
-    my $timeout = delete $args{Timeout} || $self->timeout;
+    my $timeout = delete $args{timeout} || $self->timeout;
 
-    if ($self->do_login and ! defined $args{Password}) {
+    if ($self->do_login and ! defined $args{password}) {
         raise_error "'Password' is a required parameter to Telnet connect"
                     . "when using active login";
     }
@@ -53,17 +53,17 @@ sub _connect_core {
         if ($match =~ eval 'qr'. $self->pb->fetch('user_prompt')) {
 
             # delayed check, only at this point do we know if Name was required
-            if (! defined $args{Name}) {
+            if (! defined $args{name}) {
                 raise_error "'Name' is a required parameter to Telnet connect "
                             . "when connecting to this host";
             }
 
-            $self->print($args{Name});
+            $self->print($args{name});
             $self->waitfor($self->pb->fetch('pass_prompt'))
                 or $self->error('Failed to get password prompt');
         }
 
-        $self->print($args{Password});
+        $self->print($args{password});
     }
 
     $self->waitfor($self->prompt)

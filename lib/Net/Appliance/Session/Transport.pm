@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Net::Appliance::Session::Exceptions;
+use Net::Appliance::Session::Util;
 use Net::Telnet;
 use FileHandle;
 use IO::Pty;
@@ -27,15 +28,15 @@ sub connect {
     if (scalar @_ % 2) {
         raise_error 'Odd number of arguments to connect()';
     }
-    my %args = @_;
+    my %args = _normalize(@_);
 
     $self->_connect_core( %args );
 
-    if (! $self->get_username and exists $args{Name}) {
-        $self->set_username($args{Name});
+    if (! $self->get_username and exists $args{name}) {
+        $self->set_username($args{name});
     }
-    if (! $self->get_password and exists $args{Password}) {
-        $self->set_password($args{Password});
+    if (! $self->get_password and exists $args{password}) {
+        $self->set_password($args{password});
     }
 
     $self->logged_in(1);

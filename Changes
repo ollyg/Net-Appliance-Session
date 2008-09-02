@@ -1,3 +1,10 @@
+libnet-appliance-session-perl (1.26) UNRELEASED; urgency=low
+
+  * Make all method params case insensitive (requested by raimundh)
+    (this follows what Net::Telnet does)
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  2 Sep 2008 13:16:34 +0100
+
 libnet-appliance-session-perl (1.25) UNRELEASED; urgency=low
 
   * Fix the buggy SIGCHLD handler (reported by Andrew D. Clark)

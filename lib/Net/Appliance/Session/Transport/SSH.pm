@@ -30,14 +30,14 @@ sub _connect_core {
     my $self = shift;
     my %args = @_;
 
-    $args{Opts} = []             if !exists $args{Opts};
-    $args{App}  = '/usr/bin/ssh' if !exists $args{App};
+    $args{opts} = []             if !exists $args{opts};
+    $args{app}  = '/usr/bin/ssh' if !exists $args{app};
 
-    if (! defined $args{Name}) {
+    if (! defined $args{name}) {
         raise_error "'Name' is a required parameter to SSH connect";
     }
 
-    if ($self->do_login and ! defined $args{Password}) {
+    if ($self->do_login and ! defined $args{password}) {
         raise_error "'Password' is a required parameter to SSH connect"
                     . "when using active login";
     }
@@ -46,15 +46,15 @@ sub _connect_core {
         raise_error 'Cannot log in to an unspecified host!';
     }
 
-    if (exists $args{SHKC}) {
-        push @{$args{Opts}}, '-o', 'StrictHostKeyChecking='.
-            ($args{SHKC} ? 'yes' : 'no');
+    if (exists $args{shkc}) {
+        push @{$args{opts}}, '-o', 'StrictHostKeyChecking='.
+            ($args{shkc} ? 'yes' : 'no');
     }
 
     # start the SSH session, and get a pty for it
     my $pty = $self->_spawn_command(
-        $args{App}, '-l', $args{Name},
-        @{$args{Opts}},
+        $args{app}, '-l', $args{name},
+        @{$args{opts}},
         $self->host,
     )
         or raise_error 'Unable to launch ssh subprocess';
@@ -72,19 +72,19 @@ sub _connect_core {
         if ($match =~ eval 'qr'. $self->pb->fetch('user_prompt')) {
 
             # delayed check, only at this point do we know if Name was required
-            if (! defined $args{Name}) {
+            if (! defined $args{name}) {
                 raise_error "'Name' is a required parameter to SSH connect "
                             . "when connecting to this host";
             }
 
-            $self->print($args{Name});
+            $self->print($args{name});
             $self->waitfor($self->pb->fetch('pass_prompt'))
                 or $self->error('Failed to get password prompt');
         }
 
         # cannot cmd() here because sometimes there's a "helpful"
         # login banner
-        $self->print($args{Password});
+        $self->print($args{password});
     }
 
     $self->waitfor($self->prompt)
