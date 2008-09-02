@@ -63,7 +63,7 @@ sub new {
         $args{host} = shift @_;
     }
     elsif (! scalar @_ % 2) {
-        %args = _normalize(@_);
+        %args = Net::Appliance::Session::Util::_normalize(@_);
     }
     else {
         raise_error "Error: odd number of paramters supplied to new()";
@@ -243,7 +243,7 @@ sub cmd {
         $string = shift @_;
     }
     else {
-        %args = _normalize(@_);
+        %args = Net::Appliance::Session::Util::_normalize(@_);
         ($string, $output) = @args{'string', 'output'};
 
         push @nt_args, ('Timeout', $args{timeout}) if exists $args{timeout};

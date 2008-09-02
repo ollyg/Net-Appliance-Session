@@ -3,10 +3,6 @@ package Net::Appliance::Session::Util;
 use strict;
 use warnings FATAL => 'all';
 
-use base 'Exporter';
-
-our @EXPORT = qw(_normalize);
-
 # ===========================================================================
 
 sub _normalize {
