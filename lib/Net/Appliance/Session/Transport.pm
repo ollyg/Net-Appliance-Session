@@ -58,11 +58,8 @@ sub _connect_core {
     raise_error 'Incomplete Transport or there is no Transport loaded!';
 }
 
-# unfortunately this is true "Cargo Cult Programming", but I don't have the
-# time to work out why this code from Expect.pm works just fine and other
-# attempts using IO::Pty or Proc::Spawn do not.
-#
-# minor alterations to use CORE::close and raise_error, and to reap child
+# this code is based on that in Expect.pm, and found to be the most reliable.
+# minor alterations to use CORE::close and raise_error, and to reap child.
 
 sub REAPER {
     # http://www.perlmonks.org/?node_id=10516
