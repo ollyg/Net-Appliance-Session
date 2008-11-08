@@ -1,23 +1,25 @@
-use strict;
-use warnings;
-use ExtUtils::MakeMaker;
+use inc::Module::Install 0.67;
+perl_version '5.008001';
+  
+name        'Net-Appliance-Session';
+all_from    'lib/Net/Appliance/Session.pm';
 
-WriteMakefile(
-    NAME                => 'Net::Appliance::Session',
-    AUTHOR              => 'Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>',
-    VERSION_FROM        => 'lib/Net/Appliance/Session.pm',
-    ABSTRACT_FROM       => 'lib/Net/Appliance/Session.pm',
-    PL_FILES            => {},
-    PREREQ_PM => {
-        'IO::Pty' => 0,
-        'Net::Telnet' => 0,
-        'Exception::Class' => 0,
-        'UNIVERSAL::require' => 0,
-        'Class::Accessor::Fast::Contained' => 0,
-        'Class::Accessor' => 0.25,
-        'Net::Appliance::Phrasebook' => 1.2,
-    },
-    LICENSE             => 'GPLv2',
-    dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Net-Appliance-Session-*' },
-);
+requires    'IO::Pty' => 0;
+requires    'Net::Telnet' => 0;
+requires    'Exception::Class' => 0;
+requires    'UNIVERSAL::require' => 0;
+requires    'Class::Accessor::Fast::Contained' => 0;
+requires    'Class::Accessor' => 0.25;
+requires    'Class::Data::Inheritable' => 0;
+requires    'Net::Appliance::Phrasebook' => 1.7;
+
+recommends  'IO::Interactive' => 0;
+recommends  'Devel::REPL' => 0;
+recommends  'Devel::REPL::Plugin::NAS' => 0;
+
+test_requires  'Test::More' => 0;
+test_requires  'Test::Pod' => 0;
+test_requires  'Test::Pod::Coverage' => 0;
+
+WriteAll;
+

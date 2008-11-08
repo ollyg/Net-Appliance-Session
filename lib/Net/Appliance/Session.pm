@@ -11,7 +11,8 @@ use base qw(
     Class::Data::Inheritable
 ); # eventually, would Moosify this ?
 
-our $VERSION = 1.26;
+our $VERSION = '1.31';
+$VERSION = eval $VERSION; # numify for warning-free dev releases
 
 use Net::Appliance::Session::Exceptions;
 use Net::Appliance::Session::Util;
@@ -309,7 +310,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-This document refers to version 1.26 of Net::Appliance::Session.
+This document refers to version 1.31 of Net::Appliance::Session.
 
 =head1 SYNOPSIS
 
@@ -804,23 +805,14 @@ Oliver Gorwits C<< <oliver.gorwits@oucs.ox.ac.uk> >>
 =head1 ACKNOWLEDGEMENTS
 
 Parts of this module are based on the work of Robin Stevens and Roger Treweek.
-The SSH command spawning code was based on that in C<Expect.pm> and is
-copyright Roland Giersig and/or Austin Schutz.
+The command spawning code was based on that in C<Expect.pm> and is copyright
+Roland Giersig and/or Austin Schutz.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright (c) The University of Oxford 2006. All Rights Reserved.
+Copyright (c) The University of Oxford 2008.
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of version 2 of the GNU General Public License as published by the
-Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
-St, Fifth Floor, Boston, MA 02110-1301 USA
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
 
 =cut

@@ -1,3 +1,10 @@
+libnet-appliance-session-perl (1.31) UNRELEASED; urgency=low
+
+  * Move to using Module::Install
+  * Update License to be same terms as Perl
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat,  8 Nov 2008 17:08:58 +0000
+
 libnet-appliance-session-perl (1.26) UNRELEASED; urgency=low
 
   * Make all method params case insensitive (requested by raimundh)
