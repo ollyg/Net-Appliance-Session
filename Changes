@@ -1,3 +1,9 @@
+libnet-appliance-session-perl (1.32) UNRELEASED; urgency=low
+
+  * Fix bug in Telnet with no username (RT.cpan #40229) thanks to mstefanov
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat,  8 Nov 2008 21:12:38 +0000
+
 libnet-appliance-session-perl (1.31) UNRELEASED; urgency=low
 
   * Move to using Module::Install

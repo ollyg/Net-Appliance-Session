@@ -106,7 +106,7 @@ sub begin_privileged {
     }
 
     # decide whether to explicitly login or just enable
-    if ($username ne $self->get_username) {
+    if (defined($username) && $username ne $self->get_username) {
         $self->print($self->pb->fetch('begin_privileged_with_user_cmd'));
     }
     else {
