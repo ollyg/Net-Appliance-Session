@@ -1,3 +1,10 @@
+libnet-appliance-session-perl (1.33) UNRELEASED; urgency=low
+
+  * Mention enable_paging and disable_paging methods (RT#40783) 
+  * Do not import symbols from POSIX (reported by Dominik Gehl)
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 30 Dec 2008 22:08:13 +0000
+
 libnet-appliance-session-perl (1.32) UNRELEASED; urgency=low
 
   * Fix bug in Telnet with no username (RT.cpan #40229) thanks to mstefanov

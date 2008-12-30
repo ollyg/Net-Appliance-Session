@@ -11,7 +11,7 @@ use base qw(
     Class::Data::Inheritable
 ); # eventually, would Moosify this ?
 
-our $VERSION = '1.32';
+our $VERSION = '1.33';
 $VERSION = eval $VERSION; # numify for warning-free dev releases
 
 use Net::Appliance::Session::Exceptions;
@@ -310,7 +310,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-This document refers to version 1.32 of Net::Appliance::Session.
+This document refers to version 1.33 of Net::Appliance::Session.
 
 =head1 SYNOPSIS
 
@@ -549,6 +549,18 @@ pager management:
 Passing any False value to this method prevents C<connect()> and C<close()>
 from respectively disabling and re-enabling paging on the device. By default
 paging management is enabled.
+
+=head3 C<enable_paging> and C<disable_paging>
+
+If you have an installation which requires manual issueing of paging
+commands to the device, then call these methods to take that action. Note that
+C<do_paging> must have been passed a True value otherwise these methods will
+short-circuit thinking you don't want paging.
+
+In other words, to page manually, set C<do_paging> to False at the start of
+your session, before connecting, and then set it to True as you call either of
+these methods. This dancing around will probably be fixed in a forthcoming
+release of Net::Appliance::Session.
 
 =head3 C<set_pager_disable_lines>
 

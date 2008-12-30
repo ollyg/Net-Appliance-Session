@@ -3,7 +3,7 @@ NAME
     appliances
 
 VERSION
-    This document refers to version 1.32 of Net::Appliance::Session.
+    This document refers to version 1.33 of Net::Appliance::Session.
 
 SYNOPSIS
      use Net::Appliance::Session;
@@ -219,6 +219,17 @@ CONFIGURATION
     Passing any False value to this method prevents "connect()" and
     "close()" from respectively disabling and re-enabling paging on the
     device. By default paging management is enabled.
+
+   "enable_paging" and "disable_paging"
+    If you have an installation which requires manual issueing of paging
+    commands to the device, then call these methods to take that action.
+    Note that "do_paging" must have been passed a True value otherwise these
+    methods will short-circuit thinking you don't want paging.
+
+    In other words, to page manually, set "do_paging" to False at the start
+    of your session, before connecting, and then set it to True as you call
+    either of these methods. This dancing around will probably be fixed in a
+    forthcoming release of Net::Appliance::Session.
 
    "set_pager_disable_lines"
     Net::Appliance::Session assumes that the command to disable the pager
