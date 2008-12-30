@@ -11,7 +11,7 @@ use base qw(
     Class::Data::Inheritable
 ); # eventually, would Moosify this ?
 
-our $VERSION = '1.33';
+our $VERSION = '1.34';
 $VERSION = eval $VERSION; # numify for warning-free dev releases
 
 use Net::Appliance::Session::Exceptions;
@@ -310,7 +310,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-This document refers to version 1.33 of Net::Appliance::Session.
+This document refers to version 1.34 of Net::Appliance::Session.
 
 =head1 SYNOPSIS
 
@@ -618,16 +618,21 @@ The default operation of Net::Appliance::Session is to assume that the target
 is running a form of Cisco's IOS, so if this is the case you should not need
 to modify any settings.
 
-Limited support is also available, via the C<< Net::Appliance::Phrasebook >>
-module, for the following operating systems:
+Support is also available, via the C<< Net::Appliance::Phrasebook >> module,
+for the following operating systems:
 
  IOS     # the default
+  
  Aironet # currently the same as the default
-
  CATOS   # for older, pre-IOS Cisco devices
- PIXOS   # for PIX OS-based devices (including FWSM Release 2.x)
+ PIXOS   # for PIX OS-based devices
+ PIXOS7  # Slightly different commands from other PIXOS versions
  FWSM    # currently the same as 'PIXOS'
  FWSM3   # for FWSM Release 3.x devices (slightly different to FWSM 2.x)
+  
+ JUNOS   # Juniper JUNOS support
+ HP      # Basic HP support
+ Nortel  # Basic Nortel support
 
 To select a phrasebook, pass an optional C<Platform> parameter to the C<new>
 method like so:
