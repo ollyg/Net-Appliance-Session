@@ -8,7 +8,6 @@ use Net::Appliance::Session::Util;
 use Net::Telnet;
 use FileHandle;
 use IO::Pty;
-use POSIX ();
 
 # ===========================================================================
 # base class for transports - just a Net::Telnet instance factory, really.
@@ -81,7 +80,7 @@ sub _spawn_command {
     pipe(STAT_RDR, STAT_WTR) or raise_error "Cannot open pipe: $!";
     STAT_WTR->autoflush(1);
     eval {
-        fcntl(STAT_WTR, POSIX::F_SETFD, POSIX::FD_CLOEXEC);
+        fcntl(STAT_WTR, F_SETFD, FD_CLOEXEC);
     };
 
     my $pid = fork;
