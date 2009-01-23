@@ -11,7 +11,7 @@ use base qw(
     Class::Data::Inheritable
 ); # eventually, would Moosify this ?
 
-our $VERSION = '1.35';
+our $VERSION = '1.36';
 $VERSION = eval $VERSION; # numify for warning-free dev releases
 
 use Net::Appliance::Session::Exceptions;
@@ -310,7 +310,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-This document refers to version 1.35 of Net::Appliance::Session.
+This document refers to version 1.36 of Net::Appliance::Session.
 
 =head1 SYNOPSIS
 

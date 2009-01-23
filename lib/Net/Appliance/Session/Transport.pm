@@ -8,6 +8,7 @@ use Net::Appliance::Session::Util;
 use Net::Telnet;
 use FileHandle;
 use IO::Pty;
+use POSIX qw(WNOHANG);
 
 # ===========================================================================
 # base class for transports - just a Net::Telnet instance factory, really.

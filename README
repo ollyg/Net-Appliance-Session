@@ -3,7 +3,7 @@ NAME
     appliances
 
 VERSION
-    This document refers to version 1.35 of Net::Appliance::Session.
+    This document refers to version 1.36 of Net::Appliance::Session.
 
 SYNOPSIS
      use Net::Appliance::Session;
@@ -289,15 +289,15 @@ CONFIGURATION
     for the following operating systems:
 
      IOS     # the default
-      
- Aironet # currently the same as the default
+  
+     Aironet # currently the same as the default
      CATOS   # for older, pre-IOS Cisco devices
      PIXOS   # for PIX OS-based devices
      PIXOS7  # Slightly different commands from other PIXOS versions
      FWSM    # currently the same as 'PIXOS'
      FWSM3   # for FWSM Release 3.x devices (slightly different to FWSM 2.x)
-      
- JUNOS   # Juniper JUNOS support
+  
+     JUNOS   # Juniper JUNOS support
      HP      # Basic HP support
      Nortel  # Basic Nortel support
 
