@@ -39,7 +39,7 @@ sub _connect_core {
     my %args = @_;
 
     $args{parity} = 'none'        if !exists $args{parity};
-    $args{nostop} = 1             if !exists $args{nostop};
+    $args{nostop} = 0             if !exists $args{nostop};
     $args{line}   = '/dev/ttyS0'  if !exists $args{line};
     $args{speed}  = 9600          if !exists $args{speed};
     $args{sleep}  = 0             if !exists $args{sleep};
@@ -53,10 +53,10 @@ sub _connect_core {
     # start the cu session, and get a pty for it
     my $pty = $self->_spawn_command(
         $args{app},
-        ($args{nostop} ? '--nostop' : '' ),
-        '--line',   $args{Line},
-        '--parity', $args{Parity},
-        '--speed',  $args{Speed},
+        ($args{nostop} ? '--nostop' : () ),
+        '--line',   $args{line},
+        '--parity', $args{parity},
+        '--speed',  $args{speed},
     )
         or raise_error 'Unable to launch subprocess for serial line';
 
