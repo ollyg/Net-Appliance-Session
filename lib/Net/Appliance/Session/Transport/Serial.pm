@@ -53,10 +53,10 @@ sub _connect_core {
     # start the cu session, and get a pty for it
     my $pty = $self->_spawn_command(
         $args{app},
+        "--parity=$args{parity}",
+        '-l', $args{line},
+        '-s', $args{speed},
         ($args{nostop} ? '--nostop' : () ),
-        '--line',   $args{line},
-        '--parity', $args{parity},
-        '--speed',  $args{speed},
     )
         or raise_error 'Unable to launch subprocess for serial line';
 
