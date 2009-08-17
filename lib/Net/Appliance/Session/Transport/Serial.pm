@@ -67,6 +67,14 @@ sub _connect_core {
     sleep $args{sleep};
     $self->put("\r");
 
+    # rt.cpan#47214 check if we are already logged in by peeking the prompt
+    my ($l_prematch, $l_match) = $self->waitfor(
+        Match => $self->pb->fetch('prompt'),
+        Errmode    => 'return',
+        Timeout    => 5,
+    );
+    return $self if defined $l_match;
+
     # optionally, log in to the remote host
     if ($self->do_login) {
 

@@ -59,6 +59,8 @@ sub new {
     my $class = shift @_;
     my %args;
 
+    print "Development Version $VERSION\n\n" if $ENV{DEV};
+
     # interpret params into hash so we can augment safely
     if (scalar @_ == 1) {
         $args{host} = shift @_;

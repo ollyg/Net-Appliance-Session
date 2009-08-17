@@ -84,6 +84,12 @@ sub begin_privileged {
     raise_error 'Must connect before you can begin_privileged'
         unless $self->logged_in;
 
+    # rt.cpan#47214 check if we are already enabled by peeking the prompt
+    if ($self->last_prompt =~ eval 'qr'. $self->pb->fetch('privileged_prompt')) {
+        $self->in_privileged_mode(1);
+        return $self;
+    }
+
     # default is to reuse login credentials
     my $username = $self->get_username;
     my $password = $self->get_password;
@@ -192,6 +198,12 @@ sub begin_configure {
 
     raise_error 'Must enter privileged mode before configure mode'
         unless $self->in_privileged_mode;
+
+    # rt.cpan#47214 check if we are already in config by peeking the prompt
+    if ($self->last_prompt =~ eval 'qr'. $self->pb->fetch('configure_prompt')) {
+        $self->in_configure_mode(1);
+        return $self;
+    }
 
     # XXX: don't try to optimise away this print() and waitfor() into a cmd()
     # because they are needed to get the $match back!
