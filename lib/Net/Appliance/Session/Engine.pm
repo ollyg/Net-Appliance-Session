@@ -34,10 +34,15 @@ sub enable_paging {
     raise_error "Definition of 'paging_cmd' missing from phrasebook!"
         if ! eval {$self->pb->fetch('paging_cmd')};
 
-    $self->cmd(
-        $self->pb->fetch('paging_cmd') .' '. $self->get_pager_enable_lines
-    )
+    my $privstate = $self->in_privileged_mode;
+    $self->begin_privileged if $self->privileged_paging;
+
+    $self->cmd( $self->pb->fetch('paging_cmd')
+                .' '. $self->get_pager_enable_lines )
         or $self->error('Failed to enable paging');
+
+    $self->end_privileged
+        if $self->privileged_paging and not $privstate;
 
     return $self;
 }
@@ -50,10 +55,15 @@ sub disable_paging {
     raise_error "Definition of 'paging_cmd' missing from phrasebook!"
         if ! eval {$self->pb->fetch('paging_cmd')};
 
-    $self->cmd(
-        $self->pb->fetch('paging_cmd') .' '. $self->get_pager_disable_lines
-    )
+    my $privstate = $self->in_privileged_mode;
+    $self->begin_privileged if $self->privileged_paging;
+
+    $self->cmd( $self->pb->fetch('paging_cmd')
+                .' '. $self->get_pager_disable_lines )
         or $self->error('Failed to disable paging');
+
+    $self->end_privileged
+        if $self->privileged_paging and not $privstate;
 
     return $self;
 }

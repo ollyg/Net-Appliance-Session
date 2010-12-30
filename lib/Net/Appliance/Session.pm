@@ -26,6 +26,7 @@ __PACKAGE__->mk_accessors(qw(
     do_login
     do_privileged_mode
     do_configure_mode
+    privileged_paging
     check_pb
     childpid
     fail_with_repl
@@ -124,7 +125,9 @@ sub new {
     $self->do_login(1);
     $self->do_privileged_mode(1);
     $self->do_configure_mode(1);
+    $self->privileged_paging(0);
     $self->last_command_sent('');
+    $self->close_called(0);
 
     return $self;
 }
@@ -313,6 +316,7 @@ sub cmd {
 
  use Net::Appliance::Session;
  my $s = Net::Appliance::Session->new('hostname.example');
+ $s->privileged_paging(1); # if using ASA/PIX OS 7+
 
  eval {
      $s->connect(Name => 'username', Password => 'loginpass');
@@ -570,6 +574,13 @@ number, which has a default of zero in the module.
 Likewise, to re-enable paging Net::Appliance::Session will call the pager
 management command with a value for the number of output lines per page. Pass
 this method a value to override the default of 24.
+
+=head3 C<privileged_paging>
+
+On some series of devices, in particular the Cisco ASA and PIXOS7+ you must be
+in privileged mode in order to alter the pager. If that is the case for your
+device, call this method with a true value to instruct the module to better
+manage the situation.
 
 =head2 Command mode
 
