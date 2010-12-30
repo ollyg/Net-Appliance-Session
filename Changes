@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * Observe output_record_separator, thanks Steve at Computurn (rt.cpan #55187)
+
 2.103640  2010-12-30 20:54:56 Europe/London
 
   * Port to Dist::Zilla

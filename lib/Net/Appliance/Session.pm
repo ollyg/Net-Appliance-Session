@@ -252,7 +252,8 @@ sub cmd {
     $self->last_command_sent($string); # to pass to error handler
     my $completion = ($string =~ s/\?$//); # command line completion?
 
-    $self->put($string . ($completion ? $self->pb->fetch('completion') : "\n"))
+    $self->put($string . ($completion ? $self->pb->fetch('completion')
+                                      : $self->output_record_separator))
         or $self->error('Incomplete command write: only '.
                         $self->print_length .' bytes have been sent');
 
