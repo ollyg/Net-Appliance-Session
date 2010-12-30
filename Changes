@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+2.103641  2010-12-30 21:28:09 Europe/London
+
   * Observe output_record_separator, thanks Steve C. (rt.cpan #55187)
   * Protect against death spiral in timeout/close, also Steve C. (rt.cpan #53796)
   * Implement privileged_pagin method to manage ASA/PIX 7+ - Paul Graydon (rt.cpan #63359)
