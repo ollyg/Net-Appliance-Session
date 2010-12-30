@@ -1,6 +1,7 @@
 {{$NEXT}}
 
-  * Observe output_record_separator, thanks Steve at Computurn (rt.cpan #55187)
+  * Observe output_record_separator, thanks Steve C. (rt.cpan #55187)
+  * Protect against death spiral in timeout/close, also Steve C. (rt.cpan #53796)
 
 2.103640  2010-12-30 20:54:56 Europe/London
 

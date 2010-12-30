@@ -30,6 +30,7 @@ __PACKAGE__->mk_accessors(qw(
     childpid
     fail_with_repl
     last_command_sent
+    close_called
 ));
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(qw(
@@ -132,6 +133,10 @@ sub new {
 # of any nested modes correctly
 sub close {
     my $self = shift;
+
+    # protect against death spiral (rt.cpan #53796)
+    return if $self->close_called;
+    $self->close_called(1);
 
     my $caller = ( caller(1) )[3];
 
