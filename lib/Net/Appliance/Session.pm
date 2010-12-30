@@ -11,9 +11,6 @@ use base qw(
     Class::Data::Inheritable
 ); # eventually, would Moosify this ?
 
-our $VERSION = '1.36';
-$VERSION = eval $VERSION; # numify for warning-free dev releases
-
 use Net::Appliance::Session::Exceptions;
 use Net::Appliance::Session::Util;
 use Net::Appliance::Phrasebook 1.2;
@@ -306,13 +303,7 @@ sub cmd {
 
 1;
 
-=head1 NAME
-
-Net::Appliance::Session - Run command-line sessions to network appliances
-
-=head1 VERSION
-
-This document refers to version 1.36 of Net::Appliance::Session.
+# ABSTRACT: Run command-line sessions to network appliances
 
 =head1 SYNOPSIS
 
@@ -817,21 +808,10 @@ L<IO::Interactive>
 
 =back
 
-=head1 AUTHOR
-
-Oliver Gorwits C<< <oliver.gorwits@oucs.ox.ac.uk> >>
-
 =head1 ACKNOWLEDGEMENTS
 
 Parts of this module are based on the work of Robin Stevens and Roger Treweek.
 The command spawning code was based on that in C<Expect.pm> and is copyright
 Roland Giersig and/or Austin Schutz.
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright (c) The University of Oxford 2008.
-
-This library is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
 
 =cut

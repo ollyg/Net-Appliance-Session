@@ -76,9 +76,7 @@ sub _connect_core {
 
 1;
 
-=head1 NAME
-
-Net::Appliance::Session::Transport::Telnet
+# ABSTRACT: Connections using TELNET
 
 =head1 SYNOPSIS
 
@@ -145,25 +143,3 @@ default connect timeout value of 10 seconds.
 The default operation is to time out after 10 seconds.
 
 =back
-
-=head1 AUTHOR
-
-Oliver Gorwits C<< <oliver.gorwits@oucs.ox.ac.uk> >>
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright (c) The University of Oxford 2006. All Rights Reserved.
-
-This program is free software; you can redistribute it and/or modify it under
-the terms of version 2 of the GNU General Public License as published by the
-Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
-St, Fifth Floor, Boston, MA 02110-1301 USA
-
-=cut

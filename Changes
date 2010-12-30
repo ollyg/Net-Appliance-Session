@@ -1,3 +1,7 @@
+{{$NEXT}}
+
+  * Port to Dist::Zilla
+
 libnet-appliance-session-perl (1.36) UNRELEASED; urgency=low
 
   * Add import of WNOHANG symbol from POSIX (reported by Dominik Gehl) 

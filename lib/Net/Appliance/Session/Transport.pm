@@ -147,9 +147,7 @@ sub _spawn_command {
 
 1;
 
-=head1 NAME
-
-Net::Appliance::Session::Transport
+# ABSTRACT: Base class for Session Transports
 
 =head1 DESCRIPTION
 
@@ -181,29 +179,4 @@ L<Net::Appliance::Session::Transport::Telnet>
 The SSH command spawning code was based on that in C<Expect.pm> and is
 copyright Roland Giersig and/or Austin Schutz.
 
-=head1 AUTHOR
-
-Oliver Gorwits C<< <oliver.gorwits@oucs.ox.ac.uk> >>
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright (c) The University of Oxford 2006. All Rights Reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under
-the terms of version 2 of the GNU General Public License as published by the
-Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-details.
-
-You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 51
-Franklin
-St, Fifth Floor, Boston, MA 02110-1301 USA
-
 =cut
-
