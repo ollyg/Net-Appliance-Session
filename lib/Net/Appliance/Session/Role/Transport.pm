@@ -1,9 +1,8 @@
-package Net::Appliance::Session::Transport;
+package Net::Appliance::Session::Role::Transport;
 
 use Moose::Role;
 use IPC::Run qw(start pump finish timer timeout);
-
-#requires qw(app opts hostname);
+# requires qw(app opts host);
 
 has 'irs' => (
     is => 'ro',
