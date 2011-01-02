@@ -1,0 +1,47 @@
+state user_prompt
+    match /[Uu]sername/
+
+state pass_prompt
+    match /[Pp]assword: ?$/
+
+state user_exec
+    match /> ?$/
+
+state priv_exec
+    match /# ?$/
+
+state configure
+    match /\(config[^)]*\)# ?$/
+
+
+from user_prompt to pass_prompt
+    send $self->username
+
+from pass_prompt to user_exec
+    send $self->password
+
+from pass_prompt to priv_exec
+    send $self->password
+
+from user_exec to priv_exec
+    send enable
+
+from priv_exec to user_exec
+    send disable
+
+from priv_exec to configure
+    send configure terminal
+
+from configure to priv_exec
+    send exit
+
+
+macro write_mem
+    send copy running-config startup-config
+    match /Destination filename \[startup-config\]\?$/
+    send startup-config
+
+macro show_run
+    send show running-config
+    continuation /--More--/
+
