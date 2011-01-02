@@ -7,40 +7,48 @@ use IPC::Run qw(start pump finish timer timeout);
 
 has 'irs' => (
     is => 'ro',
+    isa => 'Str',
     default => sub { "\n" },
     required => 0,
 );
 
 has 'ors' => (
     is => 'ro',
+    isa => 'Str',
     default => sub { "\n" },
     required => 0,
 );
 
 has '_in' => (
     is => 'rw',
+    isa => 'ScalarRef',
     default => sub { \eval "''" },
     required => 0,
 );
 
+# writer for the _in slot which is a scalar ref
 sub send { ${ (shift)->_in } .= shift }
 
 has '_out' => (
     is => 'ro',
+    isa => 'ScalarRef',
     default => sub { \eval "''" },
     required => 0,
 );
 
+# reader for the _out slot which is a scalar ref
 sub out { ${ (shift)->_out } }
 
 has '_err' => (
     is => 'ro',
+    isa => 'ScalarRef',
     default => sub { \eval "''" },
     required => 0,
 );
 
 has 'harness' => (
     is => 'rw',
+    isa => 'IPC::Run',
     required => 0,
 );
 

@@ -4,55 +4,53 @@ use Moose;
 
 has 'states' => (
     is => 'ro',
+    isa => 'HashRef[ArrayRef]',
     default => sub { {} },
     required => 0,
 );
 
 has 'macros' => (
     is => 'ro',
+    isa => 'HashRef[ArrayRef]',
     default => sub { {} },
     required => 0,
 );
 
 has 'transitions' => (
     is => 'ro',
+    isa => 'HashRef[ArrayRef]',
     default => sub { {} },
     required => 0,
 );
 
 has 'host' => (
     is => 'rw',
-#    isa => sub { die (sprintf "bad hostname '%s'\n", ($_[0] || ''))
-#        unless defined $_[0] and length $_[0] > 0 },
+    isa => 'Str',
     required => 1,
 );
 
 has 'personality' => (
     is => 'rw',
-#    isa => sub { die (sprintf "bad personality '%s'\n", ($_[0] || ''))
-#        unless defined $_[0] and length $_[0] > 0 },
+    isa => 'Str',
     required => 1,
 );
 
 has 'transport' => (
     is => 'ro',
-#    isa => sub { die "no transport $_[0]: $@\n"
-#        unless eval "require Net::Appliance::Session::Transport::$_[0]" },
+    isa => 'Str',
     required => 1,
 );
 
 has 'library' => (
     is => 'ro',
-#    isa => sub { die "bad library spec"
-#        unless ref $_[0] eq ref [] or length $_[0] },
+    isa => 'Str|ArrayRef[Str]',
     default => sub { ['share'] },
     required => 0,
 );
 
 has 'add_library' => (
     is => 'ro',
-#    isa => sub { die "bad add_library spec"
-#        unless ref $_[0] eq ref [] or length $_[0] },
+    isa => 'Str|ArrayRef[Str]',
     default => sub { [] },
     required => 0,
 );
@@ -62,12 +60,8 @@ sub BUILD {
 
     $self->_load_graph;
 
-    #use Class::MOP;
-    #Class::MOP::load_class
     use Moose::Util;
     Moose::Util::apply_all_roles($self, 
-    #require Role::Tiny;
-    #Role::Tiny->apply_roles_to_object($self,
         'Net::Appliance::Session::Transport::'. $self->transport);
 }
 
