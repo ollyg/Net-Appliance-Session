@@ -1,4 +1,4 @@
-package NAS::Node::Action;
+package Net::Appliance::Session::Node::Action;
 
 use Moo;
 

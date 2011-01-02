@@ -1,4 +1,4 @@
-package NAS;
+package Net::Appliance::Session;
 
 use Moo;
 
@@ -30,7 +30,8 @@ has 'personality' => (
 
 has 'transport' => (
     is => 'ro',
-    isa => sub { die "no transport $_[0]\n" unless eval "require NAS::Transport::$_[0]" },
+    isa => sub { die "no transport $_[0]\n"
+        unless eval "require Net::Appliance::Session::Transport::$_[0]" },
     required => 1,
 );
 
@@ -54,18 +55,20 @@ sub BUILD {
     $self->_load_graph;
 
     require Role::Tiny;
-    Role::Tiny->apply_roles_to_object($self, 'NAS::Transport::'. $self->transport);
+    Role::Tiny->apply_roles_to_object($self,
+        'Net::Appliance::Session::Transport::'. $self->transport);
 }
 
 # inflate the hashref into action objects
-use NAS::Node::Action;
+use Net::Appliance::Session::Node::Action;
 sub _bake {
     my ($self, $data) = @_;
     return unless ref $data eq ref {} and keys %$data;
 
     my $slot = (lc $data->{type}) . 's'; # fragile
     $self->$slot->{$data->{name}}
-        = [ map {NAS::Node::Action->new($_)} @{$data->{actions}} ];
+        = [ map {Net::Appliance::Session::Node::Action->new($_)}
+                @{$data->{actions}} ];
 }
 
 # parse phrasebook files and load action objects

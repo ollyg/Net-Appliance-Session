@@ -1,4 +1,4 @@
-package NAS::Transport::Telnet;
+package Net::Appliance::Session::Transport::Telnet;
 
 use Moo::Role;
 
