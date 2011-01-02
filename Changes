@@ -1,0 +1,188 @@
+{{$NEXT}}
+
+2.103641  2010-12-30 21:28:09 Europe/London
+
+  * Observe output_record_separator, thanks Steve C. (rt.cpan #55187)
+  * Protect against death spiral in timeout/close, also Steve C. (rt.cpan #53796)
+  * Implement privileged_pagin method to manage ASA/PIX 7+ - Paul Graydon (rt.cpan #63359)
+
+2.103640  2010-12-30 20:54:56 Europe/London
+
+  * Port to Dist::Zilla
+
+libnet-appliance-session-perl (1.36) UNRELEASED; urgency=low
+
+  * Add import of WNOHANG symbol from POSIX (reported by Dominik Gehl) 
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Fri, 23 Jan 2009 08:32:13 +0000
+
+libnet-appliance-session-perl (1.35) UNRELEASED; urgency=low
+
+  * Fix again for imported POSIX symbols on CENTOS 5 (reported by Dominik Gehl) 
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Wed, 31 Dec 2008 12:10:22 +0000
+
+libnet-appliance-session-perl (1.34) UNRELEASED; urgency=low
+
+  * Fix pod to mention new supported devices (JUNOS, HP, Nortel) 
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 30 Dec 2008 22:45:48 +0000
+
+libnet-appliance-session-perl (1.33) UNRELEASED; urgency=low
+
+  * Mention enable_paging and disable_paging methods (RT#40783) 
+  * Do not import symbols from POSIX (reported by Dominik Gehl)
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 30 Dec 2008 22:08:13 +0000
+
+libnet-appliance-session-perl (1.32) UNRELEASED; urgency=low
+
+  * Fix bug in Telnet with no username (RT.cpan #40229) thanks to mstefanov
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat,  8 Nov 2008 21:12:38 +0000
+
+libnet-appliance-session-perl (1.31) UNRELEASED; urgency=low
+
+  * Move to using Module::Install
+  * Update License to be same terms as Perl
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat,  8 Nov 2008 17:08:58 +0000
+
+libnet-appliance-session-perl (1.26) UNRELEASED; urgency=low
+
+  * Make all method params case insensitive (requested by raimundh)
+    (this follows what Net::Telnet does)
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  2 Sep 2008 13:16:34 +0100
+
+libnet-appliance-session-perl (1.25) UNRELEASED; urgency=low
+
+  * Fix the buggy SIGCHLD handler (reported by Andrew D. Clark)
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sun, 17 Aug 2008 18:33:23 +0100
+
+libnet-appliance-session-perl (1.24) UNRELEASED; urgency=low
+
+  * Add use of FileHandle in the Transport - seems to be a 5.10 issue?
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Fri, 18 Jul 2008 14:08:27 +0100
+
+libnet-appliance-session-perl (1.23) UNRELEASED; urgency=low
+
+  * Added support for debugging shell on failure,
+    see Devel::REPL::Plugin::NAS
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  3 Jun 2008 17:41:01 +0100
+
+libnet-appliance-session-perl (0.22) UNRELEASED; urgency=low
+
+  * Add disconnect method to Transport, as a noop except for Serial
+    (see RT.cpan#35937)
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat, 17 May 2008 20:28:32 +0100
+
+libnet-appliance-session-perl (0.21) unstable; urgency=low
+
+  * Send SIGKILL to child if we're running in cygwin 
+  * Minor fix to typo in Cookbook
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat,  2 Feb 2008 19:12:28 +0000
+
+libnet-appliance-session-perl (0.19) unstable; urgency=low
+
+  * Bug fix for not setting last prompt (thx miky)
+  * Minor change to docs to mention setting in_foo_mode
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sat, 19 Jan 2008 21:51:29 +0000
+
+libnet-appliance-session-perl (0.18) unstable; urgency=low
+
+  * Now automatically reap child processes
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sun, 23 Dec 2007 14:35:03 +0000
+
+libnet-appliance-session-perl (0.17) unstable; urgency=low
+
+  * Minor fixes to Cookbook POD to improve CPAN rendering.
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  4 Dec 2007 21:08:00 +0000
+
+libnet-appliance-session-perl (0.16) unstable; urgency=low
+
+  * Add Cookbook courtesy of Nigel Bowden.
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  4 Dec 2007 19:06:00 +0000
+
+libnet-appliance-session-perl (0.15) unstable; urgency=low
+
+  * Users report that the child reaping isn't stable across all systems, so
+    revert to old system of doing nothing
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  3 Jul 2007 16:40:00 +0100
+
+libnet-appliance-session-perl (0.14) unstable; urgency=low
+
+  * Allow SSH Transport to handle username prompts,
+    suggestion courtesy of Nigel Bowden
+  * Set Unix systems to automatically reap child processes
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue,  3 Jul 2007 13:23:00 +0100
+
+libnet-appliance-session-perl (0.13) unstable; urgency=low
+
+  * Bug in my use of Class::Data::Inheritable. A schoolboy-error :(
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Mon, 29 Jan 2007 16:48:00 +0000
+
+libnet-appliance-session-perl (0.12) unstable; urgency=low
+
+  * Bug in SSH Transport which would catch someone out one day
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sun, 28 Jan 2007 23:46:00 +0000
+
+libnet-appliance-session-perl (0.11) unstable; urgency=low
+
+  * Add CheckPB option to allow (almost) complete disabling of phrasebook
+    entry checks
+  * Separate out phrasebook entry checking in case not all required (e.g. not
+    going to use configure mode)
+  * Add special named argument to cmd() allowing operation more like
+    Net::Telnet's waitfor()
+  * Add Opts option to SSH Engine to support arbitrary openssh args
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Sun, 28 Jan 2007 20:54:00 +0000
+
+libnet-appliance-session-perl (0.09) unstable; urgency=low
+
+  * Remove all hard-coded command phrases and prompt regexps, they are now
+    pulled from the loaded phrasebook so can be overridden
+  * Check all phrases are actually in the loaded phrasebook at instantiation
+    time and die if any are not available
+  * As a result, now require Net::Appliance::Phrasebook >= 0.07
+  * Allow user to disable login (user/pass) negotiation e.g. for public
+    route servers
+  * Also allow user to disable paging management, or override the number of
+    lines used to re-enable paging
+  * Also allow user to disable privileged and configure modes (see docs)
+  * New Transport for Serial Line access, called 'Serial' (not tested much)
+  * New Transport for Telnet access, called 'Telnet' (not tested much)
+  * Factor out the IO::Pty code into Transport base class. Also checked it
+    out, and it's actually pretty sane, so can stay in.
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 14 Nov 2006 11:59:00 +0000
+
+libnet-appliance-session-perl (0.05) unstable; urgency=low
+
+  * Major rewrite
+  - move Phrasebook out into Net::Appliance::Phrasebook
+  - remove all the require guff and have it properly inheriting namespaces
+  - rewrite Exception class into a module
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 19 Sep 2006 18:16:17 +0100
+
+libnet-appliance-session-perl (0.01) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Oliver Gorwits <oliver.gorwits@oucs.ox.ac.uk>  Tue, 11 Jul 2006 18:16:17 +0100
+
