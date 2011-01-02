@@ -66,14 +66,14 @@ sub BUILD {
 }
 
 # inflate the hashref into action objects
-use Net::Appliance::Session::Node::Action;
+use Net::Appliance::Session::Action;
 sub _bake {
     my ($self, $data) = @_;
     return unless ref $data eq ref {} and keys %$data;
 
     my $slot = (lc $data->{type}) . 's'; # fragile
     $self->$slot->{$data->{name}}
-        = [ map {Net::Appliance::Session::Node::Action->new($_)}
+        = [ map {Net::Appliance::Session::Action->new($_)}
                 @{$data->{actions}} ];
 }
 
