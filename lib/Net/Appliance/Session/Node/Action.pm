@@ -1,6 +1,6 @@
 package Net::Appliance::Session::Node::Action;
 
-use Moo;
+use Moose;
 
 has 'type' => (
     is => 'ro',

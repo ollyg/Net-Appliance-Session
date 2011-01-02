@@ -1,6 +1,6 @@
 package NAS;
 
-use Moo;
+use Moose;
 extends 'Net::Appliance::Session';
 
 1;
