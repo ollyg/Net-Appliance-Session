@@ -29,7 +29,7 @@ has 'personality' => (
 
 has 'transport' => (
     is => 'ro',
-    isa => sub { die "no transport $_[0]\n"
+    isa => sub { die "no transport $_[0]: $@\n"
         unless eval "require Net::Appliance::Session::Transport::$_[0]" },
     required => 1,
 );
