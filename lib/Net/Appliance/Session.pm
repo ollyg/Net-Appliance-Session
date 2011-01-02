@@ -4,27 +4,26 @@ use Moo;
 
 has 'states' => (
     is => 'ro',
-    isa => sub { die "bad states" unless ref $_[0] eq ref {} },
     default => sub { {} },
     required => 0,
 );
 
 has 'macros' => (
     is => 'ro',
-    isa => sub { die "bad macros" unless ref $_[0] eq ref {} },
     default => sub { {} },
     required => 0,
 );
 
 has 'transitions' => (
     is => 'ro',
-    isa => sub { die "bad transitions" unless ref $_[0] eq ref {} },
     default => sub { {} },
     required => 0,
 );
 
 has 'personality' => (
     is => 'rw',
+    isa => sub { die (sprintf "bad personality '%s'\n", ($_[0] || ''))
+        unless defined $_[0] and length $_[0] > 0 },
     required => 1,
 );
 
@@ -37,14 +36,16 @@ has 'transport' => (
 
 has 'library' => (
     is => 'ro',
-    isa => sub { die "bad library spec" unless ref $_[0] eq ref [] or length $_[0] },
+    isa => sub { die "bad library spec"
+        unless ref $_[0] eq ref [] or length $_[0] },
     default => sub { ['share'] },
     required => 0,
 );
 
 has 'add_library' => (
     is => 'ro',
-    isa => sub { die "bad add_library spec" unless ref $_[0] eq ref [] or length $_[0] },
+    isa => sub { die "bad add_library spec"
+        unless ref $_[0] eq ref [] or length $_[0] },
     default => sub { [] },
     required => 0,
 );
