@@ -1,4 +1,4 @@
-package Net::Appliance::Session::Node::Action;
+package Net::Appliance::Session::Action;
 
 use Moose;
 use Moose::Util::TypeConstraints qw(enum);

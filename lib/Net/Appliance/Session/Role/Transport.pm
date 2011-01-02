@@ -1,7 +1,7 @@
 package Net::Appliance::Session::Role::Transport;
 
 use Moose::Role;
-use IPC::Run qw(start pump finish timer timeout);
+use IPC::Run ();
 # requires qw(app opts host);
 
 has 'irs' => (
@@ -25,7 +25,7 @@ has '_in' => (
     required => 0,
 );
 
-# writer for the _in slot which is a scalar ref
+# writer for the _in slot
 sub send { ${ (shift)->_in } .= shift }
 
 has '_out' => (
@@ -35,8 +35,16 @@ has '_out' => (
     required => 0,
 );
 
-# reader for the _out slot which is a scalar ref
+# reader for the _out slot
 sub out { ${ (shift)->_out } }
+
+# clearer for the _out slot
+sub flush {
+    my $self = shift;
+    my $content = $self->out;
+    ${ $self->_out } = '';
+    return $content;
+}
 
 has '_err' => (
     is => 'ro',
@@ -55,17 +63,14 @@ sub connect {
     my ($self, $args) = @_;
 
     $self->harness(
-        start( [$self->app, @{$self->opts}, $self->host],
+        IPC::Run::harness(
+            [$self->app, @{$self->opts}, $self->host],
                $self->_in,
                $self->_out,
                $self->_err,
-               timeout (10),
+               IPC::Run::timeout (10),
                debug => 1, )
     );
-
-    #$self->send("hello\n");
-    #pump $self->harness until $self->out =~ m/hello/;
-    #print $self->out, "\n";
 }
 
 1;

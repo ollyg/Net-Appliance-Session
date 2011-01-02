@@ -1,6 +1,7 @@
 package Net::Appliance::Session;
 
 use Moose;
+with 'Net::Appliance::Session::Role::Engine';
 
 has 'states' => (
     is => 'ro',
@@ -63,6 +64,9 @@ sub BUILD {
     use Moose::Util;
     Moose::Util::apply_all_roles($self, 
         'Net::Appliance::Session::Transport::'. $self->transport);
+
+    $self->connect;
+    $self->harness->pump until $self->find_state;
 }
 
 # inflate the hashref into action objects
