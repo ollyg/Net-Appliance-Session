@@ -26,7 +26,7 @@ has '_in' => (
 );
 
 # writer for the _in slot
-sub send { ${ (shift)->_in } .= shift }
+sub send { ${ (shift)->_in } .= join '', @_ }
 
 has '_out' => (
     is => 'ro',

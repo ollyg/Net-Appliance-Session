@@ -1,4 +1,4 @@
-package Net::Appliance::Session::Output;
+package Net::Appliance::Session::Response;
 
 use Moose;
 
