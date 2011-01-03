@@ -35,7 +35,7 @@ sub do_action {
     }
 }
 
-sub execute_actions {
+sub do_action_sequence {
     my $self = shift;
     my @actions = map { ((ref $_ eq ref []) ? @{$_} : $_) } @_;
 
@@ -46,6 +46,11 @@ sub execute_actions {
 
     $response->success( scalar @{$response->sequence} == scalar @actions ? 1 : 0 );
     return $response;
+}
+
+sub execute_actions {
+    my $self = shift;
+    $self->last_response( $self->do_action_sequence( @_ ) )
 }
 
 # pump until any of the states matches the output buffer
@@ -72,14 +77,12 @@ sub macro {
     my ($self, $name) = @_;
 
     # will block until we see a prompt again
-    $self->last_response(
-        $self->execute_actions(
-            $self->macros->{$name},
-            Net::Appliance::Session::Action->new({
-                type => 'match',
-                value => $self->states->{$self->current_state}->[0]->value,
-            }),
-        )
+    $self->execute_actions(
+        $self->macros->{$name},
+        Net::Appliance::Session::Action->new({
+            type => 'match',
+            value => $self->states->{$self->current_state}->[0]->value,
+        }),
     );
 }
 
@@ -87,17 +90,15 @@ sub cmd {
     my ($self, $command) = @_;
 
     # will block until we see a prompt again
-    $self->last_response(
-        $self->execute_actions(
-            Net::Appliance::Session::Action->new({
-                type => 'send',
-                value => $command,
-            }),
-            Net::Appliance::Session::Action->new({
-                type => 'match',
-                value => $self->states->{$self->current_state}->[0]->value,
-            }),
-        )
+    $self->execute_actions(
+        Net::Appliance::Session::Action->new({
+            type => 'send',
+            value => $command,
+        }),
+        Net::Appliance::Session::Action->new({
+            type => 'match',
+            value => $self->states->{$self->current_state}->[0]->value,
+        }),
     );
 }
 
@@ -106,14 +107,12 @@ sub to_state {
     my $transition = $self->current_state ."_to_". $name;
 
     # will block and timeout if we don't get the new state prompt
-    $self->last_response(
-        $self->execute_actions(
-            $self->transitions->{$transition},
-            Net::Appliance::Session::Action->new({
-                type => 'match',
-                value => $self->states->{$name}->[0]->value,
-            })
-        )
+    $self->execute_actions(
+        $self->transitions->{$transition},
+        Net::Appliance::Session::Action->new({
+            type => 'match',
+            value => $self->states->{$name}->[0]->value,
+        })
     );
 
     $self->current_state($name);
