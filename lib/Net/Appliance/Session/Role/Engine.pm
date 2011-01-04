@@ -51,6 +51,42 @@ sub execute_actions {
     $self->last_actionset( $self->do_action_sequence( @_ ) )
 }
 
+sub to_state {
+    my ($self, $name, @params) = @_;
+    my $transition = $self->current_state ."_to_". $name;
+
+    # will block and timeout if we don't get the new state prompt
+    $self->execute_actions(
+        $self->transitions->{$transition}->clone->apply_params(@params),
+        $self->states->{$name}->clone,
+    );
+
+    $self->current_state($name);
+};
+
+sub macro {
+    my ($self, $name, @params) = @_;
+
+    # will block until we see a prompt again
+    $self->execute_actions(
+        $self->macros->{$name}->clone->apply_params(@params),
+        $self->states->{$self->current_state}->clone,
+    );
+}
+
+sub cmd {
+    my ($self, $command) = @_;
+
+    # will block until we see a prompt again
+    $self->execute_actions(
+        Net::Appliance::Session::Action->new({
+            type => 'send',
+            value => $command,
+        }),
+        $self->states->{$self->current_state}->clone,
+    );
+}
+
 # pump until any of the states matches the output buffer
 sub find_state {
     my $self = shift;
@@ -71,51 +107,6 @@ sub find_state {
             }
         }
     }
-}
-
-sub to_state {
-    my ($self, $name, @params) = @_;
-    my $transition = $self->current_state ."_to_". $name;
-
-    # will block and timeout if we don't get the new state prompt
-    $self->execute_actions(
-        $self->transitions->{$transition}->clone->apply_params(@params),
-        Net::Appliance::Session::Action->new({
-            type => 'match',
-            value => $self->states->{$name}->sequence->[0]->value,
-        })
-    );
-
-    $self->current_state($name);
-};
-
-sub macro {
-    my ($self, $name, @params) = @_;
-
-    # will block until we see a prompt again
-    $self->execute_actions(
-        $self->macros->{$name}->clone->apply_params(@params),
-        Net::Appliance::Session::Action->new({
-            type => 'match',
-            value => $self->states->{$self->current_state}->sequence->[0]->value,
-        }),
-    );
-}
-
-sub cmd {
-    my ($self, $command) = @_;
-
-    # will block until we see a prompt again
-    $self->execute_actions(
-        Net::Appliance::Session::Action->new({
-            type => 'send',
-            value => $command,
-        }),
-        Net::Appliance::Session::Action->new({
-            type => 'match',
-            value => $self->states->{$self->current_state}->sequence->[0]->value,
-        }),
-    );
 }
 
 1;
