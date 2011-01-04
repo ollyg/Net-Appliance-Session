@@ -29,8 +29,9 @@ sub do_action {
         $action->response($self->flush);
     }
     if ($action->type eq 'send') {
-        print STDERR "sending ". $action->value ."\n";
-        $self->send( $action->value, $self->ors );
+        my $command = sprintf $action->value, $action->params;
+        print STDERR "sending '$command' \n";
+        $self->send( $command, $self->ors );
     }
 }
 

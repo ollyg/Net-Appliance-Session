@@ -15,13 +15,13 @@ state configure
 
 
 from user_prompt to pass_prompt
-    send $self->username
+    send %s
 
 from pass_prompt to user_exec
-    send $self->password
+    send %s
 
 from pass_prompt to priv_exec
-    send $self->password
+    send %s
 
 from user_exec to priv_exec
     send enable

@@ -25,6 +25,7 @@ has 'params' => (
     is => 'rw',
     isa => 'ArrayRef',
     default => sub { [] },
+    auto_deref => 1,
     required => 0,
 );
 
