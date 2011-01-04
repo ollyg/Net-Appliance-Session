@@ -3,7 +3,6 @@ package Net::Appliance::Session::Role::Engine;
 use Moose::Role;
 use Net::Appliance::Session::Action;
 use Net::Appliance::Session::ActionSet;
-use Carp qw(croak);
 
 has 'current_state' => (
     is => 'rw',
