@@ -21,4 +21,23 @@ has 'continuation' => (
     required => 0,
 );
 
+has 'params' => (
+    is => 'rw',
+    isa => 'ArrayRef',
+    default => sub { [] },
+    required => 0,
+);
+
+has 'response' => (
+    is => 'rw',
+    isa => 'Str', # someday split it?
+    required => 0,
+);
+
+# only a shallow copy
+sub clone {
+    my $self = shift;
+    $self->meta->clone_object($self, %{(shift) || {}});
+}
+
 1;

@@ -2,24 +2,25 @@ package Net::Appliance::Session;
 
 use Moose;
 with 'Net::Appliance::Session::Role::Engine';
+use Net::Appliance::Session::ActionSet;
 
 has 'states' => (
     is => 'ro',
-    isa => 'HashRef[ArrayRef]',
+    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
     default => sub { {} },
     required => 0,
 );
 
 has 'macros' => (
     is => 'ro',
-    isa => 'HashRef[ArrayRef]',
+    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
     default => sub { {} },
     required => 0,
 );
 
 has 'transitions' => (
     is => 'ro',
-    isa => 'HashRef[ArrayRef]',
+    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
     default => sub { {} },
     required => 0,
 );
@@ -67,15 +68,16 @@ sub BUILD {
 }
 
 # inflate the hashref into action objects
-use Net::Appliance::Session::Action;
+use Net::Appliance::Session::ActionSet;
 sub _bake {
     my ($self, $data) = @_;
     return unless ref $data eq ref {} and keys %$data;
 
     my $slot = (lc $data->{type}) . 's'; # fragile
     $self->$slot->{$data->{name}}
-        = [ map {Net::Appliance::Session::Action->new($_)}
-                @{$data->{actions}} ];
+        = Net::Appliance::Session::ActionSet->new({
+            actions => $data->{actions}
+        });
 }
 
 # parse phrasebook files and load action objects
