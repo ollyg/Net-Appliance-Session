@@ -23,31 +23,70 @@ sub do_action {
     my ($self, $action) = @_;
 
     if ($action->type eq 'match') {
-        print STDERR "matching to ". $action->value ."\n";
-        $self->harness->pump until $self->out =~ $action->value;
-        $action->response($self->flush);
+        my $cont = $action->continuation;
+        while ($self->harness->pump) {
+            if ($cont and $self->out =~ $cont) {
+                (my $out = $self->out) =~ s/$cont\s*$//;
+                $self->out($out);
+                $self->send(' '); # XXX continuation char?
+            }
+            elsif ($self->out =~ $action->value) {
+                $action->response($self->flush);
+                last;
+            }
+        }
     }
     if ($action->type eq 'send') {
         my $command = sprintf $action->value, $action->params;
-        print STDERR "sending '$command' \n";
         $self->send( $command, $self->ors );
     }
 }
 
+sub pad_and_prepare_sequence {
+    my ($self, @seq) = @_;
+    my @padded_seq = ();
+
+    foreach my $i (0 .. $#seq) {
+        push @padded_seq, $seq[$i];
+
+        if ($seq[$i]->type eq 'send' and $i < $#seq) {
+
+            # pad out the Actions with match Actions if
+            # needed between send pairs
+            if ($seq[$i + 1]->type eq 'send') {
+                push @padded_seq,
+                    $self->states->{$self->current_state}->sequence->[0]->clone;
+            }
+            # carry-forward a continuation beacause it's the match
+            # which really does the heavy lifting there
+            elsif ($seq[$i + 1]->type eq 'match'
+                    and defined $seq[$i]->continuation) {
+                $seq[$i + 1]->continuation( $seq[$i]->continuation );
+            }
+        }
+    }
+
+    return @padded_seq;
+}
+
 sub do_action_sequence {
     my $self = shift;
+    # unroll the params from set(s) into only Actions
+    my @seq = map { blessed $_ eq 'Net::Appliance::Session::ActionSet'
+                    ? ($_->sequence) : $_ } @_;
+
     my $set = Net::Appliance::Session::ActionSet->new({ sequence => [
-        map { blessed $_ eq 'Net::Appliance::Session::ActionSet'
-                ? ($_->sequence) : $_ } @_
+        $self->pad_and_prepare_sequence(@seq)
     ] });
 
     $self->do_action($_) for $set->sequence;
+    $set->marshall_responses;
     return $set;
 }
 
 sub execute_actions {
     my $self = shift;
-    $self->last_actionset( $self->do_action_sequence( @_ ) )
+    $self->last_actionset( $self->do_action_sequence( @_ ) );
 }
 
 sub to_state {

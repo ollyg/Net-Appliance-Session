@@ -4,6 +4,9 @@ state user_prompt
 state pass_prompt
     match /[Pp]assword: ?$/
 
+state priv_exec_pass
+    match /[Pp]assword: ?$/
+
 state user_exec
     match /> ?$/
 
@@ -20,11 +23,11 @@ from user_prompt to pass_prompt
 from pass_prompt to user_exec
     send %s
 
-from pass_prompt to priv_exec
-    send %s
-
-from user_exec to priv_exec
+from user_exec to priv_exec_pass
     send enable
+
+from priv_exec_pass to priv_exec
+    send %s
 
 from priv_exec to user_exec
     send disable
@@ -43,5 +46,8 @@ macro write_mem
 
 macro show_run
     send show running-config
-    continuation /--More--/
+    continuation / --More-- /
 
+macro show_int_br
+    send show ip int br
+    send show ip int br

@@ -38,4 +38,24 @@ sub apply_params {
     return $self;
 }
 
+# err...?
+sub count { return scalar @{ scalar (shift)->sequence } }
+
+# marshall the responses so as to move data from match to send
+sub marshall_responses {
+    my $self = shift;
+    my @seq = $self->sequence;
+
+    foreach my $i (1 .. ($self->count - 1)) {
+        next unless $self->sequence->[$i]->type eq 'match';
+        my $response = $self->sequence->[$i]->response; # need an lvalue
+        my $cmd = $self->sequence->[$i - 1]->value;
+        $response =~ s/^$cmd\s+//;
+        if ($response =~ s/(\s+)(\S+)\s*$/$1/) {
+            $self->sequence->[$i]->response($2);
+            $self->sequence->[$i - 1]->response($response);
+        }
+    }
+}
+
 1;

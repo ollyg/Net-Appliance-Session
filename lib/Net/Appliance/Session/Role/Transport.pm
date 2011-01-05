@@ -35,8 +35,11 @@ has '_out' => (
     required => 0,
 );
 
-# reader for the _out slot
-sub out { ${ (shift)->_out } }
+# mutator for the _out slot
+sub out {
+    return ${ $_[0]->_out } if scalar(@_) == 1;
+    return ${ $_[0]->_out } = $_[1];
+}
 
 # clearer for the _out slot
 sub flush {

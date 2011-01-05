@@ -16,7 +16,7 @@ has 'value' => (
 );
 
 has 'continuation' => (
-    is => 'ro',
+    is => 'rw',
     isa => 'RegexpRef',
     required => 0,
 );
