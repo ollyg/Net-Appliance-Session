@@ -191,7 +191,21 @@ sub fhopen {
     ## Restore our private data.
     *$self->{ref $self} = $s;
 
+    ## Reset close_called
+    $self->close_called(0);
+
     return $r;
+}
+
+## Override Net::Telnet::open to reset close_called
+sub open {
+  my ($self, @args) = @_;
+  my $ok = $self->SUPER::open(@args);
+
+  ## Reset close_called
+  $self->close_called(0);
+
+  return $ok;
 }
 
 # override Net::Telnet::error(), which is a little tricky...
