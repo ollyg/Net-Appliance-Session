@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+2.110090  2011-01-09 11:14:48 Europe/London
+
   * Fix bug in use of close_called, Steve C. (rt.cpan #64450)
 
 2.103641  2010-12-30 21:28:09 Europe/London
