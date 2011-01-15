@@ -10,11 +10,9 @@ has 'app' => (
     required => 0,
 );
 
-has 'opts' => (
-    is => 'ro',
-    isa => 'ArrayRef[Str]',
-    default => sub { [] },
-    required => 0,
-);
+sub runtime_options {
+    # simple, for now
+    return (shift)->transport_options->{host};
+}
 
 1;

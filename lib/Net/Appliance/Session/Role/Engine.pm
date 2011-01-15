@@ -10,13 +10,18 @@ has 'current_state' => (
     required => 0,
 );
 
+sub current_match {
+    my $self = shift;
+    return $self->states->{$self->current_state}->first->clone;
+}
+
 has 'last_actionset' => (
     is => 'rw',
     isa => 'Net::Appliance::Session::ActionSet',
     required => 0,
 );
 
-sub response_tail { return (shift)->last_actionset->sequence->[-1]->response }
+sub response_tail { return (shift)->last_actionset->last->response }
 
 # returns either the content of the output buffer, or undef
 sub do_action {
@@ -55,7 +60,7 @@ sub pad_and_prepare_sequence {
             # needed between send pairs
             if ($seq[$i + 1]->type eq 'send') {
                 push @padded_seq,
-                    $self->states->{$self->current_state}->sequence->[0]->clone;
+                    $self->states->{$self->current_state}->first->clone;
             }
             # carry-forward a continuation beacause it's the match
             # which really does the heavy lifting there
@@ -75,7 +80,7 @@ sub do_action_sequence {
     my @seq = map { blessed $_ eq 'Net::Appliance::Session::ActionSet'
                     ? ($_->sequence) : $_ } @_;
 
-    my $set = Net::Appliance::Session::ActionSet->new({ sequence => [
+    my $set = Net::Appliance::Session::ActionSet->new({ actions => [
         $self->pad_and_prepare_sequence(@seq)
     ] });
 
@@ -132,10 +137,10 @@ sub find_state {
     while ($self->harness->pump) {
         foreach my $state (keys %{ $self->states }) {
             # states consist of only one match action
-            if ($self->out =~ $self->states->{$state}->sequence->[0]->value) {
+            if ($self->out =~ $self->states->{$state}->first->value) {
                 $self->last_actionset(
-                    Net::Appliance::Session::ActionSet->new({ sequence => [
-                        $self->states->{$state}->sequence->[0]->clone({
+                    Net::Appliance::Session::ActionSet->new({ actions => [
+                        $self->states->{$state}->first->clone({
                             response => $self->flush,
                         })
                     ] })

@@ -1,7 +1,6 @@
 package Net::Appliance::Session;
 
 use Moose;
-with 'Net::Appliance::Session::Role::Engine';
 use Net::Appliance::Session::ActionSet;
 
 has 'states' => (
@@ -25,12 +24,6 @@ has 'transitions' => (
     required => 0,
 );
 
-has 'host' => (
-    is => 'rw',
-    isa => 'Str',
-    required => 1,
-);
-
 has 'personality' => (
     is => 'rw',
     isa => 'Str',
@@ -41,6 +34,13 @@ has 'transport' => (
     is => 'ro',
     isa => 'Str',
     required => 1,
+);
+
+has 'transport_options' => (
+    is => 'ro',
+    isa => 'HashRef[Str]',
+    default => sub { {} },
+    required => 0,
 );
 
 has 'library' => (

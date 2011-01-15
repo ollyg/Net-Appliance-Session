@@ -2,7 +2,7 @@ package Net::Appliance::Session::Role::Transport;
 
 use Moose::Role;
 use IPC::Run ();
-# requires qw(app opts host);
+with 'Net::Appliance::Session::Role::Engine';
 
 has 'irs' => (
     is => 'ro',
@@ -67,7 +67,7 @@ sub connect {
 
     $self->harness(
         IPC::Run::harness(
-            [$self->app, @{$self->opts}, $self->host],
+            [$self->app, $self->runtime_options],
                $self->_in,
                $self->_out,
                $self->_err,

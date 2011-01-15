@@ -15,9 +15,12 @@ sub BUILDARGS {
     # accept single hash ref or naked hash
     my $params = (ref $rest[0] eq ref {} and scalar @rest == 1 ? $rest[0] : {@rest});
 
-    if (exists $params->{actions}) {
-        push @{$params->{sequence}}, Net::Appliance::Session::Action->new($_)
-            for @{$params->{actions}};
+    if (exists $params->{actions} and ref $params->{actions} eq ref []) {
+        foreach my $a (@{$params->{actions}}) {
+            my $new_a = (blessed $a eq 'Net::Appliance::Session::Action' ?
+                $a : Net::Appliance::Session::Action->new($a));
+            push @{$params->{sequence}}, $new_a;
+        }
         delete $params->{actions};
     }
 
@@ -26,12 +29,21 @@ sub BUILDARGS {
 
 sub clone {
     return Net::Appliance::Session::ActionSet->new({
-        sequence => [ map { $_->clone } (shift)->sequence ],
+        actions => [ map { $_->clone } (shift)->sequence ],
     });
 }
 
 # fiddly only because of auto_deref
 sub count { return scalar @{ scalar (shift)->sequence } }
+
+sub first { return (shift)->sequence->[0]  }
+sub last  { return (shift)->sequence->[-1] }
+
+sub join {
+    return Net::Appliance::Session::ActionSet->new({
+        actions => [ (shift)->clone->sequence, (shift)->clone->sequence ]
+    });
+}
 
 # store params to the set, used when send is passed via sprintf
 sub apply_params {
