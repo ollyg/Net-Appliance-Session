@@ -76,4 +76,28 @@ sub connect {
     );
 }
 
+# returns either the content of the output buffer, or undef
+sub do_action {
+    my ($self, $action) = @_;
+
+    if ($action->type eq 'match') {
+        my $cont = $action->continuation;
+        while ($self->harness->pump) {
+            if ($cont and $self->out =~ $cont) {
+                (my $out = $self->out) =~ s/$cont\s*$//;
+                $self->out($out);
+                $self->send(' '); # XXX continuation char?
+            }
+            elsif ($self->out =~ $action->value) {
+                $action->response($self->flush);
+                last;
+            }
+        }
+    }
+    if ($action->type eq 'send') {
+        my $command = sprintf $action->value, $action->params;
+        $self->send( $command, $self->ors );
+    }
+}
+
 1;

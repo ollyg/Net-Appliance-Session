@@ -35,7 +35,8 @@ has 'response' => (
     required => 0,
 );
 
-# only a shallow copy
+# only a shallow copy so all the reference based slots still
+# share data with the original Action's slots
 sub clone {
     my $self = shift;
     $self->meta->clone_object($self, %{(shift) || {}});
