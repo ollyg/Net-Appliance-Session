@@ -17,7 +17,7 @@ sub BUILDARGS {
 
     if (exists $params->{actions} and ref $params->{actions} eq ref []) {
         foreach my $a (@{$params->{actions}}) {
-            my $new_a = (blessed $a eq 'Net::Appliance::Session::Action' ?
+            my $new_a = (ref $a eq 'Net::Appliance::Session::Action' ?
                 $a : Net::Appliance::Session::Action->new($a));
             push @{$params->{sequence}}, $new_a;
         }

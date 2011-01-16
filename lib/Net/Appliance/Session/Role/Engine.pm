@@ -77,7 +77,7 @@ sub pad_and_prepare_sequence {
 sub do_action_sequence {
     my $self = shift;
     # unroll the params from set(s) into only Actions
-    my @seq = map { blessed $_ eq 'Net::Appliance::Session::ActionSet'
+    my @seq = map { ref $_ eq 'Net::Appliance::Session::ActionSet'
                     ? ($_->sequence) : $_ } @_;
 
     my $set = Net::Appliance::Session::ActionSet->new({ actions => [
