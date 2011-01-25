@@ -17,7 +17,7 @@ sub insert_at {
 
 sub append {
     my $self = shift;
-    $self->insert_at( $self->count - 1, (shift)->clone->_sequence );
+    $self->insert_at( $self->count, (shift)->clone->_sequence );
 }
 
 has '_position' => (

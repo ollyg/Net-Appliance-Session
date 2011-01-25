@@ -38,6 +38,18 @@ from priv_exec to configure
 from configure to priv_exec
     send exit
 
+macro to_user_exec
+    match /[Uu]sername/
+    send %s
+    match /[Pp]assword: ?$/
+    send %s
+    match /> ?$/
+
+macro to_priv_exec
+    send enable
+    match /[Pp]assword: ?$/
+    send %s
+    match /# ?$/
 
 macro write_mem
     send copy running-config startup-config

@@ -83,13 +83,17 @@ sub execute {
     }
 }
 
-# pad out the Actions with match Actions if needed between send pairs
+# pad out the Actions with match Actions if needed between send pairs.
+# carry-forward a continuation beacause it's the match which really does the
+# heavy lifting.
 before 'execute' => sub {
     my ($self, $current_match) = @_;
     confess "execute requires the current match action as a parameter\n"
-        unless defined $current_match
-            and ref $current_match eq 'Net::Appliance::Session::Action'
-            and $current_match->type eq 'match';
+        unless defined $current_match and ref $current_match eq 'Regexp';
+
+    my $match = Net::Appliance::Session::Action->new({
+        type => 'match', value => $current_match,
+    });
 
     $self->reset;
     while ($self->has_next) {
@@ -97,14 +101,13 @@ before 'execute' => sub {
         my $next = $self->peek or last; # careful...
         next unless $this->type eq 'send' and $next->type eq 'send';
 
-        $self->insert_at($self->idx + 1, $current_match);
+        $self->insert_at($self->idx + 1, $match);
     }
-};
 
-# carry-forward a continuation beacause it's the match
-# which really does the heavy lifting there
-before 'execute' => sub {
-    my $self = shift;
+    # always finish on a match
+    if ($self->last->type ne 'match') {
+        $self->insert_at($self->count, $match);
+    }
 
     $self->reset;
     while ($self->has_next) {
