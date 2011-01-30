@@ -83,10 +83,11 @@ sub do_action {
     if ($action->type eq 'match') {
         my $cont = $action->continuation;
         while ($self->_harness->pump) {
-            if ($cont and $self->out =~ $cont->[0]) {
-                (my $out = $self->out) =~ s/$cont->[0]\s*$//;
+            if ($cont and $self->out =~ $cont->first->value) {
+                my $match = $cont->first->value;
+                (my $out = $self->out) =~ s/$match\s*$//;
                 $self->out($out);
-                $self->send($cont->[1]);
+                $self->send($cont->last->value);
             }
             elsif ($self->out =~ $action->value) {
                 $action->response($self->flush);

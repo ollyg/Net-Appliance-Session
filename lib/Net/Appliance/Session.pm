@@ -105,10 +105,10 @@ sub _load_graph {
             if (m{^\s+follow\s+/(.+)/\s+with\s+(.+)\s*$}) {
                 my ($match, $send) = ($1, $2);
                 $send =~ s/^["']//; $send =~ s/["']$//;
-                $data->{actions}->[-1]->{continuation} = [qr/$match/,$send];
-                #    {type => 'match', value => qr/$match/},
-                #    {type => 'send',  value => $send}
-                #];
+                $data->{actions}->[-1]->{continuation} = [
+                    {type => 'match', value => qr/$match/},
+                    {type => 'send',  value => $send}
+                ];
             }
         }
         # last entry in the file needs baking

@@ -95,7 +95,7 @@ sub _do_exec {
 sub _pad_send_with_match {
     my ($self, $current_match) = @_;
     confess "execute requires the current match action as a parameter\n"
-        unless defined $current_match and ref $current_match eq 'Regexp';
+        unless defined $current_match and ref $current_match eq ref qr//;
 
     my $match = Net::Appliance::Session::Action->new({
         type => 'match', value => $current_match,
