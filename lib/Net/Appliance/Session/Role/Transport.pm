@@ -36,8 +36,9 @@ has '_out' => (
 
 # mutator for the _out slot
 sub out {
-    return ${ $_[0]->_out } if scalar(@_) == 1;
-    return ${ $_[0]->_out } = $_[1];
+    my $self = shift;
+    return ${ $self->_out } if scalar(@_) == 0;
+    return ${ $self->_out } = shift;
 }
 
 has '_stash' => (
@@ -71,6 +72,7 @@ has '_harness' => (
 
 sub connect {
     my ($self, $args) = @_;
+    $self->log('transport', 1, 'booting IPC::Run harness for', $self->app);
 
     $self->_harness(
         IPC::Run::harness(
@@ -78,13 +80,15 @@ sub connect {
                $self->_in,
                $self->_out,
                $self->_err,
-               IPC::Run::timeout (10))
+               IPC::Run::timeout (10),
+        )
     );
 }
 
 # returns either the content of the output buffer, or undef
 sub do_action {
     my ($self, $action) = @_;
+    $self->log('transport', 2, 'callback received for', $action->type);
 
     if ($action->type eq 'match') {
         my $cont = $action->continuation;
@@ -95,14 +99,17 @@ sub do_action {
             my $last_out = $out_lines[-1];
 
             if ($cont and $last_out =~ $cont->first->value) {
+                $self->log('transport', 3, 'continuation matched');
                 $self->_stash($self->flush);
                 $self->send($cont->last->value);
             }
             elsif ($last_out =~ $action->value) {
+                $self->log('transport', 3, 'output matched, storing and returning');
                 $action->response($self->flush);
                 last;
             }
             else {
+                $self->log('transport', 4, "nope, doesn't (yet) match", $action->value);
                 # put back the partial output and try again
                 $self->_stash( $self->_stash . $maybe_stash );
                 $self->out($last_out);
@@ -111,6 +118,7 @@ sub do_action {
     }
     if ($action->type eq 'send') {
         my $command = sprintf $action->value, $action->params;
+        $self->log('transport', 3, 'queueing data for send:', $command);
         $self->send( $command, ($action->literal ? () : $self->ors) );
     }
 }

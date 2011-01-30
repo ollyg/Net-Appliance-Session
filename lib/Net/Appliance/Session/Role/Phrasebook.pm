@@ -41,6 +41,7 @@ has '_macro_tbl' => (
 sub _bake {
     my ($self, $data) = @_;
     return unless ref $data eq ref {} and keys %$data;
+    $self->log('phrasebook', 3, 'storing type', $data->{type}, 'with name', $data->{name});
 
     my $slot = '_'. (lc $data->{type}) .'_tbl';
     $self->$slot->{$data->{name}}
@@ -82,6 +83,7 @@ sub _load_phrasebooks {
     my $data = {};
 
     foreach my $file ($self->_find_phrasebooks) {
+        $self->log('phrasebook', 2, 'reading phrasebook', $file);
         my @lines = $file->slurp;
         while ($_ = shift @lines) {
             # Skip comments and empty lines

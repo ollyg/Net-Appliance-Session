@@ -31,6 +31,10 @@ macro write_mem
     match /Destination filename \[startup-config\]\?$/
     send startup-config
 
+macro show_ip_route
+    send show ip route
+    follow / --More-- / with ' '
+
 macro show_run
     send show running-config
     follow / --More-- / with ' '
