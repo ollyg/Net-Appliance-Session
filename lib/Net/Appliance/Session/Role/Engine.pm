@@ -30,7 +30,7 @@ sub last_response {
 
 sub last_prompt {
     my $self = shift;
-    return (split m/\n/, $self->last_actionset->item_at(-1)->response)[-1];
+    return $self->last_actionset->item_at(-1)->response;
 }
 
 sub last_prompt_as_match {
