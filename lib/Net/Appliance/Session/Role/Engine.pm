@@ -19,7 +19,7 @@ sub prompt_as_match {
 sub macro {
     my ($self, $name, @params) = @_;
 
-    my $set = $self->macros->{$name}->clone;
+    my $set = $self->_macro->{$name}->clone;
     $set->apply_params(@params);
     $self->_execute_actions($set);
 }
@@ -50,12 +50,12 @@ sub find_state {
     my $self = shift;
 
     while ($self->_harness->pump) {
-        foreach my $state (keys %{ $self->states }) {
+        foreach my $state (keys %{ $self->_state }) {
             # states consist of only one match action
-            if ($self->out =~ $self->states->{$state}->first->value) {
+            if ($self->out =~ $self->_state->{$state}->first->value) {
                 $self->last_actionset(
                     Net::Appliance::Session::ActionSet->new({ actions => [
-                        $self->states->{$state}->first->clone({
+                        $self->_state->{$state}->first->clone({
                             response => $self->flush,
                         })
                     ] })

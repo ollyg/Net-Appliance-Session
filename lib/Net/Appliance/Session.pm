@@ -3,20 +3,6 @@ package Net::Appliance::Session;
 use Moose;
 use Net::Appliance::Session::ActionSet;
 
-has 'states' => (
-    is => 'ro',
-    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
-    default => sub { {} },
-    required => 0,
-);
-
-has 'macros' => (
-    is => 'ro',
-    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
-    default => sub { {} },
-    required => 0,
-);
-
 has 'personality' => (
     is => 'rw',
     isa => 'Str',
@@ -50,6 +36,20 @@ has 'add_library' => (
     required => 0,
 );
 
+has '_state' => (
+    is => 'ro',
+    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
+    default => sub { {} },
+    required => 0,
+);
+
+has '_macro' => (
+    is => 'ro',
+    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
+    default => sub { {} },
+    required => 0,
+);
+
 sub BUILD {
     my ($self, $params) = @_;
 
@@ -66,7 +66,7 @@ sub _bake {
     my ($self, $data) = @_;
     return unless ref $data eq ref {} and keys %$data;
 
-    my $slot = (lc $data->{type}) . 's'; # fragile
+    my $slot = '_'. (lc $data->{type});
     $self->$slot->{$data->{name}}
         = Net::Appliance::Session::ActionSet->new({
             actions => $data->{actions}
