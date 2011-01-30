@@ -20,7 +20,7 @@ has 'transport_options' => (
 sub BUILD {
     my ($self, $params) = @_;
 
-    $self->_load_graph;
+    $self->_load_phrasebooks;
 
     use Moose::Util;
     Moose::Util::apply_all_roles($self, 

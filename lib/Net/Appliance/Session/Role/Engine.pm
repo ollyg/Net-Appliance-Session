@@ -23,11 +23,14 @@ has 'last_actionset' => (
     required => 0,
 );
 
-sub last_prompt { return (split m/\n/, (shift)->last_actionset->last->response)[-1] }
+sub last_prompt {
+    my $self = shift;
+    return (split m/\n/, $self->last_actionset->last->response)[-1];
+}
 
 sub last_prompt_as_match {
     my $prompt = (shift)->last_prompt;
-    return qr/^$prompt$/m;
+    return qr/^$prompt$/;
 }
 
 sub macro {

@@ -77,7 +77,7 @@ sub _resolve_lazy_matches {
 }
 
 # parse phrasebook files and load action objects
-sub _load_graph {
+sub _load_phrasebooks {
     my $self = shift;
     my $data = {};
 
