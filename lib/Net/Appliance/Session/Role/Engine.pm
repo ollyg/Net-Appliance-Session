@@ -6,11 +6,11 @@ use Net::Appliance::Session::ActionSet;
 
 has '_prompt' => (
     is => 'rw',
-    isa => 'RegexpRef',
+    isa => 'Maybe[RegexpRef]',
     required => 0,
+    reader => 'prompt',
+    clearer => 'unset_prompt',
 );
-
-sub prompt { return (shift)->_prompt }
 
 sub set_prompt {
     my ($self, $prompt) = @_;

@@ -69,9 +69,9 @@ sub _load_graph {
                 unshift @lines, $_;
             }
 
-            if (m{^\s+send\s+(.+)$}) {
+            if (m{^\s+(send(?:_literal)?)\s+(.+)$}) {
                 push @{ $data->{actions} },
-                    {type => 'send', value => $1};
+                    {type => 'send', value => $2, literal => ($1 eq 'send_literal')};
             }
             if (m{^\s+match\s+/(.+)/\s*$}) {
                 push @{ $data->{actions} },

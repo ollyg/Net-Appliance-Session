@@ -16,6 +16,13 @@ has 'value' => (
     required => 1,
 );
 
+has 'literal' => (
+    is => 'ro',
+    isa => 'Bool',
+    required => 0,
+    default => 0,
+);
+
 has 'continuation' => (
     is => 'rw',
     isa => 'Net::Appliance::Session::ActionSet',

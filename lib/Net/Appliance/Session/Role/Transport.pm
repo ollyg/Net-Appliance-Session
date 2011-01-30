@@ -96,7 +96,7 @@ sub do_action {
     }
     if ($action->type eq 'send') {
         my $command = sprintf $action->value, $action->params;
-        $self->send( $command, $self->ors );
+        $self->send( $command, ($action->literal ? () : $self->ors) );
     }
 }
 
