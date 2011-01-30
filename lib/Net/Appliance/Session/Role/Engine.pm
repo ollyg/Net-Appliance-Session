@@ -57,6 +57,9 @@ sub _execute_actions {
     $set->execute($self->prompt || $self->last_prompt_as_match);
 
     $self->last_actionset($set);
+    if ($self->last_actionset->last->is_lazy) {
+        $self->_prompt($self->last_actionset->last->value);
+    }
 }
 
 # pump until any of the prompts matches the output buffer

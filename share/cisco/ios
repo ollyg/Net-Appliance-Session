@@ -18,13 +18,13 @@ macro to_user_exec
     send %s
     match /[Pp]assword: ?$/
     send %s
-    match /> ?$/
+    match prompt user_exec
 
 macro to_priv_exec
     send enable
     match /[Pp]assword: ?$/
     send %s
-    match /# ?$/
+    match prompt priv_exec
 
 macro write_mem
     send copy running-config startup-config

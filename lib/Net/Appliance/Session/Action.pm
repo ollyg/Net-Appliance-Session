@@ -23,6 +23,14 @@ has 'literal' => (
     default => 0,
 );
 
+has 'is_lazy' => (
+    is => 'ro',
+    isa => 'Bool',
+    required => 0,
+    default => 0,
+    init_arg => 'lazy',
+);
+
 has 'continuation' => (
     is => 'rw',
     isa => 'Net::Appliance::Session::ActionSet',

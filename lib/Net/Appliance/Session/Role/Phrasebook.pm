@@ -49,6 +49,33 @@ sub _bake {
         });
 }
 
+# matches which are prompt names are resolved to RegexpRefs
+sub _resolve_lazy_matches {
+    my $self = shift;
+
+    foreach my $name (keys %{$self->_macro_tbl}) {
+        my $set = $self->_macro_tbl->{$name};
+        my $new_set = [];
+
+        $set->reset;
+        while ($set->has_next) {
+            my $item = $set->next;
+            if ($item->is_lazy) {
+                push @$new_set, $item->clone({ value =>
+                    $self->_prompt_tbl->{$item->value}->first->value
+                });
+            }
+            else {
+                push @$new_set, $item;
+            }
+        }
+
+        $self->_macro_tbl->{$name} = Net::Appliance::Session::ActionSet->new({
+            actions => $new_set
+        });
+    }
+}
+
 # parse phrasebook files and load action objects
 sub _load_graph {
     my $self = shift;
@@ -60,7 +87,7 @@ sub _load_graph {
             # Skip comments and empty lines
             next if m/^(?:#|\s*$)/;
 
-            if (m{^(prompt|macro) (\w+)\s*$}) {
+            if (m{^(prompt|macro)\s+(\w+)\s*$}) {
                 $self->_bake($data);
                 $data = {type => $1, name => $2};
             }
@@ -70,12 +97,23 @@ sub _load_graph {
             }
 
             if (m{^\s+(send(?:_literal)?)\s+(.+)$}) {
-                push @{ $data->{actions} },
-                    {type => 'send', value => $2, literal => ($1 eq 'send_literal')};
+                push @{ $data->{actions} }, {
+                    type => 'send', value => $2,
+                    literal => ($1 eq 'send_literal')
+                };
+                next;
             }
+
+            if (m{^\s+match\s+prompt\s+(.+)\s*$}) {
+                push @{ $data->{actions} },
+                    {type => 'match', value => $1, lazy => 1};
+                next;
+            }
+
             if (m{^\s+match\s+/(.+)/\s*$}) {
                 push @{ $data->{actions} },
-                    {type => 'match', value => qr/$1/m};
+                    {type => 'match', value => qr/$1/};
+                next;
             }
 
             if (m{^\s+follow\s+/(.+)/\s+with\s+(.+)\s*$}) {
@@ -83,13 +121,16 @@ sub _load_graph {
                 $send =~ s/^["']//; $send =~ s/["']$//;
                 $data->{actions}->[-1]->{continuation} = [
                     {type => 'match', value => qr/$match/},
-                    {type => 'send',  value => $send}
+                    {type => 'send',  value => $send, literal => 1}
                 ];
+                next;
             }
         }
         # last entry in the file needs baking
         $self->_bake($data);
     }
+
+    $self->_resolve_lazy_matches;
 }
 
 # finds the path of Phrasebooks within the Library leading to Personality
