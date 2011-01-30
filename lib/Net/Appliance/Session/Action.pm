@@ -42,4 +42,13 @@ sub clone {
     $self->meta->clone_object($self, %{(shift) || {}});
 }
 
+# count the number of sprintf parameters used in the value
+sub num_params {
+    my $self = shift;
+    return 0 if ref $self->value eq 'Regexp';
+    # this tricksy little number comes from the Perl FAQ
+    my $count = () = $self->value =~ m/(?<!%)%/g;
+    return $count;
+}
+
 1;

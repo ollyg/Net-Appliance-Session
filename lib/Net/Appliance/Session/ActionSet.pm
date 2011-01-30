@@ -57,7 +57,7 @@ sub apply_params {
     $self->reset;
     while ($self->has_next) {
         my $next = $self->next;
-        $next->params($params[$self->idx] || []);
+        $next->params([splice @params, 0, $next->num_params]);
     }
 
     return $self; # required
