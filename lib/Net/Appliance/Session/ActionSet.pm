@@ -77,6 +77,16 @@ sub register_callback {
 
 sub execute {
     my $self = shift;
+
+    $self->_pad_send_with_match(@_);
+    $self->_forward_continuation_to_match;
+    $self->_do_exec;
+    $self->_marshall_responses;
+}
+
+sub _do_exec {
+    my $self = shift;
+
     $self->reset;
     while ($self->has_next) {
         $_->($self->next) for @{$self->_callbacks};
@@ -84,9 +94,7 @@ sub execute {
 }
 
 # pad out the Actions with match Actions if needed between send pairs.
-# carry-forward a continuation beacause it's the match which really does the
-# heavy lifting.
-before 'execute' => sub {
+sub _pad_send_with_match {
     my ($self, $current_match) = @_;
     confess "execute requires the current match action as a parameter\n"
         unless defined $current_match and ref $current_match eq 'Regexp';
@@ -108,6 +116,12 @@ before 'execute' => sub {
     if ($self->last->type ne 'match') {
         $self->insert_at($self->count, $match);
     }
+}
+
+# carry-forward a continuation beacause it's the match which really does the
+# heavy lifting.
+sub _forward_continuation_to_match {
+    my $self = shift;
 
     $self->reset;
     while ($self->has_next) {
@@ -119,10 +133,10 @@ before 'execute' => sub {
 
         $next->continuation( $this->continuation );
     }
-};
+}
 
 # marshall the responses so as to move data from match to send
-after 'execute' => sub {
+sub _marshall_responses {
     my $self = shift;
 
     $self->reset;
@@ -140,6 +154,6 @@ after 'execute' => sub {
             $send->response($response);
         }
     }
-};
+}
 
 1;
