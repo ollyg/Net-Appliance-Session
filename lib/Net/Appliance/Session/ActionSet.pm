@@ -107,12 +107,12 @@ sub _pad_send_with_match {
         my $next = $self->peek or last; # careful...
         next unless $this->type eq 'send' and $next->type eq 'send';
 
-        $self->insert_at($self->idx + 1, $match);
+        $self->insert_at($self->idx + 1, $match->clone);
     }
 
     # always finish on a match
     if ($self->last->type ne 'match') {
-        $self->insert_at($self->count, $match);
+        $self->insert_at($self->count, $match->clone);
     }
 }
 
