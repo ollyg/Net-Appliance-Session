@@ -40,10 +40,18 @@ sub out {
     return ${ $_[0]->_out } = $_[1];
 }
 
+has '_stash' => (
+    is => 'rw',
+    isa => 'Str',
+    default => sub { '' },
+    required => 0,
+);
+
 # clearer for the _out slot
 sub flush {
     my $self = shift;
-    my $content = $self->out;
+    my $content = $self->_stash . $self->out;
+    $self->_stash('');
     ${ $self->_out } = '';
     return $content;
 }
@@ -70,8 +78,7 @@ sub connect {
                $self->_in,
                $self->_out,
                $self->_err,
-               IPC::Run::timeout (10),
-               debug => 1, )
+               IPC::Run::timeout (10))
     );
 }
 
@@ -82,15 +89,23 @@ sub do_action {
     if ($action->type eq 'match') {
         my $cont = $action->continuation;
         while ($self->_harness->pump) {
-            if ($cont and $self->out =~ $cont->first->value) {
-                my $match = $cont->first->value;
-                (my $out = $self->out) =~ s/$match\s*$//;
-                $self->out($out);
+            my $irs = $self->irs;
+            my @out_lines = split m/$irs/, $self->out;
+            my $maybe_stash = join $self->irs, @out_lines[0 .. -2];
+            my $last_out = $out_lines[-1];
+
+            if ($cont and $last_out =~ $cont->first->value) {
+                $self->_stash($self->flush);
                 $self->send($cont->last->value);
             }
-            elsif ($self->out =~ $action->value) {
+            elsif ($last_out =~ $action->value) {
                 $action->response($self->flush);
                 last;
+            }
+            else {
+                # put back the partial output and try again
+                $self->_stash( $self->_stash . $maybe_stash );
+                $self->out($last_out);
             }
         }
     }
