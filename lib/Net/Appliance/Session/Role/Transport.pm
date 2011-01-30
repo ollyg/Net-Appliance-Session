@@ -56,7 +56,7 @@ has '_err' => (
     required => 0,
 );
 
-has 'harness' => (
+has '_harness' => (
     is => 'rw',
     isa => 'IPC::Run',
     required => 0,
@@ -65,7 +65,7 @@ has 'harness' => (
 sub connect {
     my ($self, $args) = @_;
 
-    $self->harness(
+    $self->_harness(
         IPC::Run::harness(
             [$self->app, $self->runtime_options],
                $self->_in,
@@ -82,11 +82,11 @@ sub do_action {
 
     if ($action->type eq 'match') {
         my $cont = $action->continuation;
-        while ($self->harness->pump) {
-            if ($cont and $self->out =~ $cont) {
-                (my $out = $self->out) =~ s/$cont\s*$//;
+        while ($self->_harness->pump) {
+            if ($cont and $self->out =~ $cont->[0]) {
+                (my $out = $self->out) =~ s/$cont->[0]\s*$//;
                 $self->out($out);
-                $self->send(' '); # XXX continuation char?
+                $self->send($cont->[1]);
             }
             elsif ($self->out =~ $action->value) {
                 $action->response($self->flush);

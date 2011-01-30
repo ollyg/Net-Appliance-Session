@@ -17,13 +17,6 @@ has 'macros' => (
     required => 0,
 );
 
-has 'transitions' => (
-    is => 'ro',
-    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
-    default => sub { {} },
-    required => 0,
-);
-
 has 'personality' => (
     is => 'rw',
     isa => 'Str',
@@ -88,33 +81,34 @@ sub _load_graph {
     foreach my $file ($self->_find_phrasebooks) {
         my @lines = $file->slurp;
         while ($_ = shift @lines) {
-            # trim
-            s/^\s+//; s/\s+$//;
             # Skip comments and empty lines
-            next if m/^(?:\#|\;|$)/;
-            # Remove inline comments
-            s/\s\;\s.+$//g;
+            next if m/^(?:#|\s*$)/;
 
-            if (m/^(state|macro) (\w+)/) {
+            if (m{^(state|macro) (\w+)\s*$}) {
                 $self->_bake($data);
-                $data = {name => $2, type => ucfirst $1};
+                $data = {type => $1, name => $2};
             }
-            if (m/^from\s+(\w+)\s+to\s+(\w+)/) {
-                $self->_bake($data);
-                $data = {name => "${1}_to_${2}", type => 'Transition'};
+            elsif (m{^\w}) {
+                $_ = shift @lines until m{^(?:state|macro)};
+                unshift @lines, $_;
             }
 
-            if (m/^send\s+(.+)/) {
+            if (m{^\s+send\s+(.+)$}) {
                 push @{ $data->{actions} },
                     {type => 'send', value => $1};
             }
-            if (m/^match\s+\/(.+)\/$/) {
+            if (m{^\s+match\s+/(.+)/\s*$}) {
                 push @{ $data->{actions} },
-                    {type => 'match', value => qr/$1/};
+                    {type => 'match', value => qr/$1/m};
             }
 
-            if (m/^continuation\s+\/(.+)\/$/) {
-                $data->{actions}->[-1]->{continuation} = qr/$1/;
+            if (m{^\s+follow\s+/(.+)/\s+with\s+(.+)\s*$}) {
+                my ($match, $send) = ($1, $2);
+                $send =~ s/^["']//; $send =~ s/["']$//;
+                $data->{actions}->[-1]->{continuation} = [qr/$match/,$send];
+                #    {type => 'match', value => qr/$match/},
+                #    {type => 'send',  value => $send}
+                #];
             }
         }
         # last entry in the file needs baking

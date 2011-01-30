@@ -1,10 +1,7 @@
 state user_prompt
-    match /[Uu]sername/
+    match /[Uu]sername: ?$/
 
 state pass_prompt
-    match /[Pp]assword: ?$/
-
-state priv_exec_pass
     match /[Pp]assword: ?$/
 
 state user_exec
@@ -17,29 +14,7 @@ state configure
     match /\(config[^)]*\)# ?$/
 
 
-from user_prompt to pass_prompt
-    send %s
-
-from pass_prompt to user_exec
-    send %s
-
-from user_exec to priv_exec_pass
-    send enable
-
-from priv_exec_pass to priv_exec
-    send %s
-
-from priv_exec to user_exec
-    send disable
-
-from priv_exec to configure
-    send configure terminal
-
-from configure to priv_exec
-    send exit
-
 macro to_user_exec
-    match /[Uu]sername/
     send %s
     match /[Pp]assword: ?$/
     send %s
@@ -58,7 +33,7 @@ macro write_mem
 
 macro show_run
     send show running-config
-    continuation / --More-- /
+    follow / --More-- / with ' '
 
 macro show_int_br
     send show ip int br

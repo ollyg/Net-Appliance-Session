@@ -59,8 +59,6 @@ sub apply_params {
         my $next = $self->next;
         $next->params([splice @params, 0, $next->num_params]);
     }
-
-    return $self; # required
 }
 
 has _callbacks => (

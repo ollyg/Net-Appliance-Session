@@ -17,7 +17,7 @@ has 'value' => (
 
 has 'continuation' => (
     is => 'rw',
-    isa => 'RegexpRef',
+    isa => 'ArrayRef[RegexpRef|Str]',
     required => 0,
 );
 
