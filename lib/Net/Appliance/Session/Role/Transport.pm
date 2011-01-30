@@ -2,7 +2,6 @@ package Net::Appliance::Session::Role::Transport;
 
 use Moose::Role;
 use IPC::Run ();
-with 'Net::Appliance::Session::Role::Engine';
 
 has 'irs' => (
     is => 'ro',

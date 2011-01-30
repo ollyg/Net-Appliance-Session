@@ -2,6 +2,7 @@ package Net::Appliance::Session;
 
 use Moose;
 with 'Net::Appliance::Session::Role::Phrasebook';
+with 'Net::Appliance::Session::Role::Engine';
 
 has 'transport' => (
     is => 'ro',

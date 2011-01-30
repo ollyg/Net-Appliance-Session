@@ -7,6 +7,7 @@ use Net::Appliance::Session::ActionSet;
 has '_prompt' => (
     is => 'rw',
     isa => 'RegexpRef',
+    required => 0,
 );
 
 sub prompt { return (shift)->_prompt }
@@ -19,6 +20,7 @@ sub set_prompt {
 has 'last_actionset' => (
     is => 'rw',
     isa => 'Net::Appliance::Session::ActionSet',
+    required => 0,
 );
 
 sub last_prompt { return (split m/\n/, (shift)->last_actionset->last->response)[-1] }
