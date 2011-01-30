@@ -9,9 +9,9 @@ has 'last_actionset' => (
     isa => 'Net::Appliance::Session::ActionSet',
 );
 
-sub last_prompt { return (shift)->last_actionset->last->response }
+sub last_prompt { return (split m/\n/, (shift)->last_actionset->last->response)[-1] }
 
-sub prompt_as_match {
+sub last_prompt_as_match {
     my $prompt = (shift)->last_prompt;
     return qr/^$prompt$/m;
 }
@@ -40,7 +40,7 @@ sub _execute_actions {
 
     my $set = Net::Appliance::Session::ActionSet->new({ actions => [@_] });
     $set->register_callback(sub { $self->do_action(@_) });
-    $set->execute($self->prompt_as_match);
+    $set->execute($self->last_prompt_as_match);
 
     $self->last_actionset($set);
 }
@@ -60,7 +60,6 @@ sub find_state {
                         })
                     ] })
                 );
-                # $self->current_state($state);
                 return;
             }
         }
