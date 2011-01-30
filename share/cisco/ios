@@ -1,16 +1,16 @@
-state user_prompt
+prompt user_prompt
     match /[Uu]sername: ?$/
 
-state pass_prompt
+prompt pass_prompt
     match /[Pp]assword: ?$/
 
-state user_exec
+prompt user_exec
     match /> ?$/
 
-state priv_exec
+prompt priv_exec
     match /# ?$/
 
-state configure
+prompt configure
     match /\(config[^)]*\)# ?$/
 
 

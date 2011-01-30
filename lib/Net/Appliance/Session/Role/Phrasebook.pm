@@ -23,14 +23,14 @@ has 'add_library' => (
     required => 0,
 );
 
-has '_state' => (
+has '_prompt_tbl' => (
     is => 'ro',
     isa => 'HashRef[Net::Appliance::Session::ActionSet]',
     default => sub { {} },
     required => 0,
 );
 
-has '_macro' => (
+has '_macro_tbl' => (
     is => 'ro',
     isa => 'HashRef[Net::Appliance::Session::ActionSet]',
     default => sub { {} },
@@ -42,7 +42,7 @@ sub _bake {
     my ($self, $data) = @_;
     return unless ref $data eq ref {} and keys %$data;
 
-    my $slot = '_'. (lc $data->{type});
+    my $slot = '_'. (lc $data->{type}) .'_tbl';
     $self->$slot->{$data->{name}}
         = Net::Appliance::Session::ActionSet->new({
             actions => $data->{actions}
@@ -60,12 +60,12 @@ sub _load_graph {
             # Skip comments and empty lines
             next if m/^(?:#|\s*$)/;
 
-            if (m{^(state|macro) (\w+)\s*$}) {
+            if (m{^(prompt|macro) (\w+)\s*$}) {
                 $self->_bake($data);
                 $data = {type => $1, name => $2};
             }
             elsif (m{^\w}) {
-                $_ = shift @lines until m{^(?:state|macro)};
+                $_ = shift @lines until m{^(?:prompt|macro)};
                 unshift @lines, $_;
             }
 
