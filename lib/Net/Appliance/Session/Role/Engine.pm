@@ -54,9 +54,14 @@ sub _execute_actions {
 
     my $set = Net::Appliance::Session::ActionSet->new({ actions => [@_] });
     $set->register_callback(sub { $self->do_action(@_) });
-    $set->execute($self->prompt || $self->last_prompt_as_match);
 
+    # user can install a prompt, call find_prompt, or let us trigger that
+    $self->find_prompt if not $self->last_actionset;
+
+    $set->execute($self->prompt || $self->last_prompt_as_match);
     $self->last_actionset($set);
+
+    # if user used a match ref then we assume new prompt value
     if ($self->last_actionset->last->is_lazy) {
         $self->_prompt($self->last_actionset->last->value);
     }
