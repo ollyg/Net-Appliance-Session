@@ -23,9 +23,14 @@ has 'last_actionset' => (
     required => 0,
 );
 
+sub last_response {
+    my $self = shift;
+    return $self->last_actionset->item_at(-2)->response;
+}
+
 sub last_prompt {
     my $self = shift;
-    return (split m/\n/, $self->last_actionset->last->response)[-1];
+    return (split m/\n/, $self->last_actionset->item_at(-1)->response)[-1];
 }
 
 sub last_prompt_as_match {

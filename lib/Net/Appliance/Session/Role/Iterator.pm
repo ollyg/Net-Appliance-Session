@@ -8,6 +8,13 @@ sub count { return scalar @{ scalar (shift)->_sequence } }
 sub first { return (shift)->_sequence->[0]  }
 sub last  { return (shift)->_sequence->[-1] }
 
+sub item_at {
+    my ($self, $pos) = @_;
+    confess "position is past the end of sequence\n"
+        if $pos >= $self->count;
+    return $self->_sequence->[$pos];
+}
+
 sub insert_at {
     my ($self, $pos, @rest) = @_;
     my @seq = $self->_sequence;

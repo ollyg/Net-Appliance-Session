@@ -148,7 +148,7 @@ sub _find_phrasebooks {
         });
         last if $target;
     }
-    die (sprintf "couldn't find Personality '%s' within your Library\n",
+    confess (sprintf "couldn't find Personality '%s' within your Library\n",
             $self->personality) unless $target;
 
     my @phrasebooks = ();
@@ -160,7 +160,7 @@ sub _find_phrasebooks {
             grep { not $_->is_dir } $root->children(no_hidden => 1);
     }
 
-    die (sprintf "Personality [%s] contains no content!\n",
+    confess (sprintf "Personality [%s] contains no content!\n",
             $self->personality) unless scalar @phrasebooks;
     return @phrasebooks;
 }
