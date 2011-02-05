@@ -1,12 +1,12 @@
-package Net::Appliance::Session::ActionSet;
+package Net::CLI::Interact::ActionSet;
 
 use Moose;
-use Net::Appliance::Session::Action;
-with 'Net::Appliance::Session::Role::Iterator';
+use Net::CLI::Interact::Action;
+with 'Net::CLI::Interact::Role::Iterator';
 
 has '_sequence' => (
     is => 'rw',
-    isa  => 'ArrayRef[Net::Appliance::Session::Action]',
+    isa  => 'ArrayRef[Net::CLI::Interact::Action]',
     auto_deref => 1,
     required => 1,
 );
@@ -18,19 +18,19 @@ sub BUILDARGS {
 
     if (exists $params->{actions} and ref $params->{actions} eq ref []) {
         foreach my $a (@{$params->{actions}}) {
-            if (ref $a eq 'Net::Appliance::Session::ActionSet') {
+            if (ref $a eq 'Net::CLI::Interact::ActionSet') {
                 push @{$params->{_sequence}}, $a->_sequence;
                 next;
             }
 
-            if (ref $a eq 'Net::Appliance::Session::Action') {
+            if (ref $a eq 'Net::CLI::Interact::Action') {
                 push @{$params->{_sequence}}, $a;
                 next;
             }
 
             if (ref $a eq ref {}) {
                 push @{$params->{_sequence}},
-                    Net::Appliance::Session::Action->new($a);
+                    Net::CLI::Interact::Action->new($a);
                 next;
             }
 
@@ -44,7 +44,7 @@ sub BUILDARGS {
 
 sub clone {
     my $self = shift;
-    return Net::Appliance::Session::ActionSet->new({
+    return Net::CLI::Interact::ActionSet->new({
         actions => [ map { $_->clone } $self->_sequence ],
         _callbacks => $self->_callbacks,
     });
@@ -97,7 +97,7 @@ sub _pad_send_with_match {
     confess "execute requires the current match action as a parameter\n"
         unless defined $current_match and ref $current_match eq ref qr//;
 
-    my $match = Net::Appliance::Session::Action->new({
+    my $match = Net::CLI::Interact::Action->new({
         type => 'match', value => $current_match,
     });
 

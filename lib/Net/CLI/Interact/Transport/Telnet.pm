@@ -1,7 +1,7 @@
-package Net::Appliance::Session::Transport::Telnet;
+package Net::CLI::Interact::Transport::Telnet;
 
 use Moose::Role;
-with 'Net::Appliance::Session::Role::Transport';
+with 'Net::CLI::Interact::Role::Transport';
 
 has 'app' => (
     is => 'ro',

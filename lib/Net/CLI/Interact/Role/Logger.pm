@@ -1,4 +1,4 @@
-package Net::Appliance::Session::Role::Logger;
+package Net::CLI::Interact::Role::Logger;
 
 use Moose::Role;
 use Time::HiRes qw(gettimeofday tv_interval);

@@ -1,9 +1,9 @@
-package Net::Appliance::Session;
+package Net::CLI::Interact;
 
 use Moose;
-with 'Net::Appliance::Session::Role::Phrasebook';
-with 'Net::Appliance::Session::Role::Engine';
-with 'Net::Appliance::Session::Role::Logger';
+with 'Net::CLI::Interact::Role::Phrasebook';
+with 'Net::CLI::Interact::Role::Engine';
+with 'Net::CLI::Interact::Role::Logger';
 
 has 'transport' => (
     is => 'ro',
@@ -27,7 +27,7 @@ sub BUILD {
     $self->log('transport', 1, 'about to load transport', $self->transport);
     use Moose::Util;
     Moose::Util::apply_all_roles($self, 
-        'Net::Appliance::Session::Transport::'. $self->transport);
+        'Net::CLI::Interact::Transport::'. $self->transport);
 
     $self->log('build', 1, 'finished phrasebook and transport load');
 }

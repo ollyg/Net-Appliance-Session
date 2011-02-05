@@ -1,8 +1,8 @@
-package Net::Appliance::Session::Action;
+package Net::CLI::Interact::Action;
 
 use Moose;
 use Moose::Util::TypeConstraints qw(enum);
-use Net::Appliance::Session::ActionSet;
+use Net::CLI::Interact::ActionSet;
 
 has 'type' => (
     is => 'ro',
@@ -33,7 +33,7 @@ has 'is_lazy' => (
 
 has 'continuation' => (
     is => 'rw',
-    isa => 'Net::Appliance::Session::ActionSet',
+    isa => 'Net::CLI::Interact::ActionSet',
     required => 0,
 );
 
@@ -58,7 +58,7 @@ sub BUILDARGS {
     my $params = (ref $rest[0] eq ref {} and scalar @rest == 1 ? $rest[0] : {@rest});
 
     if (exists $params->{continuation} and ref $params->{continuation} eq ref []) {
-        $params->{continuation} = Net::Appliance::Session::ActionSet->new({
+        $params->{continuation} = Net::CLI::Interact::ActionSet->new({
             actions => $params->{continuation},
         });
     }

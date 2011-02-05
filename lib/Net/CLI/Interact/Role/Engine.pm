@@ -1,8 +1,8 @@
-package Net::Appliance::Session::Role::Engine;
+package Net::CLI::Interact::Role::Engine;
 
 use Moose::Role;
-use Net::Appliance::Session::Action;
-use Net::Appliance::Session::ActionSet;
+use Net::CLI::Interact::Action;
+use Net::CLI::Interact::ActionSet;
 
 has '_prompt' => (
     is => 'rw',
@@ -22,7 +22,7 @@ sub set_prompt {
 
 has 'last_actionset' => (
     is => 'rw',
-    isa => 'Net::Appliance::Session::ActionSet',
+    isa => 'Net::CLI::Interact::ActionSet',
     required => 0,
 );
 
@@ -56,7 +56,7 @@ sub cmd {
     $self->log('engine', 1, 'running command', $command);
 
     $self->_execute_actions(
-        Net::Appliance::Session::Action->new({
+        Net::CLI::Interact::Action->new({
             type => 'send',
             value => $command,
         }),
@@ -67,7 +67,7 @@ sub _execute_actions {
     my $self = shift;
     $self->log('engine', 2, 'executing actions');
 
-    my $set = Net::Appliance::Session::ActionSet->new({ actions => [@_] });
+    my $set = Net::CLI::Interact::ActionSet->new({ actions => [@_] });
     $set->register_callback(sub { $self->do_action(@_) });
 
     # user can install a prompt, call find_prompt, or let us trigger that
@@ -95,7 +95,7 @@ sub find_prompt {
             if ($self->out =~ $self->_prompt_tbl->{$prompt}->first->value) {
                 $self->log('prompt', 2, "hit, matches prompt $prompt");
                 $self->last_actionset(
-                    Net::Appliance::Session::ActionSet->new({ actions => [
+                    Net::CLI::Interact::ActionSet->new({ actions => [
                         $self->_prompt_tbl->{$prompt}->first->clone({
                             response => $self->flush,
                         })

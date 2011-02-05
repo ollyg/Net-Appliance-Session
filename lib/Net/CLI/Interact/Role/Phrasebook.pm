@@ -1,7 +1,7 @@
-package Net::Appliance::Session::Role::Phrasebook;
+package Net::CLI::Interact::Role::Phrasebook;
 
 use Moose::Role;
-use Net::Appliance::Session::ActionSet;
+use Net::CLI::Interact::ActionSet;
 
 has 'personality' => (
     is => 'rw',
@@ -25,14 +25,14 @@ has 'add_library' => (
 
 has '_prompt_tbl' => (
     is => 'ro',
-    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
+    isa => 'HashRef[Net::CLI::Interact::ActionSet]',
     default => sub { {} },
     required => 0,
 );
 
 has '_macro_tbl' => (
     is => 'ro',
-    isa => 'HashRef[Net::Appliance::Session::ActionSet]',
+    isa => 'HashRef[Net::CLI::Interact::ActionSet]',
     default => sub { {} },
     required => 0,
 );
@@ -45,7 +45,7 @@ sub _bake {
 
     my $slot = '_'. (lc $data->{type}) .'_tbl';
     $self->$slot->{$data->{name}}
-        = Net::Appliance::Session::ActionSet->new({
+        = Net::CLI::Interact::ActionSet->new({
             actions => $data->{actions}
         });
 }
@@ -71,7 +71,7 @@ sub _resolve_lazy_matches {
             }
         }
 
-        $self->_macro_tbl->{$name} = Net::Appliance::Session::ActionSet->new({
+        $self->_macro_tbl->{$name} = Net::CLI::Interact::ActionSet->new({
             actions => $new_set
         });
     }

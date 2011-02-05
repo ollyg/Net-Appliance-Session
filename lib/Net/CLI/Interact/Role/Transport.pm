@@ -1,4 +1,4 @@
-package Net::Appliance::Session::Role::Transport;
+package Net::CLI::Interact::Role::Transport;
 
 use Moose::Role;
 use IPC::Run ();

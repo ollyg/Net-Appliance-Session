@@ -1,4 +1,4 @@
-package Net::Appliance::Session::Role::Iterator;
+package Net::CLI::Interact::Role::Iterator;
 
 use Moose::Role;
 
