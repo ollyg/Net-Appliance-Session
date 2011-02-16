@@ -141,6 +141,10 @@ sub close {
     return if $self->close_called;
     $self->close_called(1);
 
+    # Just return if we're in an open session. (rt.cpan #65453)
+    my $s = *$self->{net_telnet};
+    return unless $s->{opened};
+
     my $caller = ( caller(1) )[3];
 
     # close() is called from other things like fhopen, so we only want

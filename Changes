@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * Prevent close() unless already opened, Steve C. (rt.cpan #65453)
+
 2.110090  2011-01-09 11:14:48 Europe/London
 
   * Fix bug in use of close_called, Steve C. (rt.cpan #64450)
