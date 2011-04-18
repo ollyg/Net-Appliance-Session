@@ -66,8 +66,16 @@ sub _connect_core {
         $self->print($args{password});
     }
 
-    $self->waitfor($self->prompt)
+    my $login_done;
+    (undef, $login_done) = $self->waitfor(
+        Match => $self->prompt,
+        Match => $self->pb->fetch('userpass_prompt'),
+    )
         or $self->error('Login failed to remote host');
+
+    if ($login_done =~ eval 'qr' . $self->pb->fetch('userpass_prompt')) {
+        $self->error('Authentication failed to remote host');
+    }
 
     return $self;
 }
