@@ -1,24 +1,22 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 29;
+use Test::More 0.88;
 
 # ------------------------------------------------------------------------
 
-my $class;
 BEGIN {
-    $class = 'Net::Appliance::Session';
-    use_ok($class);
+    use_ok('Net::Appliance::Session');
 }
 
 # ------------------------------------------------------------------------
 
 my $obj = undef;
 
-eval {$obj = $class->new()};
-isa_ok($obj => $class, 'new without Host' );
+new_ok('Net::Appliance::Session' => [],
+    'new without Host' );
 
-eval {$obj = $class->new('testhost.example')};
-isa_ok( $obj => $class, 'new with Host' );
+my $s = new_ok('Net::Appliance::Session' => ['testhost.example'],
+    'new with Host' );
 
 foreach (qw(
     logged_in
@@ -48,6 +46,7 @@ foreach (qw(
     close
     pb
 )) {
-    ok( $obj->can($_), "can do method $_");
+    ok( $s->can($_), "can do method $_");
 }
 
+done_testing;

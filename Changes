@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * Ported to Net::CLI::Interact backend
+
 2.111080  2011-04-18 10:13:04 Europe/London
 
   * Spot login auth failures, Steve C. (rt.cpan #67487)

@@ -19,12 +19,12 @@ die "one and only param is a device FQDN or IP!\n"
     if ! defined $host;
 
 my $s = Net::Appliance::Session->new($host);
-$s->input_log(*STDOUT); # echo all I/O
+$s->set_global_log_at('debug'); # maximum debugging
 
 eval {
     $s->connect(
-        Name     => $username,
-        Password => $password,
+        name     => $username,
+        password => $password,
         SHKC     => 0, # SSH Strict Host Key Checking disabled
     );
     $s->begin_privileged; # use same pass as login
@@ -32,12 +32,8 @@ eval {
     # is this a device with FastEthernet or GigabitEthernet ports?
     # let's do a test and find out, for use in the later commands.
 
-    my $type;
-    $s->cmd(
-        String => 'show interfaces status | incl 1/0/24',
-        Output => \$type,
-    );
-    $type = $type =~ m/^Gi/ ? 'GigabitEthernet' : 'FastEthernet';
+    my $type = $s->cmd('show interfaces status | incl 1/0/24');
+    $type = ($type =~ m/^Gi/ ? 'GigabitEthernet' : 'FastEthernet');
 
     # now actually do some work...
 
@@ -54,6 +50,6 @@ eval {
     $s->cmd('write memory');
     $s->end_privileged;
 };
-die $@ if $@;
+warn $@ if $@;
 
 $s->close;

@@ -1,139 +1,103 @@
 package Net::Appliance::Session;
 
-use strict;
-use warnings FATAL => 'all';
+use Moose;
+use Net::CLI::Interact;
 
-use base qw(
-    Net::Appliance::Session::Transport
-    Net::Appliance::Session::Engine
-    Net::Telnet
-    Class::Accessor::Fast::Contained
-    Class::Data::Inheritable
-); # eventually, would Moosify this ?
+with 'Net::Appliance::Session::Engine';
 
-use Net::Appliance::Session::Exceptions;
-use Net::Appliance::Session::Util;
-use Net::Appliance::Phrasebook 1.2;
-use UNIVERSAL::require;
-use Carp;
-
-__PACKAGE__->mk_ro_accessors('pb');
-__PACKAGE__->mk_accessors(qw(
+foreach my $slot (qw/
     logged_in
     in_privileged_mode
     in_configure_mode
+    privileged_paging
+    close_called
+/) {
+    has $slot => (
+        is => 'rw',
+        isa => 'Bool',
+        required => 0,
+        default => 0,
+    );
+}
+
+foreach my $slot (qw/
     do_paging
     do_login
     do_privileged_mode
     do_configure_mode
-    privileged_paging
-    check_pb
-    childpid
-    fail_with_repl
-    last_command_sent
-    close_called
-));
-__PACKAGE__->follow_best_practice;
-__PACKAGE__->mk_accessors(qw(
-    username
-    password
-    pager_disable_lines
-    pager_enable_lines
-));
-
-__PACKAGE__->mk_classdata(
-    basic_phrases => [qw/
-        prompt
-        basic_prompt
-        user_prompt
-        pass_prompt
-        userpass_prompt
-        err_string
-    /]
-);
-
-# ===========================================================================
-
-sub new {
-    my $class = shift @_;
-    my %args;
-
-    # interpret params into hash so we can augment safely
-    if (scalar @_ == 1) {
-        $args{host} = shift @_;
-    }
-    elsif (! scalar @_ % 2) {
-        %args = _normalize(@_);
-    }
-    else {
-        raise_error "Error: odd number of paramters supplied to new()";
-    }
-
-    # our primary base is Net::Telnet, and it's quite sensitive to
-    # unrecognized args, so take them out. this also prevents auto-connect
-
-    my $tprt = exists $args{transport} ? delete $args{transport} : 'SSH';
-    my $host = exists $args{host}      ? delete $args{host}      : undef;
-    my $chpb = exists $args{checkpb}   ? delete $args{checkpb}   : 1;
-    my $repl = exists $args{repl}      ? delete $args{repl}      : 0;
-
-    my %pbargs = (); # arguments to Net::Appliance::Phrasebook->load
-    $pbargs{platform} =
-        exists $args{platform} ? delete $args{platform} : 'IOS';
-    $pbargs{source} = delete $args{source} if exists $args{source};
-
-    # load up the transport, which is a wrapper for Net::Telnet
-
-    my $transport = 'Net::Appliance::Session::Transport::' . $tprt;
-    $transport->require or
-        raise_error "Couldn't load transport '$transport' (maybe you forgot to install it?)";
-
-    my $self = $transport->new( %args );
-    bless ($self, $class);  # reconsecrate into __PACKAGE__
-    unshift @Net::Appliance::Session::ISA, $transport;
-
-    # a bit of a double-backflip, but that's what you get for using MI :-}
-    $self = $self->Class::Accessor::Fast::Contained::setup({
-        pb => Net::Appliance::Phrasebook->load( %pbargs )
-    });
-
-    # $self will now respond to Net::Telnet methods, and ->pb->fetch()
-    $self->check_pb($chpb);
-
-    # (optionally) check all necessary words are in our loaded phrasebook
-    if ($self->check_pb) {
-        my %k_available = map {$_ => 1} $self->pb->keywords;
-        foreach my $k (@{ __PACKAGE__->basic_phrases }) {
-            $k_available{$k} or
-                raise_error "Definition of '$k' missing from phrasebook!";
-        }
-    }
-
-    # restore the Host argument
-    $self->host( $host ) if defined $host;
-
-    # set Net::Telnet prompt from platform's phrasebook
-    $self->prompt( $self->pb->fetch('prompt') );
-
-    # set failure mode
-    $self->fail_with_repl($repl);
-
-    # set some operation defaults
-    $self->set_pager_disable_lines(0);
-    $self->set_pager_enable_lines(24);
-    $self->do_paging(1);
-    $self->do_login(1);
-    $self->do_privileged_mode(1);
-    $self->do_configure_mode(1);
-    $self->privileged_paging(0);
-    $self->last_command_sent('');
-    $self->close_called(0);
-
-    return $self;
+/) {
+    has $slot => (
+        is => 'rw',
+        isa => 'Bool',
+        required => 0,
+        default => 1,
+    );
 }
 
-# need to override Net::Telnet::close to make sure we back out
-# of any nested modes correctly
+has 'pager_enable_lines' => (
+    is => 'rw',
+    isa => 'Int',
+    required => 0,
+    default => 24,
+    reader => 'get_pager_enable_lines',
+    writer => 'set_pager_enable_lines',
+);
+
+has 'pager_disable_lines' => (
+    is => 'rw',
+    isa => 'Int',
+    required => 0,
+    default => 0,
+    reader => 'get_pager_disable_lines',
+    writer => 'set_pager_disable_lines',
+);
+
+foreach my $slot (qw/
+    username
+    password
+/) {
+    has $slot => (
+        is => 'rw',
+        isa => 'Str',
+        required => 0,
+        reader => "get_$slot",
+        writer => "set_$slot",
+    );
+}
+
+foreach my $slot (qw/
+    transport
+    phrasebook
+/) {
+    has $slot => (
+        is => 'rw',
+        isa => 'Str',
+        required => 1,
+    );
+}
+
+has 'nci' => (
+    is => 'ro',
+    isa => 'Net::CLI::Interact',
+    lazy_build => 1,
+    handles => [qw/
+        cmd
+        macro
+        last_response
+        set_phrasebook
+        set_global_log_at
+        prompt_looks_like
+    /],
+);
+
+sub _build_nci {
+    my $self = shift;
+    return Net::CLI::Interact->new({
+        transport => $self->transport,
+        phrasebook => $self->phrasebook,
+    });
+}
+
 sub close {
     my $self = shift;
 
@@ -141,190 +105,17 @@ sub close {
     return if $self->close_called;
     $self->close_called(1);
 
-    # Just return if we're in an open session. (rt.cpan #65453)
-    my $s = *$self->{net_telnet};
-    return unless $s->{opened};
+    $self->end_configure
+        if $self->do_configure_mode and $self->in_configure_mode;
+    $self->end_privileged
+        if $self->do_privileged_mode and $self->in_privileged_mode;
 
-    my $caller = ( caller(1) )[3];
+    # re-enable paging
+    $self->enable_paging if $self->do_paging;
 
-    # close() is called from other things like fhopen, so we only want
-    # to act on real closes -- a bit hacky really
-    if ((! defined $caller) or ($caller !~ m/fhopen/)) {
-        $self->end_configure
-            if $self->do_configure_mode and $self->in_configure_mode;
-        $self->end_privileged
-            if $self->do_privileged_mode and $self->in_privileged_mode;
-
-        # re-enable paging
-        $self->enable_paging if $self->do_paging;
-
-        # transport-specific work
-        $self->disconnect;
-    }
-
-    $self->SUPER::close(@_);
+    # transport-specific work
+    $self->nci->disconnect;
 }
-
-# cygwin perl does not reap for some reason, so one solution
-# for now is to kill the child if it's still around when we are GC'd
-sub DESTROY {
-    my $self = shift;
-
-    # only applies to cygwin
-    return if $^O !~ m/win/i;
-
-    if (defined $self->childpid
-        and $self->childpid > 0
-        and (kill 0, $self->childpid) > 0) {
-
-        # print "SIGKILL to process ID ", $self->childpid, "\n";
-        kill 9, $self->childpid;
-    }
-}
-
-# need to override Net::Telnet::fhopen because it would obliterate our
-# private attributes otherwise.
-sub fhopen {
-    my ($self, $fh) = @_;
-    
-    ## Save our private data.
-    my $s = *$self->{ref $self};
-
-    my $r = $self->SUPER::fhopen($fh); # does not return $self
-
-    ## Restore our private data.
-    *$self->{ref $self} = $s;
-
-    ## Reset close_called
-    $self->close_called(0);
-
-    return $r;
-}
-
-## Override Net::Telnet::open to reset close_called
-sub open {
-  my ($self, @args) = @_;
-  my $ok = $self->SUPER::open(@args);
-
-  ## Reset close_called
-  $self->close_called(0);
-
-  return $ok;
-}
-
-# override Net::Telnet::error(), which is a little tricky...
-# Normally error() is kind of polymorphic, changing depending on the state of
-# the Errmode parameter, and we still want that to be the case. However
-# locally we want ->error to work because it's more straighforward, so we'll
-# just filter for calls from our own namespace versus everything else.
-sub error {
-    my $self = shift;
-
-    return $self->SUPER::error(@_) if scalar caller !~ m/^Net::Appliance::Session/;
-
-    my $e =  Net::Appliance::Session::Exception->new(
-        message  => join (', ', @_). Carp::shortmess,
-        errmsg   => $self->errmsg,
-        lastline => $self->lastline,
-    );
-
-    if ($self->fail_with_repl) {
-        # don't use REPL, even if asked, if we're not interactive
-        eval {
-            require IO::Interactive;
-            $e->throw if ! IO::Interactive::is_interactive();
-        };
-
-        # start up a REPL shell
-        eval {
-            require Devel::REPL;
-            my $repl = Devel::REPL->new;
-            $repl->load_plugin('NAS');
-
-            ${ $repl->lexical_environment->get_member_ref('$', '_', '$s') }
-                = $self;
-            $repl->nas_cli_mode(1);
-            $repl->nas_command_cache($self->last_command_sent);
-            $repl->print( $repl->format_error($e) );
-            $repl->run;
-        };
-    }
-
-    $e->throw if $@ or !$self->fail_with_repl;
-
-    return $self; # but hopefully not, because we died or started a REPL
-}
-
-# override Net::Telnet::cmd() to check responses against error strings in
-# phrasebook for each platform. also check for response sanity to save client
-# effort.
-sub cmd {
-    my $self = shift;
-
-    my (%args, @nt_args, $string, $output);
-    if (scalar @_ == 1) {
-        @nt_args = ();
-        $string = shift @_;
-    }
-    else {
-        %args = _normalize(@_);
-        ($string, $output) = @args{'string', 'output'};
-
-        push @nt_args, ('Timeout', $args{timeout}) if exists $args{timeout};
-        push @nt_args, (map {( Match => $_ )} @{$args{match}})
-            if exists $args{match};
-    }
-
-    $self->last_command_sent($string); # to pass to error handler
-    my $completion = ($string =~ s/\?$//); # command line completion?
-
-    $self->put($string . ($completion ? $self->pb->fetch('completion')
-                                      : $self->output_record_separator))
-        or $self->error('Incomplete command write: only '.
-                        $self->print_length .' bytes have been sent');
-
-    my $prompt = $self->prompt;
-    $prompt =~ s/\$/\\s*$string\$/ if $completion;
-    my @retvals = $self->waitfor( Match => $prompt, @nt_args );
-
-    $self->error('Timeout, EOF or other failure waiting for command response')
-        if scalar @retvals == 0; # empty list
-
-    $self->error('Command response matched device error string')
-        if $retvals[0] =~ eval 'qr'. $self->pb->fetch('err_string');
-
-    # Save the most recently matched prompt.
-    $self->last_prompt($retvals[1]);
-
-    # Reset the cli input (ctrl-u), for a new command.
-    $self->put( chr(21) );
-
-    my @output;
-    my $irs = $self->input_record_separator || "\n";
-
-    if ($retvals[0] =~ m/^(?:$irs)*$/) {
-        # no output, so according to Net::Telnet docs do this...
-        @output = ('');
-    }
-    else {
-        @output = map { $_ . $irs } split m/$irs/, $retvals[0];
-        @output = splice @output, $self->cmd_remove_mode;
-    }
-
-    if (ref $output) {
-        if (ref $output eq 'SCALAR') {
-            $$output = join '', @output;
-        }
-        else {
-            @$output = @output;
-        }
-    }
-
-    return @output if wantarray;
-    return $self;
-}
-
-# ===========================================================================
 
 1;
 
@@ -751,100 +542,8 @@ C<Net::Appliance::Session::Exception> exception objects have two
 additional methods (a.k.a. fields), C<errmsg> and C<lastline> which
 contain output from Net::Telnet diagnostics.
 
-=head2 Using a C<Devel::REPL> shell
-
-This module supports an additional mode of failure which can be useful when
-debugging C<Net::Appliance::Session> scripts. Instead of having an exception
-thrown as described above, you can be dropped into an interactive shell at the
-connected device, if possible, instead.
-
-A L<Devel::REPL> shell is used, which means you also have the bonus of a full
-Perl environment from which you can execute Perl code, test network device
-commands, and save and load data from disk. Further information on how to use
-the shell and its features is given in the L<Devel::REPL::Plugin::NAS> manual
-page.
-
-As well as installing the C<Devel::REPL> and C<Devel::REPL::Plugin::NAS>
-modules, you'll need to change the call to C<new()> for this module, like so:
-
- my $s = Net::Appliance::Session->new(
-     Host => 'hostname.example',
-     REPL => 1,
- );
-
 =head1 INTERNALS
 
-The guts of this module are pretty tricky, although I would also hope elegant,
-in parts ;-) In particular, the following C<Net::Telnet> method has been
-overridden to modify behaviour:
-
-=head2 C<fhopen>
-
-The killer feature in C<Net::Telnet> is that it allows you to swap out the
-builtin I/O target from a standard TELNET connection, to another filehandle of
-your choice. However, it does so in a rather intrusive way to the poor object,
-so this method is overridden to safeguard our instance's private data.
-
-=head1 DEPENDENCIES
-
-Other than the contents of the standard Perl distribution, you will need the
-following:
-
-=over 4
-
-=item *
-
-L<Exception::Class>
-
-=item *
-
-L<Net::Telnet>
-
-=item *
-
-L<IO::Pty>
-
-=item *
-
-L<UNIVERSAL::require>
-
-=item *
-
-L<Class::Accessor> >= 0.25
-
-=item *
-
-L<Class::Accessor::Fast::Contained>
-
-=item *
-
-L<Net::Appliance::Phrasebook> >= 1.2
-
-=back
-
-You can also make use of certain features by installing the following optional
-modules:
-
-=over 4
-
-=item *
-
-L<Devel::REPL::Plugin::NAS>
-
-=item *
-
-L<Devel::REPL>
-
-=item *
-
-L<IO::Interactive>
-
-=back
-
-=head1 ACKNOWLEDGEMENTS
-
-Parts of this module are based on the work of Robin Stevens and Roger Treweek.
-The command spawning code was based on that in C<Expect.pm> and is copyright
-Roland Giersig and/or Austin Schutz.
+See L<Net::CLI::Interact>.
 
 =cut
