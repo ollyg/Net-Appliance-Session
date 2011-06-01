@@ -2,11 +2,29 @@ package Net::Appliance::Session::Engine;
 
 use Moose::Role;
 
+has 'pager_enable_lines' => (
+    is => 'rw',
+    isa => 'Int',
+    required => 0,
+    default => 24,
+    reader => 'get_pager_enable_lines',
+    writer => 'set_pager_enable_lines',
+);
+
+has 'pager_disable_lines' => (
+    is => 'rw',
+    isa => 'Int',
+    required => 0,
+    default => 0,
+    reader => 'get_pager_disable_lines',
+    writer => 'set_pager_disable_lines',
+);
+
 sub enable_paging {
     my $self = shift;
 
-    return 0 unless $self->do_paging;
-    return 0 unless $self->logged_in;
+    return unless $self->do_paging;
+    return unless $self->logged_in;
 
     my $privstate = $self->in_privileged_mode;
     $self->begin_privileged if $self->privileged_paging;
@@ -22,8 +40,8 @@ sub enable_paging {
 sub disable_paging {
     my $self = shift;
 
-    return 0 unless $self->do_paging;
-    return 0 unless $self->logged_in;
+    return unless $self->do_paging;
+    return unless $self->logged_in;
 
     my $privstate = $self->in_privileged_mode;
     $self->begin_privileged if $self->privileged_paging;
@@ -44,8 +62,8 @@ sub disable_paging {
 sub begin_privileged {
     my $self = shift;
 
-    return 0 unless $self->do_privileged_mode;
-    return 0 if $self->in_privileged_mode;
+    return unless $self->do_privileged_mode;
+    return if $self->in_privileged_mode;
 
     confess 'must connect before you can begin_privileged'
         unless $self->logged_in;
@@ -88,35 +106,28 @@ sub begin_privileged {
         $self->cmd($username, { match => 'pass_prompt' });
     }
 
-    $self->cmd($password, { match => 'prompt' });
-
-    # fairly dumb check to see that we're actually in privileged and
-    # not back at a regular prompt
-    confess 'failed to enter privileged mode'
-        unless $self->prompt_looks_like('privileged_prompt');
-
+    $self->cmd($password, { match => 'privileged_prompt' });
     $self->in_privileged_mode(1);
 }
 
 sub end_privileged {
     my $self = shift;
     
-    return 0 unless $self->do_privileged_mode;
-    return 0 unless $self->in_privileged_mode;
+    return unless $self->do_privileged_mode;
+    return unless $self->in_privileged_mode;
 
     confess 'must leave configure mode before leaving privileged mode'
         if $self->in_configure_mode;
 
     $self->macro('end_privileged_cmd');
-
     $self->in_privileged_mode(0);
 }
 
 sub begin_configure {
     my $self = shift;
 
-    return 0 unless $self->do_configure_mode;
-    return 0 if $self->in_configure_mode;
+    return unless $self->do_configure_mode;
+    return if $self->in_configure_mode;
 
     confess 'must enter privileged mode before configure mode'
         unless $self->in_privileged_mode;
@@ -128,20 +139,14 @@ sub begin_configure {
     }
 
     $self->macro('begin_configure_cmd');
-
-    # fairly dumb check to see that we're actually in configure and
-    # not still at a regular privileged prompt
-    confess 'failed to enter configure mode'
-        unless $self->prompt_looks_like('configure_prompt');
-
     $self->in_configure_mode(1);
 }
 
 sub end_configure {
     my $self = shift;
 
-    return 0 unless $self->do_configure_mode;
-    return 0 unless $self->in_configure_mode;
+    return unless $self->do_configure_mode;
+    return unless $self->in_configure_mode;
 
     $self->macro('end_configure_cmd');
 

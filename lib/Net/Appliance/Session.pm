@@ -4,6 +4,7 @@ use Moose;
 use Net::CLI::Interact;
 
 with 'Net::Appliance::Session::Engine';
+with 'Net::Appliance::Session::Transport';
 
 foreach my $slot (qw/
     logged_in
@@ -25,6 +26,7 @@ foreach my $slot (qw/
     do_login
     do_privileged_mode
     do_configure_mode
+    wake_up
 /) {
     has $slot => (
         is => 'rw',
@@ -33,24 +35,6 @@ foreach my $slot (qw/
         default => 1,
     );
 }
-
-has 'pager_enable_lines' => (
-    is => 'rw',
-    isa => 'Int',
-    required => 0,
-    default => 24,
-    reader => 'get_pager_enable_lines',
-    writer => 'set_pager_enable_lines',
-);
-
-has 'pager_disable_lines' => (
-    is => 'rw',
-    isa => 'Int',
-    required => 0,
-    default => 0,
-    reader => 'get_pager_disable_lines',
-    writer => 'set_pager_disable_lines',
-);
 
 foreach my $slot (qw/
     username
@@ -76,6 +60,13 @@ foreach my $slot (qw/
     );
 }
 
+has 'connect_options' => (
+    is => 'ro',
+    isa => 'HashRef[Str]',
+    required => 0,
+    default => sub { {} },
+);
+
 has 'nci' => (
     is => 'ro',
     isa => 'Net::CLI::Interact',
@@ -87,6 +78,8 @@ has 'nci' => (
         set_phrasebook
         set_global_log_at
         prompt_looks_like
+        find_prompt
+        disconnect
     /],
 );
 
@@ -95,6 +88,7 @@ sub _build_nci {
     return Net::CLI::Interact->new({
         transport => $self->transport,
         phrasebook => $self->phrasebook,
+        connect_options => $self->connect_options,
     });
 }
 
