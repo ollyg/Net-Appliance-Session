@@ -81,7 +81,7 @@ sub close {
     # re-enable paging
     $self->enable_paging if $self->do_paging;
 
-    $self->nci->disconnect;
+    $self->nci->transport->disconnect;
     $self->logged_in(0);
 }
 
