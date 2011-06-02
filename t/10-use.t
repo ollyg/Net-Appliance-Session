@@ -2,23 +2,12 @@
 use strict;
 use Test::More 0.88;
 
-# ------------------------------------------------------------------------
-
-BEGIN {
-    use_ok('Net::Appliance::Session');
-}
-
-# ------------------------------------------------------------------------
-
-my $obj = undef;
+BEGIN { use_ok('Net::Appliance::Session') }
 
 my $s = new_ok('Net::Appliance::Session' => [{
         transport => 'Serial',
         personality => 'cisco',
     }], 'new instance' );
-
-#my $s = new_ok('Net::Appliance::Session' => ['testhost.example'],
-#    'new with Host' );
 
 foreach (qw(
     logged_in
