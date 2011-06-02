@@ -7,8 +7,6 @@ has 'pager_enable_lines' => (
     isa => 'Int',
     required => 0,
     default => 24,
-    reader => 'get_pager_enable_lines',
-    writer => 'set_pager_enable_lines',
 );
 
 has 'pager_disable_lines' => (
@@ -16,8 +14,6 @@ has 'pager_disable_lines' => (
     isa => 'Int',
     required => 0,
     default => 0,
-    reader => 'get_pager_disable_lines',
-    writer => 'set_pager_disable_lines',
 );
 
 sub enable_paging {
@@ -30,7 +26,7 @@ sub enable_paging {
     $self->begin_privileged if $self->privileged_paging;
 
     $self->macro('paging_cmd', { params => [
-        $self->get_pager_enable_lines
+        $self->pager_enable_lines
     ]} );
 
     $self->end_privileged
@@ -47,7 +43,7 @@ sub disable_paging {
     $self->begin_privileged if $self->privileged_paging;
 
     $self->macro('paging_cmd', { params => [
-        $self->get_pager_disable_lines
+        $self->pager_disable_lines
     ]} );
 
     $self->end_privileged
@@ -65,7 +61,7 @@ sub begin_privileged {
     return unless $self->do_privileged_mode;
     return if $self->in_privileged_mode;
 
-    confess 'must connect before you can begin_privileged'
+    die 'must connect before you can begin_privileged'
         unless $self->logged_in;
 
     # rt.cpan#47214 check if we are already enabled by peeking the prompt
@@ -86,7 +82,7 @@ sub begin_privileged {
         ($username, $password) = @_;
     }
 
-    confess 'a set password is required before begin_privileged'
+    die 'a set password is required before begin_privileged'
         if not $password;
 
     # decide whether to explicitly login or just enable
@@ -100,7 +96,7 @@ sub begin_privileged {
     # whether login or enable, we still must be prepared for username:
     # prompt because it may appear even with privileged
     if ($self->prompt_looks_like('user_prompt')) {
-        confess 'a set username is required to enter priv on this host'
+        die 'a set username is required to enter priv on this host'
             if not $username;
   
         $self->cmd($username, { match => 'pass_prompt' });
@@ -116,7 +112,7 @@ sub end_privileged {
     return unless $self->do_privileged_mode;
     return unless $self->in_privileged_mode;
 
-    confess 'must leave configure mode before leaving privileged mode'
+    die 'must leave configure mode before leaving privileged mode'
         if $self->in_configure_mode;
 
     $self->macro('end_privileged_cmd');
@@ -129,7 +125,7 @@ sub begin_configure {
     return unless $self->do_configure_mode;
     return if $self->in_configure_mode;
 
-    confess 'must enter privileged mode before configure mode'
+    die 'must enter privileged mode before configure mode'
         unless $self->in_privileged_mode;
 
     # rt.cpan#47214 check if we are already in config by peeking the prompt
@@ -156,7 +152,7 @@ sub end_configure {
 
         # max out at three tries to exit configure mode
         if ( $caller3 and $caller3 =~ m/end_configure$/ ) {
-             confess 'failed to leave configure mode';
+             die 'failed to leave configure mode';
         }
         # try again to exit configure mode
         else {

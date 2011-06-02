@@ -60,6 +60,18 @@ foreach my $slot (qw/
     );
 }
 
+foreach my $slot (qw/
+    host
+    app
+/) {
+    has $slot => (
+        is => 'ro',
+        isa => 'Str',
+        required => 0,
+        predicate => "has_$slot",
+    );
+}
+
 has 'connect_options' => (
     is => 'ro',
     isa => 'HashRef[Str]',
@@ -79,462 +91,297 @@ has 'nci' => (
         set_global_log_at
         prompt_looks_like
         find_prompt
-        disconnect
     /],
 );
 
 sub _build_nci {
     my $self = shift;
+    $self->connect_options->{host} = $self->host
+        if $self->has_host;
+
     return Net::CLI::Interact->new({
         transport => $self->transport,
         phrasebook => $self->phrasebook,
         connect_options => $self->connect_options,
+        ($self->has_app ? (app => $self->app) : ()),
     });
-}
-
-sub close {
-    my $self = shift;
-
-    # protect against death spiral (rt.cpan #53796)
-    return if $self->close_called;
-    $self->close_called(1);
-
-    $self->end_configure
-        if $self->do_configure_mode and $self->in_configure_mode;
-    $self->end_privileged
-        if $self->do_privileged_mode and $self->in_privileged_mode;
-
-    # re-enable paging
-    $self->enable_paging if $self->do_paging;
-
-    # transport-specific work
-    $self->nci->disconnect;
 }
 
 1;
 
 # ABSTRACT: Run command-line sessions to network appliances
 
+=begin :prelude
+
+=head1 IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
+
+Between version 2.x and 3.x of this module the programmer's interface changed
+in a number of ways. If you have existing code to migrate to this new version,
+please see the L<Upgrading|Net::Appliance::Session::Manual::Upgrading>
+document which details all steps necessary.
+
+=end :prelude
+
 =head1 SYNOPSIS
 
  use Net::Appliance::Session;
- my $s = Net::Appliance::Session->new('hostname.example');
- $s->privileged_paging(1); # if using ASA/PIX OS 7+
-
+ 
+ my $s = Net::Appliance::Session->new({
+     personality => 'cisco',
+     transport => 'SSH',
+     host => 'hostname.example',
+     privileged_paging => 1, # only if using ASA/PIX OS 7+
+                             # and there are other behaviour options, see below
+ });
+ 
  eval {
-     $s->connect(Name => 'username', Password => 'loginpass');
+     $s->connect({name => 'username', password => 'loginpass'});
+ 
      $s->begin_privileged('privilegedpass');
      print $s->cmd('show access-list');
      $s->end_privileged;
  };
  if ($@) {
-     $e = Exception::Class->caught();
-     ref $e ? $e->rethrow : die $e;
+     warn "failed to execute command: $@";
  }
-
+ 
  $s->close;
 
 =head1 DESCRIPTION
 
 Use this module to establish an interactive command-line session with a
-network appliance. There is special support for moving into C<privileged>
-mode and C<configure> mode, with all other commands being sent through a
-generic call to your session object.
+network appliance. There is special support for moving into "privileged" mode
+and "configure" mode, along with the ability to send commands to the connected
+device and retrieve returned output.
 
 There are other CPAN modules that cover similar ground, including Net::SSH and
-Net::Telnet::Cisco, but they are less robust or do not handle SSH properly.
-Objects created by this module are based upon Net::Telnet so the majority of
-your interaction will be with methods in that module. It is recommended that
-you read the Net::Telnet manual page for further details.
+Net::Telnet::Cisco, but they are less robust or do not handle native SSH,
+Telnet and Serial Line connections with a single interface on both Unix and
+Windows platforms.
 
-This module natively supports connections via SSH, Telnet and a Serial Port.
-All commands can be overridden from the built-in Cisco defaults in order to
-support other target devices; the connection process (user log-in) is
-similarly configurable.
+Built-in commands come from a phrasebook which supports many network device
+vendors (Cisco, HP, etc) or you can install a new phrasebook. Most phases of
+the connection are configurable for different device behaviours.
 
 =head1 METHODS
 
-Objects created by this module are based upon Net::Telnet so the majority of
-your interaction will be with methods in that module.
+As in the synopsis above, the first step is to create a new instance. As in
+the synopsis above, recommended practice is to wrap all other method calls in
+a Perl C<eval> block to catch errors (typically time-outs waiting for CLI
+response).
 
-=head2 C<< Net::Appliance::Session->new >>
+=head2 Net::Appliance::Session->new( \%options )
 
-Like Net::Telnet you can supply either a single parameter to this method which
-is used for the target device hostname, or a list of named parameters as
-listed in the Net::Telnet documentation. Do not use C<Net::Telnet>'s
-C<Errmode> parameter, because it will be overridden by this module.
+ my $s = Net::Appliance::Session->new({
+     personality => 'cisco',
+     transport => 'SSH',
+     host => 'hostname.example',
+ });
 
-The significant difference with this module is that the actual connection to
-the remote device is delayed until you C<connect()>.
-
-Named Parameters, passed as a hash to this constructor, are optional. Some are
-described in L</"TRANSPORTS">, L</"DIAGNOSTICS">, and L</"CONFIGURATION">
-below. Any others are passed directly to L<Net::Telnet> (which dies on unknown
-parameters).
-
-This method returns a new C<Net::Appliance::Session> object.
-
-=head2 C<connect>
-
-When you instantiate a new Net::Appliance::Session object the module does not
-actually establish a connection with the target device. This behaviour is
-slightly different to Net::Telnet and is because the Transport may need to
-have login credentials before a connection is made (e.g. in the case of SSH).
-Use this method to establish that interactive session.
-
-Parameters to this method are determined by the Transport (SSH, Telnet, etc)
-that you are running. See the L<Net::Appliance::Session::Transport> manual
-page for further details.
-
-In addition to logging in, C<connect> will also disable paging in the
-output for its interactive session. This means that unlike Net::Telnet::Cisco
-no special page scraping logic is required in this module's code. This feature
-can be disabled (see L</"CONFIGURATION">, below).
-
-=head2 C<begin_privileged>
-
-To enter privileged mode on the device use this method. Of course you must be
-connected to the device using the C<connect> method, first.
-
-All parameters are optional, and if none are given then the login password
-will be used as the privileged password.
-
-If one parameter is given then it is assumed to be the privileged password.
-
-If two parameters are given then they are assumed to be the privileged
-username and password, respectively.
-
-If more than two parameters are given then they are interepreted as a list of
-named parameters using the key names C<Name> and C<Password> for the
-privileged username and password, respectively.
-
-=head2 C<end_privileged>
-
-To leave privileged mode and return to the unpriviledged shell then use this
-method.
-
-=head2 C<in_privileged_mode>
-
-This method will return True if your interactive session is currently in
-privileged (or configure) mode, and False if it is not.
-
-Also, you can pass a True or False value to this method to "trick" the module
-and alter its behaviour. This is useful for performing secondary logins (see
-CPAN Forum).
-
-=head2 C<begin_configure>
-
-In order to enter configure mode, you must first have entered privileged mode,
-using the C<begin_privileged> method described above.
-
-To enter configure mode on the device use this method.
-
-=head2 C<end_configure>
-
-To leave configure mode and return to privileged mode the use this method.
-
-=head2 C<in_configure_mode>
-
-This method will return True if your interactive session is currently in
-configure mode, and False if it is not.
-
-Also, you can pass a True or False value to this method to "trick" the module
-and alter its behaviour (see CPAN Forum).
-
-=head2 C<cmd>
-
-Ordinarily, you might use this C<Net::Telnet> method in scalar context to
-observe whether the command was successful on the target appliance. However,
-this module's version C<die>s if it doesn't think everything went well. See
-L</"DIAGNOSTICS"> for tips on managing this using an C<eval{}> construct.
-
-The following error conditions are checked on your behalf:
+Prepares a new session for you, but will not connect to any device. Some
+options are required, others optional:
 
 =over 4
 
-=item *
+=item C<< personality => $name >> (required)
 
-Incomplete command output, it was cut short for some reason
+Tells the module which "language" to use when talking to the connected device,
+for example C<cisco> for Cisco IOS devices. There's a list of all the
+supported platforms in the
+L<Phrasebook|Net::CLI::Interact::Manual::Phrasebook> documentation. It's also
+possible to write new phrasebooks.
 
-=item *
+=item C<< transport => $backend >> (required)
 
-Timeout waiting for command response
+The name of the transport backend used for the session, which may be one of
+L<Telnet|Net::CLI::Interact::Transport::Telnet>,
+L<SSH|Net::CLI::Interact::Transport::SSH>, or
+L<Serial|Net::CLI::Interact::Transport::Serial>.
 
-=item *
+=item C<< app => $location >> (required on Windows)
 
-EOF or other anomaly received in the command response
+On Windows platforms, you B<must> download the C<plink.exe> program, and pass
+its location in this parameter.
 
-=item *
+=item C<< host => $hostname >> (required for Telnet and SSH transports)
 
-Error message from your appliance in the response
+When using the Telnet and SSH transports, you B<must> provide the IP or host
+name of the target device in this parameter.
+
+=item C<< connect_options => \%options >>
+
+Some of the transport backends can take their own options. For example with a
+serial line connection you might specify the port speed, etc. See the
+respective manual pages for each transport backend for further details.
 
 =back
 
-If any of these occurs then you will get an exception with appropriately
-populated fields. Otherwise, in array context this method returns the command
-response, just as C<Net::Telnet> would. In scalar context the object itself
-returned.
+=head2 connect( \%options )
 
-The only usable method arguments are C<String>, C<Output> and C<Timeout>, plus
-as a special case, C<Match>. The C<Match> named argument takes in an I<array
-reference> a list of one or more strings representing valid Perl pattern match
-operators (e.g. C</foo/>). Therefore, the C<cmd()> method can check against
-the default command prompt, built-in error strings, and also a custom response
-of your choice at the same time.
+ $s->connect({ username => $myname, password => $mysecret });
 
-Being overridden in this way means you should have less need for the
-C<print()> and C<waitfor()> methods of C<Net::Telnet>, although they are of
-course still available should you want them.
+To establish a connection to the device, and possibly also log in, call this
+method. Following a successful connection, paging of device output will be
+disabled using commands appropriate to the platform. This feature can be
+suppressed (see L</"CONFIGURATION">, below).
 
-=head2 C<close>
+Options available to this method, sometimes required, are:
 
-This C<Net::Telnet> method has been overridden to automatically back
-out of configure and/or privilege mode, as well as re-enable paging mode on
-your behalf, as necessary.
+=over 4
 
-=head2 C<error>
+=item C<< username => $name >>
 
-Rather than following the C<Net::Telnet> documentation, this method now
-creates and throws an exception, setting the field values for you. See
-L</"DIAGNOSTICS"> below for more information, however under most circumstances
-it will be called automatically for you by the overridden C<cmd()> method.
+The login username for the device. Whether this is required depends both on
+how the device is configured, and how you have configured this module to act.
+If it looks like the device presented a Username prompt. and you don't pass
+the username a Perl exception will be thrown.
 
-=head1 TRANSPORTS
+The username is cached within the module for possible use later on when
+entering "privileged" mode.
 
-This module supports interactive connections to devices over SSH, Telnet and
-via a Serial Port. The default is to use SSH, so to select an alternative,
-pass an optional C<Transport> parameter to the C<new()> constructor:
+=item C<< password => $secret >>
 
- my $s = Net::Appliance::Session->new(
-     Host      => 'hostname.example',
-     Transport => 'Serial',
- );
+The login password for the device. Whether this is required depends both on
+how the device is configured, and how you have configured this module to act.
+If it looks like the device presented a Username prompt. and you don't pass
+the username a Perl exception will be thrown.
 
-Whatever transport you are using, it is highly recommended that you read the
-relevant manual page. The L<Net::Appliance::Session::Transport> manual is a
-good starting place.
+The password is cached within the module for possbible use later on when
+entering "privileged" mode.
+
+=back
+
+=head2 begin_privileged and end_privileged
+
+ $s->begin_privileged;
+ # do some work
+ $s->end_privileged;
+
+Once you have connected to the device, change to "privileged" mode by calling
+the C<begin_privileged> method. The appropriate command will be issued for
+your device platform, from the phrasebook. Likewise to exit "privileged" mode
+call the C<end_privileged> method.
+
+Sometimes authentication is required to enter "privileged" mode. In that case,
+the module defaults to using the username and password first passed in the
+C<connect> method. However to either override those or set them in case they
+were not passed to C<connect>, use either or both of the following options to
+C<begin_privileged>:
+
+ $s->begin_privileged({ username => $myname, password => $mysecret });
+
+=head2 begin_configure and end_configure
+
+ $s->begin_configure;
+ # make some changes
+ $s->end_configure;
+
+To enter "configuration" mode for your device platform, call the
+C<begin_configure> method. This checks you are already in "privileged" mode,
+as the module assumes this is necessary. If it isn't necessary then see
+L</"CONFIGURATION"> below to modify this behaviour. Likewise to exit
+"configure" mode, call the C<end_configure> method.
+
+=head2 cmd( $command )
+
+ my $config     = $s->cmd('show running-config');
+ my @interfaces = $s->cmd('show interfaces brief');
+
+Execute a single command statement on the connected device. The statement is
+executed verbatim on the device, with a newline appended.
+
+In scalar context the response is returned as a single string. In list context
+the gathered response is returned, only split into a list so that each line is
+one item.
+
+To handle more complicated interactions, for example commands which prompt for
+confirmation or optional parameters, you should use a Macro. These are set up
+in the phrasebook and issued via the C<< $s->macro($name) >> method call. See
+the L<Phrasebook|Net::CLI::Interact::Phrasebook#PHRASEBOOK_FORMAT> and
+L<Cookbook|Net::CLI::Interact::Manual::Cookbook#Macros> manual pages for
+further details.
+
+=head2 close
+
+ $s->close;
+
+Once you have finished work with the device, call this method. It attempts to
+back out of any "privileged" or "configuration" mode you've entered, re-enable
+paging (unless suppressed) and then disconnect.
 
 =head1 CONFIGURATION
 
-=head2 Log-in
+Each of the entries below may either be passed as a parameter in the options
+to the C<new> method, or called as a method in its own right and passed the
+appropriate setting. If doing the latter, it should be before you call the
+C<connect> method.
 
-In the default case, which is SSH to a Cisco IOS device, both a Username and
-Password are required and a full log-in is made (i.e. the device presents a
-Password prompt, and so on).
+=over
 
-However, some devices require no login. Examples of this might be a Public
-Route Server, or a device connected via a Serial Port. In that situation, use
-the following object method I<before> calling C<connect()>:
+=item do_login
 
-=head3 C<do_login>
+Defaults to true. Pass a zero (false) to disable logging in to the device with
+a username and password, should you get a command prompt immediately upon
+connection.
 
-Passing any False value to this method prevents C<connect()> from expecting to
-have to negotiate a log-in to the device. Most Transports in that case do not
-require the Password parameter, although a Username might still be required.
-By default log-in negotiation is enabled.
+=item do_privileged_mode
 
-=head2 Paging
+Defaults to true. If on connecting to the device your user is immediately in
+"privieleged" mode, then set this to zero (false), which permits immediate
+access to "configure" mode.
 
-In the default case, Net::Appliance::Session expects that command output
-paging is enabled on the device. This is where response to commands is
-"paged", having only (e.g.) 24 lines printed at a time, and you press the
-Enter or Space key to see more.
+=item do_configure_mode
 
-With automated interaction this is useless, and error-prone, so
-Net::Appliance::Session by default will send a command to disable paging
-straight after it connects, and re-enable it as part of C<close()>.
+Defaults to true. If you set this to zero (false), the module assumes you're
+in "configure" mode immediately upon entering "privileged" mode. I can't think
+why this would be useful but you never know.
 
-To override the pager management command itself, you will need to edit the
-phrasebook (see below). The following object methods alter other aspects of
-pager management:
+=item do_paging
 
-=head3 C<do_paging>
+Defaults to true. Pass a zero (false) to disable the post-login
+reconfiguration of a device which avoids paged command output. If you cleanly
+C<close> the device connection then paging is re-enabled. Use this option to
+suppress these steps.
 
-Passing any False value to this method prevents C<connect()> and C<close()>
-from respectively disabling and re-enabling paging on the device. By default
-paging management is enabled.
+=item privileged_paging
 
-=head3 C<enable_paging> and C<disable_paging>
+Defaults to false. On some series of devices, in particular the Cisco ASA and
+PIXOS7+ you must be in privileged mode in order to alter the pager. If that is
+the case for your device, call this method with a true value to instruct the
+module to better manage the situation.
 
-If you have an installation which requires manual issueing of paging
-commands to the device, then call these methods to take that action. Note that
-C<do_paging> must have been passed a True value otherwise these methods will
-short-circuit thinking you don't want paging.
+=item pager_enable_lines
 
-In other words, to page manually, set C<do_paging> to False at the start of
-your session, before connecting, and then set it to True as you call either of
-these methods. This dancing around will probably be fixed in a forthcoming
-release of Net::Appliance::Session.
+Defaults to 24. The command issued to re-enable paging (on disconnect)
+typically takes a parameter which is the number of lines per page. If you want
+a different value, set it in this option.
 
-=head3 C<set_pager_disable_lines>
+=item pager_disable_lines
 
-Net::Appliance::Session assumes that the command to disable the pager just
-re-sets the number of paging lines. Pass this method a new value for that
-number, which has a default of zero in the module.
+Defaults to zero. The command issued to disable paging typically takes a
+parameter which is the number of lines per page (zero begin to disable
+paging). If your device uses a different number here, set it in this option.
 
-=head3 C<set_pager_enable_lines>
+=item wake_up
 
-Likewise, to re-enable paging Net::Appliance::Session will call the pager
-management command with a value for the number of output lines per page. Pass
-this method a value to override the default of 24.
+When first connecting to the device, the he most common scenario is that a
+Username (or some other) prompt is shown. However if no output is forthcoming
+and nothing matches, the "enter" key is pressed, in the hope of triggering a
+new prompt. Set this configuration option to zero (false) to suppress this
+behaviour.
 
-=head3 C<privileged_paging>
-
-On some series of devices, in particular the Cisco ASA and PIXOS7+ you must be
-in privileged mode in order to alter the pager. If that is the case for your
-device, call this method with a true value to instruct the module to better
-manage the situation.
-
-=head2 Command mode
-
-If your target device does not have the concept of "privileged exec" or
-"configure" mode, then just don't call the methods to change into those modes.
-
-However, there is a catch. If your device separates only configure mode, then
-when you try to call C<begin_configure()> straight after a log-in, the module
-will complain, because it thinks you need to ask for a C<begin_privileged>
-first.  Also, when disconnecting, Net::Appliance::Session will attempt to step
-out of privileged and configure modes, so if they don't apply you will want to
-disable those steps.
-
-To alter all this behaviour, use the following object methods.
-
-If you are trying to subvert this module to just automate interaction with a
-CLI via SSH, Telnet or Serial Line on a strange kind of device, then these
-methods will be useful (as well as C<do_paging>, above).
-
-=head3 C<do_privileged_mode>
-
-If you pass a False value to this method, then Net::Appliance::Session will
-believe you are in some kind of privileged mode as soon as you log in. The net
-effect is that you can now safely call C<begin_configure()>. The default is to
-actively gatekeep access to privileged mode.
-
-=head3 C<do_configure_mode>
-
-By passing a False value to this method you also make Net::Appliance::Session
-believe you are in configure mode straight after entering privileged mode (or
-after log in if C<do_privileged_mode> is also False). The default is to
-actively gatekeep access to configure mode.
-
-=head2 Commands and Prompts
-
-Various models of network device, either from one vendor such as Cisco or
-between vendors, will naturally use alternate command and command prompt
-syntax. Net::Appliance::Session does not hard-code any of these commands or
-pattern matches in its source. They are all loaded at run-time from an
-external phrasebook (a.k.a. dictionary), which you may of course override.
-
-The default operation of Net::Appliance::Session is to assume that the target
-is running a form of Cisco's IOS, so if this is the case you should not need
-to modify any settings.
-
-Support is also available, via the C<< Net::Appliance::Phrasebook >> module,
-for the following operating systems:
-
- IOS     # the default
-  
- Aironet # currently the same as the default
- CATOS   # for older, pre-IOS Cisco devices
- PIXOS   # for PIX OS-based devices
- PIXOS7  # Slightly different commands from other PIXOS versions
- FWSM    # currently the same as 'PIXOS'
- FWSM3   # for FWSM Release 3.x devices (slightly different to FWSM 2.x)
-  
- JUNOS   # Juniper JUNOS support
- HP      # Basic HP support
- Nortel  # Basic Nortel support
-
-To select a phrasebook, pass an optional C<Platform> parameter to the C<new>
-method like so:
-
- my $s = Net::Appliance::Session->new(
-     Host     => 'hostname.example',
-     Platform => 'FWSM3',
- );
-
-If you want to add a new phrasebook, or override an existing one, there are
-two options. Either submit a patch to the maintaner of the C<<
-Net::Appliance::Phrasebook >> module, or read the manual page for that module
-to find out how to use a local phrasebook rather than the builtin one via the
-C<Source> parameter (which is accepted by this module and passed on verbatim).
-
- my $s = Net::Appliance::Session->new(
-     Host     => 'hostname.example',
-     Source   => '/path/to/file.yml',
-     Platform => 'MYDEVICE',
- );
-
-In this way, you can fix bugs in the standard command set, adjust them for
-your own devices, or "port" this module onto a completely different appliance
-platform (that happens to provide an SSH, Telnet or Serial Port CLI).
-
-Some sanity checking takes place at certain points to make sure the phrasebook
-contains necessary phrases. If overriding the phrasebook, you'll need to
-provide at least the C<basic_phrases> as set in this module's source code. If
-using Privileged and Configure mode, there are C<privileged_phrases> and
-C<configure_phrases> that will be required, also. Paging requires a
-C<pager_cmd> phrase to be available. See the source code of
-L<Net::Appliance::Phrasebook> for examples.
-
-If you fancy yourself as a bit of a cowboy, then there is an option to
-C<new()> that disables this checking of phrasebook entries:
-
- my $s = Net::Appliance::Session->new(
-     Host     => 'hostname.example',
-     Platform => 'MYDEVICE',
-     Source   => '/path/to/file.yml', # override phrasebook completely
-     CheckPB  => 0, # squash errors about missing phrasebook entries
- );
-
-You better have read the source and checked what phrases you need before
-disabling C<CheckPB>. Don't say I didn't warn you.
+=back
 
 =head1 DIAGNOSTICS
 
-Firstly, if you want to see a copy of everything sent to and received from the
-appliance, then something like the following will probably do what you want:
+To see a log of all the processes within this module, and a copy of all data
+sent to and received from the device, call the following method:
 
- $s->input_log(*STDOUT);
+ $s->set_global_log_at( 'debug' );
 
-All errors returned from Net::Appliance::Session methods are Perl exceptions,
-meaning that in effect C<die()> is called and you will need to use C<<
-eval {} >>. The rationale behind this is that you should have taken care to
-script interactive sessions robustly, and tested them thoroughly, so if a
-prompt is not returned or you supply incorrect parameters then it's an
-exceptional error.
-
-Recommended practice is to wrap your interactive session in an eval block like
-so:
-
- eval {
-     $s->begin_privileged('password');
-     print $s->cmd('show version');
-     # and so on...
- };
- if ( UNIVERSAL::isa($@,'Net::Appliance::Session::Exception') ) {
-     print $@->message, "\n";  # fault description from Net::Appliance::Session
-     print $@->errmsg, "\n";   # message from Net::Telnet
-     print $@->lastline, "\n"; # last line of output from your appliance
-     # perform any other cleanup as necessary
- }
- $s->close;
-
-Exceptions belong to the C<Net::Appliance::Session::Exception> class if
-they result from errors internal to Net::Telnet such as lack of returned
-prompts, command timeouts, and so on.
-
-Alternatively exceptions will belong to C<Net::Appliance::Session::Error>
-if you have been silly (for example missed a method parameter or tried to
-enter configure mode without having first entered privileged mode).
-
-All exception objects are created from C<Exception::Class> and so
-stringify correctly and support methods as described in the manual page for
-that module.
-
-C<Net::Appliance::Session::Exception> exception objects have two
-additional methods (a.k.a. fields), C<errmsg> and C<lastline> which
-contain output from Net::Telnet diagnostics.
+In place of C<debug> you can have other log levels, and via the embedded
+L<Logger|Net::CLI::Interact::Logger> at C<< $s->nci->logger >> it's possible
+to finely control the diagnostics.
 
 =head1 INTERNALS
 

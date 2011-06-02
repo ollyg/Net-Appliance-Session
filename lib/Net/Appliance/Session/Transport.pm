@@ -5,11 +5,11 @@ package Net::Appliance::Session::Transport;
         Net::Appliance::Session::Transport::ConnectOptions;
     use Moose;
 
-    has name => (
+    has username => (
         is => 'ro',
         isa => 'Str',
         required => 0,
-        predicate => 'has_name',
+        predicate => 'has_username',
     );
 
     has password => (
@@ -22,7 +22,6 @@ package Net::Appliance::Session::Transport;
 
 use Moose::Role;
 
-# login using the specific transport
 sub connect {
     my $self = shift;
     my $options = Net::Appliance::Session::Transport::ConnectOptions->new(@_);
@@ -34,30 +33,30 @@ sub connect {
     if ($self->do_login and not $self->prompt_looks_like('prompt')) {
 
         if ($self->prompt_looks_like('user_prompt')) {
-            if (not $options->has_name) {
-                confess "'name' is a required parameter to Telnet connect "
-                            . "when connecting to this host";
+            if (not $options->has_username) {
+                die "'username' is a required parameter for this host";
             }
 
-            $self->cmd($options->name, { match => 'pass_prompt' });
+            $self->cmd($options->username, { match => 'pass_prompt' });
         }
 
         if (not $options->has_password) {
-            confess "'password' is a required parameter to connect";
+            die "'password' is a required parameter for this host";
         }
 
         $self->cmd($options->password, { match => 'prompt' });
 
-        $self->set_username($options->name)
-            if $options->has_name and not $self->get_username;
+        $self->set_username($options->username)
+            if $options->has_username and not $self->get_username;
 
         $self->set_password($options->password)
             if exists $options->has_password and not $self->get_password;
     }
 
     $self->prompt_looks_like('prompt')
-        or confess 'login failed to remote host';
+        or die 'login failed to remote host';
 
+    $self->close_called(0);
     $self->logged_in(1);
 
     $self->in_privileged_mode( $self->do_privileged_mode ? 0 : 1 );
@@ -69,38 +68,23 @@ sub connect {
     return $self;
 }
 
+sub close {
+    my $self = shift;
+
+    # protect against death spiral (rt.cpan #53796)
+    return if $self->close_called;
+    $self->close_called(1);
+
+    $self->end_configure
+        if $self->do_configure_mode and $self->in_configure_mode;
+    $self->end_privileged
+        if $self->do_privileged_mode and $self->in_privileged_mode;
+
+    # re-enable paging
+    $self->enable_paging if $self->do_paging;
+
+    $self->nci->disconnect;
+    $self->logged_in(0);
+}
+
 1;
-
-# ABSTRACT: Base class for Session Transports
-
-=head1 DESCRIPTION
-
-This package is the base class for all C<< Net::Appliance::Session >>
-Transports. It is effectively a C<< Net::Telnet >> factory, which then calls
-upon a derived class to do something with the guts of the TELNET connection
-(perhaps rip it out and shove an SSH connection in there instead).
-
-=head1 AVAILABLE TRANSPORTS
-
-=over 4
-
-=item *
-
-L<Net::Appliance::Session::Transport::Serial>
-
-=item *
-
-L<Net::Appliance::Session::Transport::SSH>
-
-=item *
-
-L<Net::Appliance::Session::Transport::Telnet>
-
-=back
-
-=head1 ACKNOWLEDGEMENTS
-
-The SSH command spawning code was based on that in C<Expect.pm> and is
-copyright Roland Giersig and/or Austin Schutz.
-
-=cut
