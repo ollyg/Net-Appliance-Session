@@ -18,14 +18,17 @@ my $host = $_; chomp $host;
 die "one and only param is a device FQDN or IP!\n"
     if ! defined $host;
 
-my $s = Net::Appliance::Session->new($host);
+my $s = Net::Appliance::Session->new(
+    transport => 'SSH', # or 'Telnet' or 'Serial'
+    phrasebook => 'cisco', # or many others, see docs
+    host => $host,
+);
 $s->set_global_log_at('debug'); # maximum debugging
 
 eval {
     $s->connect(
         name     => $username,
         password => $password,
-        SHKC     => 0, # SSH Strict Host Key Checking disabled
     );
     $s->begin_privileged; # use same pass as login
 

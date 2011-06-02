@@ -50,7 +50,7 @@ sub connect {
             if $options->has_username and not $self->get_username;
 
         $self->set_password($options->password)
-            if exists $options->has_password and not $self->get_password;
+            if $options->has_password and not $self->get_password;
     }
 
     $self->prompt_looks_like('prompt')

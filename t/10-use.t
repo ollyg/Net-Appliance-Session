@@ -12,11 +12,13 @@ BEGIN {
 
 my $obj = undef;
 
-new_ok('Net::Appliance::Session' => [],
-    'new without Host' );
+my $s = new_ok('Net::Appliance::Session' => [{
+        transport => 'Serial',
+        phrasebook => 'cisco',
+    }], 'new instance' );
 
-my $s = new_ok('Net::Appliance::Session' => ['testhost.example'],
-    'new with Host' );
+#my $s = new_ok('Net::Appliance::Session' => ['testhost.example'],
+#    'new with Host' );
 
 foreach (qw(
     logged_in
@@ -28,23 +30,18 @@ foreach (qw(
     do_configure_mode
     get_username
     get_password
-    get_pager_disable_lines
-    get_pager_enable_lines
     set_username
     set_password
-    set_pager_disable_lines
-    set_pager_enable_lines
+    pager_disable_lines
+    pager_enable_lines
     connect
+    close
     enable_paging
     disable_paging
     begin_privileged
     end_privileged
-    in_privileged_mode
     begin_configure
     end_configure
-    in_configure_mode
-    close
-    pb
 )) {
     ok( $s->can($_), "can do method $_");
 }
