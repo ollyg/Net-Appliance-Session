@@ -127,7 +127,7 @@ document which details all steps necessary.
  use Net::Appliance::Session;
  
  my $s = Net::Appliance::Session->new({
-     personality => 'cisco',
+     personality => 'ios',
      transport => 'SSH',
      host => 'hostname.example',
      privileged_paging => 1, # only if using ASA/PIX OS 7+
@@ -173,7 +173,7 @@ response).
 =head2 Net::Appliance::Session->new( \%options )
 
  my $s = Net::Appliance::Session->new({
-     personality => 'cisco',
+     personality => 'ios',
      transport => 'SSH',
      host => 'hostname.example',
  });
@@ -186,10 +186,9 @@ options are required, others optional:
 =item C<< personality => $name >> (required)
 
 Tells the module which "language" to use when talking to the connected device,
-for example C<cisco> for Cisco IOS devices. There's a list of all the
-supported platforms in the
-L<Phrasebook|Net::CLI::Interact::Manual::Phrasebook> documentation. It's also
-possible to write new phrasebooks.
+for example C<ios> for Cisco IOS devices. There's a list of all the supported
+platforms in the L<Phrasebook|Net::CLI::Interact::Manual::Phrasebook>
+documentation. It's also possible to write new phrasebooks.
 
 =item C<< transport => $backend >> (required)
 
