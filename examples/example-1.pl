@@ -20,7 +20,7 @@ die "one and only param is a device FQDN or IP!\n"
 
 my $s = Net::Appliance::Session->new(
     transport => 'SSH', # or 'Telnet' or 'Serial'
-    phrasebook => 'cisco', # or many others, see docs
+    personality => 'cisco', # or many others, see docs
     host => $host,
 );
 $s->set_global_log_at('debug'); # maximum debugging

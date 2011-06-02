@@ -32,17 +32,15 @@ sub connect {
     # optionally, log in to the remote host
     if ($self->do_login and not $self->prompt_looks_like('prompt')) {
 
-        if ($self->prompt_looks_like('user_prompt')) {
-            if (not $options->has_username) {
-                die "'username' is a required parameter for this host";
-            }
+        if ($self->prompt_looks_like('user')) {
+            die 'a set username is required to connect to this host'
+                if not $options->has_username;
 
-            $self->cmd($options->username, { match => 'pass_prompt' });
+            $self->cmd($options->username, { match => 'pass' });
         }
 
-        if (not $options->has_password) {
-            die "'password' is a required parameter for this host";
-        }
+        die 'a set password is required to connect to this host'
+            if not $options->has_password;
 
         $self->cmd($options->password, { match => 'prompt' });
 
@@ -54,7 +52,7 @@ sub connect {
     }
 
     $self->prompt_looks_like('prompt')
-        or die 'login failed to remote host';
+        or die 'login failed to remote host - prompt does not match';
 
     $self->close_called(0);
     $self->logged_in(1);

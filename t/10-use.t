@@ -14,7 +14,7 @@ my $obj = undef;
 
 my $s = new_ok('Net::Appliance::Session' => [{
         transport => 'Serial',
-        phrasebook => 'cisco',
+        personality => 'cisco',
     }], 'new instance' );
 
 #my $s = new_ok('Net::Appliance::Session' => ['testhost.example'],

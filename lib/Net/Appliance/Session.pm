@@ -3,8 +3,8 @@ package Net::Appliance::Session;
 use Moose;
 use Net::CLI::Interact;
 
-with 'Net::Appliance::Session::Engine';
 with 'Net::Appliance::Session::Transport';
+with 'Net::Appliance::Session::Engine';
 
 foreach my $slot (qw/
     logged_in
@@ -51,7 +51,7 @@ foreach my $slot (qw/
 
 foreach my $slot (qw/
     transport
-    phrasebook
+    personality
 /) {
     has $slot => (
         is => 'rw',
@@ -101,7 +101,7 @@ sub _build_nci {
 
     return Net::CLI::Interact->new({
         transport => $self->transport,
-        phrasebook => $self->phrasebook,
+        personality => $self->personality,
         connect_options => $self->connect_options,
         ($self->has_app ? (app => $self->app) : ()),
     });

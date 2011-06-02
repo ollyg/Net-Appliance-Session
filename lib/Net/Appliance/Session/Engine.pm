@@ -25,7 +25,7 @@ sub enable_paging {
     my $privstate = $self->in_privileged_mode;
     $self->begin_privileged if $self->privileged_paging;
 
-    $self->macro('paging_cmd', { params => [
+    $self->macro('paging', { params => [
         $self->pager_enable_lines
     ]} );
 
@@ -42,7 +42,7 @@ sub disable_paging {
     my $privstate = $self->in_privileged_mode;
     $self->begin_privileged if $self->privileged_paging;
 
-    $self->macro('paging_cmd', { params => [
+    $self->macro('paging', { params => [
         $self->pager_disable_lines
     ]} );
 
@@ -57,6 +57,7 @@ sub disable_paging {
 
 sub begin_privileged {
     my $self = shift;
+    my $options = Net::Appliance::Session::Transport::ConnectOptions->new(@_);
 
     return unless $self->do_privileged_mode;
     return if $self->in_privileged_mode;
@@ -65,44 +66,34 @@ sub begin_privileged {
         unless $self->logged_in;
 
     # rt.cpan#47214 check if we are already enabled by peeking the prompt
-    if ($self->prompt_looks_like('privileged_prompt')) {
+    if ($self->prompt_looks_like('privileged')) {
         $self->in_privileged_mode(1);
         return;
     }
 
     # default is to re-use login credentials
-    my $username = $self->get_username;
-    my $password = $self->get_password;
+    my $username = $options->has_username ? $options->username : $self->get_username;
+    my $password = $options->has_password ? $options->password : $self->get_password;
 
-    # interpret optional params
-    if (scalar @_ == 1) {
-        $password = shift;
-    }
-    elsif (scalar @_ == 2) {
-        ($username, $password) = @_;
-    }
+    $self->macro('begin_privileged');
 
-    die 'a set password is required before begin_privileged'
-        if not $password;
-
-    # decide whether to explicitly login or just enable
-    if (defined($username) && $username ne $self->get_username) {
-        $self->macro('begin_privileged_with_user_cmd');
-    }
-    else {
-        $self->macro('begin_privileged_cmd');
-    }
-
-    # whether login or enable, we still must be prepared for username:
-    # prompt because it may appear even with privileged
-    if ($self->prompt_looks_like('user_prompt')) {
+    # whether login or enable, we still must be prepared for username
+    if ($self->prompt_looks_like('user')) {
         die 'a set username is required to enter priv on this host'
             if not $username;
   
-        $self->cmd($username, { match => 'pass_prompt' });
+        $self->cmd($username, { match => 'pass' });
     }
 
-    $self->cmd($password, { match => 'privileged_prompt' });
+    if ($self->prompt_looks_like('pass')) {
+        die 'a set password is required before begin_privileged'
+            if not $password;
+
+        $self->cmd($password, { match => 'privileged' });
+    }
+
+    $self->prompt_looks_like('privileged')
+        or die 'should be in privileged mode but prompt does not match';
     $self->in_privileged_mode(1);
 }
 
@@ -115,7 +106,10 @@ sub end_privileged {
     die 'must leave configure mode before leaving privileged mode'
         if $self->in_configure_mode;
 
-    $self->macro('end_privileged_cmd');
+    $self->macro('end_privileged');
+
+    not $self->prompt_looks_like('privileged')
+        or die 'should have left privileged mode but prompt still matches';
     $self->in_privileged_mode(0);
 }
 
@@ -129,12 +123,15 @@ sub begin_configure {
         unless $self->in_privileged_mode;
 
     # rt.cpan#47214 check if we are already in config by peeking the prompt
-    if ($self->prompt_looks_like('configure_prompt')) {
+    if ($self->prompt_looks_like('configure')) {
         $self->in_configure_mode(1);
         return;
     }
 
-    $self->macro('begin_configure_cmd');
+    $self->macro('begin_configure');
+
+    $self->prompt_looks_like('configure')
+        or die 'should be in configure mode but prompt does not match';
     $self->in_configure_mode(1);
 }
 
@@ -144,10 +141,10 @@ sub end_configure {
     return unless $self->do_configure_mode;
     return unless $self->in_configure_mode;
 
-    $self->macro('end_configure_cmd');
+    $self->macro('end_configure');
 
     # we didn't manage to escape configure mode (must be nested?)
-    if ($self->prompt_looks_like('configure_prompt')) {
+    if ($self->prompt_looks_like('configure')) {
         my $caller3 = (caller(3))[3];
 
         # max out at three tries to exit configure mode
@@ -166,6 +163,8 @@ sub end_configure {
         return;
     }
 
+    not $self->prompt_looks_like('configure')
+        or die 'should have exited configure mode but prompt still matches';
     $self->in_configure_mode(0);
 }
 
