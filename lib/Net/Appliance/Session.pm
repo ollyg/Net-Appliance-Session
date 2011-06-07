@@ -117,7 +117,7 @@ sub _build_nci {
 
 Between version 2.x and 3.x of this module the programmer's interface changed
 in a number of ways. If you have existing code to migrate to this new version,
-please see the L<Upgrading|Net::Appliance::Session::Manual::Upgrading>
+please see the L<Upgrading|Net::Appliance::Session::APIv2>
 document which details all steps necessary.
 
 =end :prelude
@@ -135,9 +135,9 @@ document which details all steps necessary.
  });
  
  eval {
-     $s->connect({name => 'username', password => 'loginpass'});
+     $s->connect({ name => 'username', password => 'loginpass' });
  
-     $s->begin_privileged('privilegedpass');
+     $s->begin_privileged({ password => 'privilegedpass' });
      print $s->cmd('show access-list');
      $s->end_privileged;
  };
@@ -154,10 +154,9 @@ network appliance. There is special support for moving into "privileged" mode
 and "configure" mode, along with the ability to send commands to the connected
 device and retrieve returned output.
 
-There are other CPAN modules that cover similar ground, including Net::SSH and
-Net::Telnet::Cisco, but they are less robust or do not handle native SSH,
-Telnet and Serial Line connections with a single interface on both Unix and
-Windows platforms.
+There are other CPAN modules that cover similar ground, but they are less
+robust and do not handle native SSH, Telnet and Serial Line connections with a
+single interface on both Unix and Windows platforms.
 
 Built-in commands come from a phrasebook which supports many network device
 vendors (Cisco, HP, etc) or you can install a new phrasebook. Most phases of
@@ -165,10 +164,10 @@ the connection are configurable for different device behaviours.
 
 =head1 METHODS
 
-As in the synopsis above, the first step is to create a new instance. As in
-the synopsis above, recommended practice is to wrap all other method calls in
-a Perl C<eval> block to catch errors (typically time-outs waiting for CLI
-response).
+As in the synopsis above, the first step is to create a new instance.
+Recommended practice is to wrap all other method calls in a Perl C<eval> block
+to catch errors (typically time-outs waiting for CLI response). For a
+demonstration of usage, see the example script shipped with this distribution.
 
 =head2 Net::Appliance::Session->new( \%options )
 
@@ -245,7 +244,7 @@ how the device is configured, and how you have configured this module to act.
 If it looks like the device presented a Username prompt. and you don't pass
 the username a Perl exception will be thrown.
 
-The password is cached within the module for possbible use later on when
+The password is cached within the module for possible use later on when
 entering "privileged" mode.
 
 =back
@@ -296,9 +295,9 @@ one item.
 To handle more complicated interactions, for example commands which prompt for
 confirmation or optional parameters, you should use a Macro. These are set up
 in the phrasebook and issued via the C<< $s->macro($name) >> method call. See
-the L<Phrasebook|Net::CLI::Interact::Phrasebook#PHRASEBOOK_FORMAT> and
-L<Cookbook|Net::CLI::Interact::Manual::Cookbook#Macros> manual pages for
-further details.
+the L<Phrasebook|Net::CLI::Interact::Phrasebook> and
+L<Cookbook|Net::CLI::Interact::Manual::Cookbook> manual pages for further
+details.
 
 =head2 close
 
@@ -376,7 +375,7 @@ behaviour.
 To see a log of all the processes within this module, and a copy of all data
 sent to and received from the device, call the following method:
 
- $s->set_global_log_at( 'debug' );
+ $s->set_global_log_at('debug');
 
 In place of C<debug> you can have other log levels, and via the embedded
 L<Logger|Net::CLI::Interact::Logger> at C<< $s->nci->logger >> it's possible
