@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+3.111590  2011-06-08 23:28:03 Europe/London
+
+  * Implement v2 API compat layer
+
 3.111530  2011-06-02 23:45:26 Europe/London
 
   * Ported to Net::CLI::Interact backend
