@@ -81,12 +81,10 @@ sub connect {
 sub cmd {
     my ($self, @params) = @_;
 
-    if (scalar @params == 2 and ref $params[1] eq ref {}) {
-        die "you are using Net::Appliance::Session v3 API style but loaded v2!";
-    }
-
     # to be fair, could be APIv3 but we can't tell
-    if (scalar @params == 1) {
+    # and there are internal calls to cmd() which must be passed through
+    if (scalar @params == 1
+        or (scalar @params == 2 and ref $params[1] eq ref {})) {
         return $self->_wrap( sub { $self->SUPER::cmd(@params) } );
     }
 
@@ -182,9 +180,7 @@ sub _wrap {
 
         sub _error_str {
             my $self = shift;
-            return $self->errmsg .', '.
-                $self->message .' preceded by '.
-                $self->lastline;
+            return $self->message .', '. $self->errmsg .' '. $self->lastline;
         };
 
         has 'message'  => ( is => 'ro', isa => 'Str', required => 1 );
@@ -197,7 +193,7 @@ sub _wrap {
             message => $@,
             errmsg => 'version 3 of Net::Appliance::Session does not support'
                         .' exception objects',
-            lastline => (eval {$self->last_response } || 'no response data'),
+            lastline => '(call last_response for the last line)',
         );
         die $e;
     }
