@@ -23,7 +23,7 @@ cmp_ok( scalar @out, '>', 20, 'lots of ver lines');
 
 ok( $s->begin_privileged, 'begin priv, no pass' );
 ok( eval{$s->end_privileged;1}, 'end priv' );
-ok( $s->begin_privileged({password => ($ENV{IOS_PASS} || 'letmein')}),
+ok( $s->begin_privileged(password => ($ENV{IOS_PASS} || 'letmein')),
     'begin priv, with pass' );
 
 ok( $s->cmd('show ip int br'), 'ran show ip int br' );

@@ -25,7 +25,11 @@ sub BUILDARGS {
     my ($class, @params) = @_;
     my $args = {};
     
-    if (scalar @params == 1) {
+    if (scalar @params == 1 and ref $params[0] eq ref {}) {
+        die 'this is API version 2 but you passed a hash reference to new()';
+    }
+
+    if (scalar @params == 1 and ref $params[0] eq ref '') {
         return {
             host => $params[0],
             personality => 'ios',
@@ -51,6 +55,7 @@ sub BUILDARGS {
     }
 
     $args->{connect_options} = {
+        (eval{%{$param_hash->{connect_options}}} || ()),
         map {lc $_ => $param_hash->{$_}} keys %$param_hash
     };
 
@@ -106,11 +111,12 @@ override 'connect' => sub {
     return $self->_wrap( sub { super() } );
 };
 
-override 'cmd' => sub {
+sub cmd {
     my ($self, @params) = @_;
 
-    if (scalar @params == 1) {
-        return $self->_wrap( sub { $self->nci->cmd($params[0]) } );
+    if (scalar @params == 1
+        or (scalar @params == 2 and ref $params[1] eq ref {})) {
+        return $self->_wrap( sub { $self->nci->cmd(@params) } );
     }
 
     my $param_hash = { @params };
@@ -138,33 +144,33 @@ override 'cmd' => sub {
     }
 
     return @output;
-};
+}
 
-around 'begin_privileged' => sub {
-    my ($orig, $self, @params) = @_;
+sub begin_privileged {
+    my ($self, @params) = @_;
     
     if (scalar @params == 1) {
-        return $self->_wrap( sub { $self->$orig->({
+        return $self->_wrap( sub { $self->SUPER::begin_privileged({
             password => $params[0],
         }) } );
     }
     elsif (scalar @params == 2) {
-        return $self->_wrap( sub { $self->$orig->({
+        return $self->_wrap( sub { $self->SUPER::begin_privileged({
             username => $params[0],
             password => $params[1],
         }) } );
     }
     elsif (scalar @params >= 4) {
         my $param_hash = { @params };
-        return $self->_wrap( sub { $self->$orig->({
+        return $self->_wrap( sub { $self->SUPER::begin_privileged({
             username => $param_hash->{Username},
             password => $param_hash->{Password},
         }) } );
     }
     # and that's why this API was dumped by the roadside.
 
-    return $self->_wrap( sub { $self->$orig->() } );
-};
+    return $self->_wrap( sub { $self->SUPER::begin_privileged() } );
+}
 
 sub error {
     my $self = shift;
