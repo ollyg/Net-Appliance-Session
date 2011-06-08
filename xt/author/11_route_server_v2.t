@@ -3,6 +3,12 @@
 use strict; use warnings FATAL => 'all';
 use Test::More 0.88;
 
+BEGIN {
+  if ($^O eq 'MSWin32') {
+    Test::More::plan(skip_all => 'these tests are for Win32 systems');
+  }
+}
+
 BEGIN { use_ok( 'Net::Appliance::Session::APIv2') }
 
 my $s = new_ok( 'Net::Appliance::Session::APIv2' => [

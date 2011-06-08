@@ -26,6 +26,14 @@ sub connect {
     my $self = shift;
     my $options = Net::Appliance::Session::Transport::ConnectOptions->new(@_);
 
+    $self->set_username($options->username) if $options->has_username;
+    $self->set_password($options->password) if $options->has_password;
+
+    # SSH transport takes a username if we have one
+    $self->nci->transport->connect_options->username($self->username)
+        if $self->has_username
+           and $self->nci->transport->connect_options->meta->find_attribute_by_name('username');
+
     # poke remote device (whether logging in or not)
     $self->find_prompt($self->wake_up);
 
@@ -34,21 +42,15 @@ sub connect {
 
         if ($self->prompt_looks_like('user')) {
             die 'a set username is required to connect to this host'
-                if not $options->has_username;
+                if not $self->has_username;
 
-            $self->cmd($options->username, { match => 'pass' });
+            $self->cmd($self->username, { match => 'pass' });
         }
 
         die 'a set password is required to connect to this host'
-            if not $options->has_password;
+            if not $self->has_password;
 
-        $self->cmd($options->password, { match => 'prompt' });
-
-        $self->set_username($options->username)
-            if $options->has_username and not $self->get_username;
-
-        $self->set_password($options->password)
-            if $options->has_password and not $self->get_password;
+        $self->cmd($self->password, { match => 'prompt' });
     }
 
     $self->prompt_looks_like('prompt')

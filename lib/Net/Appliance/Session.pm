@@ -46,6 +46,7 @@ foreach my $slot (qw/
         required => 0,
         reader => "get_$slot",
         writer => "set_$slot",
+        predicate => "has_$slot",
     );
 }
 
@@ -91,6 +92,7 @@ has 'nci' => (
         set_global_log_at
         prompt_looks_like
         find_prompt
+        add_library
     /],
 );
 
@@ -135,7 +137,7 @@ document which details all steps necessary.
  });
  
  eval {
-     $s->connect({ name => 'username', password => 'loginpass' });
+     $s->connect({ username => 'username', password => 'loginpass' });
  
      $s->begin_privileged({ password => 'privilegedpass' });
      print $s->cmd('show access-list');
