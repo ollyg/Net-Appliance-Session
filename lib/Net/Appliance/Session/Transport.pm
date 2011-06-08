@@ -44,13 +44,13 @@ sub connect {
             die 'a set username is required to connect to this host'
                 if not $self->has_username;
 
-            $self->cmd($self->username, { match => 'pass' });
+            $self->cmd($self->get_username, { match => 'pass' });
         }
 
         die 'a set password is required to connect to this host'
             if not $self->has_password;
 
-        $self->cmd($self->password, { match => 'prompt' });
+        $self->cmd($self->get_password, { match => 'prompt' });
     }
 
     $self->prompt_looks_like('prompt')
