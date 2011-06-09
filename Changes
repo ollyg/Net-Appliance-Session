@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+3.111600  2011-06-09 11:08:43 Europe/London
+
+  * Add delegation methods for Net::Telnet to APIv2
+  * Tidy and fix a couple of things in the example script
+
 3.111590  2011-06-08 23:28:03 Europe/London
 
   * Implement v2 API compat layer
