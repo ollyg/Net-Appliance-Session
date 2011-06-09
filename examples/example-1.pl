@@ -18,18 +18,18 @@ my $host = $_; chomp $host;
 die "one and only param is a device FQDN or IP!\n"
     if ! defined $host;
 
-my $s = Net::Appliance::Session->new(
+my $s = Net::Appliance::Session->new({
     transport => 'SSH', # or 'Telnet' or 'Serial'
     personality => 'ios', # or many others, see docs
     host => $host,
-);
+});
 $s->set_global_log_at('debug'); # maximum debugging
 
 eval {
-    $s->connect(
+    $s->connect({
         name     => $username,
         password => $password,
-    );
+    });
     $s->begin_privileged; # use same pass as login
 
     # is this a device with FastEthernet or GigabitEthernet ports?
@@ -39,18 +39,19 @@ eval {
     $type = ($type =~ m/^Gi/ ? 'GigabitEthernet' : 'FastEthernet');
 
     # now actually do some work...
+    # (lines which make changes are commented in this example!)
 
     $s->begin_configure;
 
     $s->cmd("interface ${type}1/0/13");
-    $s->cmd('spanning-tree bpdufilter enable');
+    # $s->cmd('no shutdown');
     $s->cmd("interface ${type}1/0/14");
-    $s->cmd('spanning-tree bpdufilter enable');
+    # $s->cmd('no shutdown');
     $s->cmd("interface ${type}1/0/15");
-    $s->cmd('spanning-tree bpdufilter enable');
+    # $s->cmd('no shutdown');
 
     $s->end_configure;
-    $s->cmd('write memory');
+    # $s->cmd('write memory');
     $s->end_privileged;
 };
 warn $@ if $@;
