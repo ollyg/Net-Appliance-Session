@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+3.111690  2011-06-18 08:24:15 Europe/London
+
   * Fix incorrect username accessor method name (cvicente rt.cpan #68897)
   * Loosen type constraint on connect_options (cvicente rt.cpan #68899)
 
