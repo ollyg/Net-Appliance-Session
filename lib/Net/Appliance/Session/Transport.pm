@@ -30,7 +30,7 @@ sub connect {
     $self->set_password($options->password) if $options->has_password;
 
     # SSH transport takes a username if we have one
-    $self->nci->transport->connect_options->username($self->username)
+    $self->nci->transport->connect_options->username($self->get_username)
         if $self->has_username
            and $self->nci->transport->connect_options->meta->find_attribute_by_name('username');
 

@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+  * Fix incorrect username accessor method name (cvicente rt.cpan #68897)
+  * Loosen type constraint on connect_options (cvicente rt.cpan #68899)
+
 3.111600  2011-06-09 11:08:43 Europe/London
 
   * Add delegation methods for Net::Telnet to APIv2

@@ -75,7 +75,7 @@ foreach my $slot (qw/
 
 has 'connect_options' => (
     is => 'ro',
-    isa => 'HashRef[Str]',
+    isa => 'HashRef',
     required => 0,
     default => sub { {} },
 );
@@ -386,5 +386,18 @@ to finely control the diagnostics.
 =head1 INTERNALS
 
 See L<Net::CLI::Interact>.
+
+=head1 THANKS
+
+The following people have kindly reported bugs with patches or contributed to
+the development in some other way:
+
+=over 4
+
+=item *
+
+Carlos Vicente
+
+=back
 
 =cut
