@@ -64,6 +64,7 @@ foreach my $slot (qw/
 foreach my $slot (qw/
     host
     app
+    add_library
 /) {
     has $slot => (
         is => 'ro',
@@ -92,7 +93,6 @@ has 'nci' => (
         set_global_log_at
         prompt_looks_like
         find_prompt
-        add_library
     /],
 );
 
@@ -106,6 +106,7 @@ sub _build_nci {
         personality => $self->personality,
         connect_options => $self->connect_options,
         ($self->has_app ? (app => $self->app) : ()),
+        ($self->has_add_library ? (add_library => $self->add_library) : ()),
     });
 }
 
