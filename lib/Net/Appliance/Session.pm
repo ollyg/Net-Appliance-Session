@@ -215,6 +215,14 @@ Some of the transport backends can take their own options. For example with a
 serial line connection you might specify the port speed, etc. See the
 respective manual pages for each transport backend for further details.
 
+=item C<< add_library => $directory >>
+
+If you've added to the built-in phrasebook with your own macros, then use
+this option to load your new phrasebook file(s). The path here should be the
+root within which the personality is installed, such as:
+
+ ${directory}/cisco/ios/pb
+
 =back
 
 =head2 connect( \%options )
