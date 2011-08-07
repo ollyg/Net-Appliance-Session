@@ -1,5 +1,12 @@
 #!/usr/bin/perl
 
+BEGIN {
+  if ($ENV{NOT_AT_HOME}) {
+    require Test::More;
+    Test::More::plan(skip_all => 'these tests can only be run by the author when at home');
+  }
+}
+
 use strict; use warnings FATAL => 'all';
 use Test::More 0.88;
 
