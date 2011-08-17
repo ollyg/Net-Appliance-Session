@@ -217,7 +217,6 @@ foreach my $name (qw/
     getline
     getlines
     input_record_separator
-    last_prompt
     lastline
     login
     max_buffer_length

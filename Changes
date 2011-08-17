@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * Added native last_prompt (on request of G.Peirce)
+
 3.112190  2011-08-07 22:20:13 Europe/London
 
   * Make add_library work (for scalar only)

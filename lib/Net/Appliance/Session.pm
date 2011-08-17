@@ -88,6 +88,7 @@ has 'nci' => (
     handles => [qw/
         cmd
         macro
+        last_prompt
         last_response
         set_phrasebook
         set_global_log_at
