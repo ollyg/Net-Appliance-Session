@@ -39,6 +39,7 @@ foreach my $slot (qw/
 foreach my $slot (qw/
     username
     password
+    privileged_password
 /) {
     has $slot => (
         is => 'rw',
@@ -258,6 +259,15 @@ the username a Perl exception will be thrown.
 
 The password is cached within the module for possible use later on when
 entering "privileged" mode.
+
+=item C<< privileged_password => $secret >> (optional)
+
+In the situation where you've activated "privileged paging", yet your device
+uses a different password for privileged mode than login, you'll need to set
+that other password here.
+
+Otherwise, because the module tries to disable paging, it first goes into
+privileged mode as you instructed, and fails with the wrong (login) password.
 
 =back
 

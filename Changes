@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * Added privileged_password option (J. Roth rt.cpan#69139)
+
 3.112290  2011-08-17 20:16:43 Europe/London
 
   * Added native last_prompt (on request of G.Peirce)

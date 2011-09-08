@@ -73,7 +73,11 @@ sub begin_privileged {
 
     # default is to re-use login credentials
     my $username = $options->has_username ? $options->username : $self->get_username;
-    my $password = $options->has_password ? $options->password : $self->get_password;
+
+    # rt.cpan#69139 support passing of privileged_password to the constructor
+    my $password = $options->has_password ? $options->password :
+                   $self->has_privileged_password ? $self->get_privileged_password
+                                                               : $self->get_password;
 
     $self->macro('begin_privileged');
 
