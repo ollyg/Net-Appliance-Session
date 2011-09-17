@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * Add test for pipe in command (V. Foitzik)
+
 3.112510  2011-09-08 22:06:06 Europe/London
 
   * Added privileged_password option (J. Roth rt.cpan#69139)
