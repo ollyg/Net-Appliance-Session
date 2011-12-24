@@ -83,6 +83,11 @@ sub close {
     # re-enable paging
     $self->enable_paging if $self->do_paging;
 
+    # issue disconnect macro if the phrasebook has one
+    if ($self->nci->phrasebook->has_macro('disconnect')) {
+        $self->macro('disconnect');
+    }
+
     $self->nci->transport->disconnect;
     $self->logged_in(0);
 }
