@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+  * Issue disconnect macro if the phrasebook has one, on close()
+  * Fix bug in privileged_password implementation (reported by Paul Niemi)
+
 3.112610  2011-09-18 10:42:28 Europe/London
 
   * Add more tests for found bugs
