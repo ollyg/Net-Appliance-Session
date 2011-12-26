@@ -336,6 +336,10 @@ Once you have finished work with the device, call this method. It attempts to
 back out of any "privileged" or "configuration" mode you've entered, re-enable
 paging (unless suppressed) and then disconnect.
 
+If a macro named C<"disconnect"> exists in the loaded phrasebook then it's
+called just before disconnection. This allows you to issue a command such as
+C<"exit"> to cleanly log out.
+
 =head1 CONFIGURATION
 
 Each of the entries below may either be passed as a parameter in the options
