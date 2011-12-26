@@ -30,7 +30,7 @@ ok( $s->connect({
 
 # should fail
 eval { $s->begin_privileged };
-like( $@, qr/read timed-out/, 'begin priv, bad pass' );
+like( $@, qr/read timed-out|timeout on timer/, 'begin priv, bad pass' );
 ok( eval{$s->close;1}, 'disconnected' );
 
 # should be OK

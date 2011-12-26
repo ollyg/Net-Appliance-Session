@@ -39,6 +39,10 @@ sub connect {
         $self->$set($options->$slot) if $options->$has;
     }
 
+    if ($self->nci->transport->is_win32 and $self->has_password) {
+        $self->set_password($self->get_password . $self->nci->transport->ors);
+    }
+
     # SSH transport takes a username if we have one
     $self->nci->transport->connect_options->username($self->get_username)
         if $self->has_username

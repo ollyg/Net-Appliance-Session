@@ -5,7 +5,7 @@ use Test::More 0.88;
 
 BEGIN {
   if ($^O eq 'MSWin32') {
-    Test::More::plan(skip_all => 'these tests are for Win32 systems');
+    Test::More::plan(skip_all => 'these tests are not for Win32 systems');
   }
 }
 
