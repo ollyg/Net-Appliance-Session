@@ -22,6 +22,6 @@ ok( $s->cmd('show ip bgp 163.1.0.0/16'), 'ran show ip bgp 163.1.0.0/16' );
 like( $s->last_prompt, qr/\w+ ?>$/, 'command ran and last_prompt looks ok' );
 
 my @out = $s->last_response;
-cmp_ok( scalar @out, '>=', 5, 'sensible number of lines in the command output');
+cmp_ok( scalar @out, '==', 15, 'sensible number of lines in the command output');
 
 done_testing;
