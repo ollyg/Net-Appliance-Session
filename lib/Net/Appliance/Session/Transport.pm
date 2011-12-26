@@ -18,6 +18,13 @@ package Net::Appliance::Session::Transport;
         required => 0,
         predicate => 'has_password',
     );
+
+    has privileged_password => (
+        is => 'ro',
+        isa => 'Str',
+        required => 0,
+        predicate => 'has_privileged_password',
+    );
 }
 
 use Moose::Role;
@@ -26,8 +33,11 @@ sub connect {
     my $self = shift;
     my $options = Net::Appliance::Session::Transport::ConnectOptions->new(@_);
 
-    $self->set_username($options->username) if $options->has_username;
-    $self->set_password($options->password) if $options->has_password;
+    foreach my $slot (qw/ username password privileged_password /) {
+        my $has = 'has_' . $slot;
+        my $set = 'set_' . $slot;
+        $self->$set($options->$slot) if $options->$has;
+    }
 
     # SSH transport takes a username if we have one
     $self->nci->transport->connect_options->username($self->get_username)
