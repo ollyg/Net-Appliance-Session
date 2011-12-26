@@ -85,7 +85,8 @@ sub close {
 
     # issue disconnect macro if the phrasebook has one
     if ($self->nci->phrasebook->has_macro('disconnect')) {
-        $self->macro('disconnect');
+        eval { $self->macro('disconnect') };
+        if (not $@) { die "should have quit issueing disconnect macro, but didn't" }
     }
 
     $self->nci->transport->disconnect;

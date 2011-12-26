@@ -20,7 +20,7 @@ BEGIN { use_ok( 'Net::Appliance::Session::APIv2') }
 
 my $s = new_ok( 'Net::Appliance::Session::APIv2' => [
     Transport => "Telnet",
-    Host => '192.168.0.55',
+    Host => '172.16.20.55',
     Platform => "ios",
 ]);
 

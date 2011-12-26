@@ -17,7 +17,7 @@ my $s = new_ok( 'Net::Appliance::Session' => [{
     transport => "SSH",
     ($^O eq 'MSWin32' ?
         (app => '..\..\..\Desktop\plink.exe') : () ),
-    host => '192.168.0.55',
+    host => '172.16.20.55',
     personality => "ios",
     connect_options => {
         shkc => 0,
