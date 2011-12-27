@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+3.113610  2011-12-27 00:54:02 Europe/London
+
   * New implementation of output parser. Note the following:
 
   For the cmd() and macro() methods: In scalar context all data is returned.
