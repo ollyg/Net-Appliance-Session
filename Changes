@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+  * New implementation of output parser. Note the following:
+
+  For the cmd() and macro() methods: In scalar context all data is returned.
+  In list context the gathered response is returned as a list of lines. In both
+  cases your local platform's newline character will end all lines.
+
 3.113600  2011-12-26 16:36:25 Europe/London
 
   * Issue disconnect macro if the phrasebook has one, on close()
