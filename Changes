@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * fix POD typo and add NAME to APIv2 (C. Vicente)
+
 3.113610  2011-12-27 00:54:02 Europe/London
 
   * New implementation of output parser. Note the following:

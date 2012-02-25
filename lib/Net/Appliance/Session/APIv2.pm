@@ -247,6 +247,8 @@ foreach my $name (qw/
 
 1;
 
+# ABSTRACT: Back-compatibility with API version 2
+
 =head1 INTRODUCTION
 
 Version 3 of Net::Appliance::Session is a complete rewrite of the previous
@@ -310,7 +312,7 @@ messages.
 
 When automating a CLI, this doesn't really make much sense. If a human makes a
 mistake, the CLI shows an error. A computer-driven script should I<never> make
-a mistake - it will have been tested and developed. It's unecessary overhead
+a mistake - it will have been tested and developed. It's unnecessary overhead
 to check for errors all the time and attempt to recover. Of course, the remote
 device might still have a problem and report it, or die, but in that case
 version 3 of the module will still itself C<die> with an error message.
