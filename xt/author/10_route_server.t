@@ -8,7 +8,7 @@ BEGIN { use_ok( 'Net::Appliance::Session') }
 my $s = new_ok( 'Net::Appliance::Session' => [{
     transport => "Telnet",
     ($^O eq 'MSWin32' ?
-        (app => '..\..\..\Desktop\plink.exe') : () ),
+        (app => "$ENV{HOMEPATH}\\Desktop\\plink.exe") : () ),
     host => "route-server.bb.pipex.net",
     personality => "cisco",
     do_login => 0,
