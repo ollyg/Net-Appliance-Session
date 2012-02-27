@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+3.120580_001 2012-02-27 21:47:51 Europe/London
+
   * Implement async interface - put() and gather() (rt.cpan #75201)
 
 3.120560  2012-02-25 17:20:36 Europe/London
