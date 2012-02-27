@@ -5,6 +5,7 @@ use Net::CLI::Interact;
 
 with 'Net::Appliance::Session::Transport';
 with 'Net::Appliance::Session::Engine';
+with 'Net::Appliance::Session::Async';
 
 foreach my $slot (qw/
     logged_in
@@ -314,6 +315,13 @@ In scalar context the response is returned as a single string. In list context
 the gathered response is returned as a list of lines. In both cases your local
 platform's newline character will end all lines.
 
+You can also call the C<last_response> method which returns the same data with
+the same contextual behaviour.
+
+This method accepts a hashref of options following the C<$command>, which can
+include a C<timeout> value to permit long running commands to have all their
+output gathered.
+
 To handle more complicated interactions, for example commands which prompt for
 confirmation or optional parameters, you should use a Macro. These are set up
 in the phrasebook and issued via the C<< $s->macro($name) >> method call. See
@@ -402,6 +410,23 @@ new prompt. Set this configuration option to zero (false) to suppress this
 behaviour.
 
 =back
+
+=head1 ASYNCHRONOUS BEHAVIOUR
+
+The standard, and recommended way to use this module is as above, whereby the
+application is blocked waiting for command response. It's also possible to
+send a command, and separately return to ask for output at a later time.
+
+ $s->put('show clock');
+
+This will send the command C<show clock> to the connected device, followed by
+a newline character.
+
+ $s->gather();
+
+This will gather and return output, with similar behaviour to C<cmd()>, above.
+That is, it blocks waiting for output and a prompt, will timeout, and accepts
+the same options. You can still use C<last_response> after calling C<gather>.
 
 =head1 DIAGNOSTICS
 
