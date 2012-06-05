@@ -1,6 +1,8 @@
 {{$NEXT}}
 
   * Change async interface put() to be say() because of the auto-newline
+  * If connection fails, the transport (ssh, telnet, etc) error is emitted
+  * Do not run disconnect macro when connect fails (J. Whitten)
 
 3.120580_001 2012-02-27 21:47:51 Europe/London
 
