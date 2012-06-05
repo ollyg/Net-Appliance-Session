@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+use strict; use warnings FATAL => 'all';
+use Test::More 0.88;
+
+BEGIN { use_ok( 'Net::Appliance::Session') }
+
+my $s = new_ok( 'Net::Appliance::Session' => [{
+    transport => "SSH",
+    ($^O eq 'MSWin32' ?
+        (app => "$ENV{HOMEPATH}\\Desktop\\plink.exe") : () ),
+    host => "bogus.example.com",
+    personality => "cisco",
+}]);
+
+# should fail
+eval { $s->connect };
+like( $@, qr/Could not resolve hostname/, 'Unknown Host' );
+
+done_testing;
