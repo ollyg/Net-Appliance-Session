@@ -1,0 +1,50 @@
+{
+   "abstract" : "Run command-line sessions to network appliances",
+   "author" : [
+      "Oliver Gorwits <oliver@cpan.org>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 4.200013, CPAN::Meta::Converter version 2.112150",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Net-Appliance-Session",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "6.30"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Moose" : 0,
+            "Moose::Role" : 0,
+            "Net::CLI::Interact" : 0,
+            "overload" : 0
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::More" : "0.88"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=Net-Appliance-Session"
+      },
+      "homepage" : "https://github.com/ollyg/Net-Appliance-Session/wiki",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/ollyg/Net-Appliance-Session.git",
+         "web" : "https://github.com/ollyg/Net-Appliance-Session"
+      }
+   },
+   "version" : "3.121570"
+}
+

@@ -1,4 +1,7 @@
 package Net::Appliance::Session::APIv2;
+{
+  $Net::Appliance::Session::APIv2::VERSION = '3.121570';
+}
 
 use Moose;
 extends 'Net::Appliance::Session';
@@ -249,6 +252,18 @@ foreach my $name (qw/
 
 # ABSTRACT: Back-compatibility with API version 2
 
+
+__END__
+=pod
+
+=head1 NAME
+
+Net::Appliance::Session::APIv2 - Back-compatibility with API version 2
+
+=head1 VERSION
+
+version 3.121570
+
 =head1 INTRODUCTION
 
 Version 3 of Net::Appliance::Session is a complete rewrite of the previous
@@ -409,4 +424,16 @@ See the extensive documentation of L<Net::Appliance::Session> or the
 underlying L<Net::CLI::Interact> module for details. You have I<a lot> more on
 offer with the version 3 API.
 
+=head1 AUTHOR
+
+Oliver Gorwits <oliver@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Oliver Gorwits.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+

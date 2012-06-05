@@ -1,10 +1,14 @@
 package Net::Appliance::Session;
+{
+  $Net::Appliance::Session::VERSION = '3.121570';
+}
 
 use Moose;
 use Net::CLI::Interact;
 
 with 'Net::Appliance::Session::Transport';
 with 'Net::Appliance::Session::Engine';
+with 'Net::Appliance::Session::Async';
 
 foreach my $slot (qw/
     logged_in
@@ -116,7 +120,17 @@ sub _build_nci {
 
 # ABSTRACT: Run command-line sessions to network appliances
 
-=begin :prelude
+
+__END__
+=pod
+
+=head1 NAME
+
+Net::Appliance::Session - Run command-line sessions to network appliances
+
+=head1 VERSION
+
+version 3.121570
 
 =head1 IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
 
@@ -124,8 +138,6 @@ Between version 2.x and 3.x of this module the programmer's interface changed
 in a number of ways. If you have existing code to migrate to this new version,
 please see the L<Upgrading|Net::Appliance::Session::APIv2>
 document which details all steps necessary.
-
-=end :prelude
 
 =head1 SYNOPSIS
 
@@ -314,6 +326,13 @@ In scalar context the response is returned as a single string. In list context
 the gathered response is returned as a list of lines. In both cases your local
 platform's newline character will end all lines.
 
+You can also call the C<last_response> method which returns the same data with
+the same contextual behaviour.
+
+This method accepts a hashref of options following the C<$command>, which can
+include a C<timeout> value to permit long running commands to have all their
+output gathered.
+
 To handle more complicated interactions, for example commands which prompt for
 confirmation or optional parameters, you should use a Macro. These are set up
 in the phrasebook and issued via the C<< $s->macro($name) >> method call. See
@@ -403,6 +422,27 @@ behaviour.
 
 =back
 
+=head1 ASYNCHRONOUS BEHAVIOUR
+
+The standard, and recommended way to use this module is as above, whereby the
+application is blocked waiting for command response. It's also possible to
+send a command, and separately return to ask for output at a later time.
+
+ $s->say('show clock');
+
+This will send the command C<show clock> to the connected device, followed by
+a newline character.
+
+ $s->gather();
+
+This will gather and return output, with similar behaviour to C<cmd()>, above.
+That is, it blocks waiting for output and a prompt, will timeout, and accepts
+the same options.
+
+You can still use C<last_response> after calling C<gather>, however be aware
+that the command (from C<say>) may be echoed at the start of the output,
+depending on device and connection transport.
+
 =head1 DIAGNOSTICS
 
 To see a log of all the processes within this module, and a copy of all data
@@ -431,4 +471,16 @@ Carlos Vicente
 
 =back
 
+=head1 AUTHOR
+
+Oliver Gorwits <oliver@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by Oliver Gorwits.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+

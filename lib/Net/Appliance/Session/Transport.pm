@@ -1,4 +1,7 @@
 package Net::Appliance::Session::Transport;
+{
+  $Net::Appliance::Session::Transport::VERSION = '3.121570';
+}
 
 {
     package # hide from pause
@@ -89,21 +92,25 @@ sub close {
     return if $self->close_called;
     $self->close_called(1);
 
-    $self->end_configure
-        if $self->do_configure_mode and $self->in_configure_mode;
-    $self->end_privileged
-        if $self->do_privileged_mode and $self->in_privileged_mode;
+    if ($self->nci->transport->connect_ready) {
+        $self->end_configure
+            if $self->do_configure_mode and $self->in_configure_mode;
+        $self->end_privileged
+            if $self->do_privileged_mode and $self->in_privileged_mode;
 
-    # re-enable paging
-    $self->enable_paging if $self->do_paging;
+        # re-enable paging
+        $self->enable_paging if $self->do_paging;
 
-    # issue disconnect macro if the phrasebook has one
-    if ($self->nci->phrasebook->has_macro('disconnect')) {
-        eval { $self->macro('disconnect') };
-        # this should die as there's no returned prompt (NCI pump() fails)
+        # issue disconnect macro if the phrasebook has one
+        if ($self->nci->phrasebook->has_macro('disconnect')) {
+            eval { $self->macro('disconnect') };
+            # this should die as there's no returned prompt (NCI pump() fails)
+        }
+
+        $self->nci->transport->disconnect;
+        # there is no longer a transport
     }
 
-    $self->nci->transport->disconnect;
     $self->logged_in(0);
 }
 
