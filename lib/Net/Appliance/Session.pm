@@ -426,7 +426,11 @@ a newline character.
 
 This will gather and return output, with similar behaviour to C<cmd()>, above.
 That is, it blocks waiting for output and a prompt, will timeout, and accepts
-the same options. You can still use C<last_response> after calling C<gather>.
+the same options.
+
+You can still use C<last_response> after calling C<gather>, however be aware
+that the command (from C<say>) may be echoed at the start of the output,
+depending on device and connection transport.
 
 =head1 DIAGNOSTICS
 
