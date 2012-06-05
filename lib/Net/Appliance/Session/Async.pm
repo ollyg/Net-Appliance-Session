@@ -9,6 +9,8 @@ sub put {
         ($opts->{no_ors} ? () : $self->nci->transport->ors));
 }
 
+sub say { return $_[0]->put( $_[1] ) }
+
 sub gather {
     my ($self, $opts) = @_;
     $opts ||= {};

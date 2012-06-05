@@ -417,7 +417,7 @@ The standard, and recommended way to use this module is as above, whereby the
 application is blocked waiting for command response. It's also possible to
 send a command, and separately return to ask for output at a later time.
 
- $s->put('show clock');
+ $s->say('show clock');
 
 This will send the command C<show clock> to the connected device, followed by
 a newline character.

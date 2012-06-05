@@ -17,7 +17,7 @@ my $s = new_ok( 'Net::Appliance::Session' => [{
 
 ok( $s->connect );
 
-ok( $s->put("show ip bgp 163.1.0.0/16"), 'sent show ip bgp 163.1.0.0/16' );;
+ok( $s->say("show ip bgp 163.1.0.0/16"), 'sent show ip bgp 163.1.0.0/16' );;
 ok( $s->gather(), 'gathered output' );
 
 like( $s->last_prompt, qr/\w+ ?>$/, 'command ran and last_prompt looks ok' );

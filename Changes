@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * Change async interface put() to be say() because of the auto-newline
+
 3.120580_001 2012-02-27 21:47:51 Europe/London
 
   * Implement async interface - put() and gather() (rt.cpan #75201)
