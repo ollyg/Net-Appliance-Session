@@ -104,13 +104,17 @@ sub _build_nci {
     $self->connect_options->{host} = $self->host
         if $self->has_host;
 
-    return Net::CLI::Interact->new({
+    my $nci = Net::CLI::Interact->new({
         transport => $self->transport,
         personality => $self->personality,
         connect_options => $self->connect_options,
         ($self->has_app ? (app => $self->app) : ()),
         ($self->has_add_library ? (add_library => $self->add_library) : ()),
     });
+
+    $nci->logger->log('engine', 'notice',
+        sprintf "NAS loaded, version %s", ($Net::Appliance::Session::VERSION || 'devel'));
+    return $nci;
 }
 
 1;
