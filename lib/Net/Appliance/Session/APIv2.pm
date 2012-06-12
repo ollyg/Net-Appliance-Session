@@ -1,6 +1,6 @@
 package Net::Appliance::Session::APIv2;
 {
-  $Net::Appliance::Session::APIv2::VERSION = '3.121570';
+  $Net::Appliance::Session::APIv2::VERSION = '3.121640';
 }
 
 use Moose;
@@ -262,7 +262,7 @@ Net::Appliance::Session::APIv2 - Back-compatibility with API version 2
 
 =head1 VERSION
 
-version 3.121570
+version 3.121640
 
 =head1 INTRODUCTION
 

@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '3.121570';
+  $Net::Appliance::Session::VERSION = '3.121640';
 }
 
 use Moose;
@@ -107,13 +107,17 @@ sub _build_nci {
     $self->connect_options->{host} = $self->host
         if $self->has_host;
 
-    return Net::CLI::Interact->new({
+    my $nci = Net::CLI::Interact->new({
         transport => $self->transport,
         personality => $self->personality,
         connect_options => $self->connect_options,
         ($self->has_app ? (app => $self->app) : ()),
         ($self->has_add_library ? (add_library => $self->add_library) : ()),
     });
+
+    $nci->logger->log('engine', 'notice',
+        sprintf "NAS loaded, version %s", ($Net::Appliance::Session::VERSION || 'devel'));
+    return $nci;
 }
 
 1;
@@ -130,7 +134,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 3.121570
+version 3.121640
 
 =head1 IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
 
