@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * Add links to transport man pages in documentation.
+
 3.121640  2012-06-12 23:24:42 Europe/London
 
   * Library version number is logged at instatiation.
