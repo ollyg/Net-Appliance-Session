@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '3.121640';
+  $Net::Appliance::Session::VERSION = '3.121990_001';
 }
 
 use Moose;
@@ -134,7 +134,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 3.121640
+version 3.121990_001
 
 =head1 IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
 
@@ -231,7 +231,10 @@ name of the target device in this parameter.
 
 Some of the transport backends can take their own options. For example with a
 serial line connection you might specify the port speed, etc. See the
-respective manual pages for each transport backend for further details.
+respective manual pages for each transport backend for further details
+(L<SSH|Net::CLI::Interact::Transport::SSH>,
+L<Telnet|Net::CLI::Interact::Transport::Telnet>,
+L<Serial|Net::CLI::Interact::Transport::Serial>).
 
 =item C<< add_library => $directory >>
 
