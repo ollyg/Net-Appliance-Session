@@ -1,6 +1,6 @@
 package Net::Appliance::Session::Transport;
 {
-  $Net::Appliance::Session::Transport::VERSION = '3.122010';
+  $Net::Appliance::Session::Transport::VERSION = '3.122011_001';
 }
 
 {
@@ -67,7 +67,10 @@ sub connect {
         die 'a set password is required to connect to this host'
             if not $self->has_password;
 
-        $self->cmd($self->get_password, { match => 'prompt' });
+        # support for serial console servers where, after loggin in to the
+        # server, the console is asleep and needs waking up to show its prompt
+        $self->say($self->get_password);
+        $self->find_prompt($self->wake_up);
     }
 
     $self->prompt_looks_like('prompt')
