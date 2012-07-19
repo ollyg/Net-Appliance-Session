@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '3.121990_001';
+  $Net::Appliance::Session::VERSION = '3.122010';
 }
 
 use Moose;
@@ -134,7 +134,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 3.121990_001
+version 3.122010
 
 =head1 IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
 

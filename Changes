@@ -1,5 +1,6 @@
-3.121990_001 2012-07-17 23:24:43 Europe/London
+3.122010  2012-07-19 20:50:58 Europe/London
 
+  * Try enable_paging and disable_paging macros before generic 'paging' (C. Tucker)
   * Add links to transport man pages in documentation.
 
 3.121640  2012-06-12 23:24:42 Europe/London

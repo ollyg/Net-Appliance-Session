@@ -33,7 +33,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=Net-Appliance-Session"
@@ -45,6 +45,6 @@
          "web" : "https://github.com/ollyg/Net-Appliance-Session"
       }
    },
-   "version" : "3.121990_001"
+   "version" : "3.122010"
 }
 

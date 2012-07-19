@@ -3,7 +3,7 @@ NAME
     appliances
 
 VERSION
-    version 3.121990_001
+    version 3.122010
 
 IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
     Between version 2.x and 3.x of this module the programmer's interface

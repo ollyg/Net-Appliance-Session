@@ -1,6 +1,6 @@
 package Net::Appliance::Session::Async;
 {
-  $Net::Appliance::Session::Async::VERSION = '3.121990_001';
+  $Net::Appliance::Session::Async::VERSION = '3.122010';
 }
 
 use Moose::Role;
