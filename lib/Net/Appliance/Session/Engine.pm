@@ -25,7 +25,10 @@ sub enable_paging {
     my $privstate = $self->in_privileged_mode;
     $self->begin_privileged if $self->privileged_paging;
 
-    $self->macro('paging', { params => [
+    my $pagercmd = ($self->nci->phrasebook->has_macro('enable_paging')
+        ? 'enable_paging' : 'paging');
+
+    $self->macro($pagercmd, { params => [
         $self->pager_enable_lines
     ]} );
 
@@ -42,7 +45,10 @@ sub disable_paging {
     my $privstate = $self->in_privileged_mode;
     $self->begin_privileged if $self->privileged_paging;
 
-    $self->macro('paging', { params => [
+    my $pagercmd = ($self->nci->phrasebook->has_macro('disable_paging')
+        ? 'disable_paging' : 'paging');
+
+    $self->macro($pagercmd, { params => [
         $self->pager_disable_lines
     ]} );
 
