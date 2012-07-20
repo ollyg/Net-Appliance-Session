@@ -1,6 +1,6 @@
 package Net::Appliance::Session::Transport;
 {
-  $Net::Appliance::Session::Transport::VERSION = '3.122011_001';
+  $Net::Appliance::Session::Transport::VERSION = '3.122020_001';
 }
 
 {
@@ -57,7 +57,8 @@ sub connect {
     # optionally, log in to the remote host
     if ($self->do_login and not $self->prompt_looks_like('prompt')) {
 
-        if ($self->prompt_looks_like('user')) {
+        if ($self->nci->phrasebook->has_macro('user')
+            and $self->prompt_looks_like('user')) {
             die 'a set username is required to connect to this host'
                 if not $self->has_username;
 
@@ -70,7 +71,7 @@ sub connect {
         # support for serial console servers where, after loggin in to the
         # server, the console is asleep and needs waking up to show its prompt
         $self->say($self->get_password);
-        $self->find_prompt($self->wake_up);
+        $self->find_prompt($self->wake_up ? 2 : 0);
     }
 
     $self->prompt_looks_like('prompt')
