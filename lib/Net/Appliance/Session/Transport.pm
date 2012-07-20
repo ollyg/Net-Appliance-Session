@@ -54,7 +54,8 @@ sub connect {
     # optionally, log in to the remote host
     if ($self->do_login and not $self->prompt_looks_like('prompt')) {
 
-        if ($self->prompt_looks_like('user')) {
+        if ($self->nci->phrasebook->has_macro('user')
+            and $self->prompt_looks_like('user')) {
             die 'a set username is required to connect to this host'
                 if not $self->has_username;
 
