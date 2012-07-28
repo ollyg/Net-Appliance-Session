@@ -68,7 +68,7 @@ sub connect {
         # support for serial console servers where, after loggin in to the
         # server, the console is asleep and needs waking up to show its prompt
         $self->say($self->get_password);
-        $self->find_prompt($self->wake_up ? 2 : 0);
+        $self->find_prompt($self->wake_up);
     }
 
     $self->prompt_looks_like('prompt')
