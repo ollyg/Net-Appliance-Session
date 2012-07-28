@@ -24,10 +24,10 @@ my %WriteMakefileArgs = (
   'PREREQ_PM' => {
     'Moose' => '0',
     'Moose::Role' => '0',
-    'Net::CLI::Interact' => '0',
+    'Net::CLI::Interact' => '1.122100',
     'overload' => '0'
   },
-  'VERSION' => '3.122020_001',
+  'VERSION' => '3.122100',
   'test' => {
     'TESTS' => 't/*.t'
   }

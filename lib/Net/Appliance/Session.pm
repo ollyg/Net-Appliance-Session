@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '3.122020_001';
+  $Net::Appliance::Session::VERSION = '3.122100';
 }
 
 use Moose;
@@ -134,7 +134,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 3.122020_001
+version 3.122100
 
 =head1 IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
 
@@ -421,11 +421,15 @@ paging). If your device uses a different number here, set it in this option.
 
 =item wake_up
 
-When first connecting to the device, the he most common scenario is that a
+When first connecting to the device, the most common scenario is that a
 Username (or some other) prompt is shown. However if no output is forthcoming
-and nothing matches, the "enter" key is pressed, in the hope of triggering a
-new prompt. Set this configuration option to zero (false) to suppress this
-behaviour.
+and nothing matches, the "enter" key is pressed, in the hope of triggering the
+display of a new prompt. This is typically most useful on Serial connected
+devices.
+
+Set this configuration option to zero to suppress this behaviour, or to the
+number of times "enter" should be pressed and output waited for. The default
+is to press "enter" once.
 
 =back
 
