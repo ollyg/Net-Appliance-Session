@@ -1,6 +1,6 @@
 package Net::Appliance::Session::APIv2;
 {
-  $Net::Appliance::Session::APIv2::VERSION = '3.122100';
+  $Net::Appliance::Session::APIv2::VERSION = '3.122530';
 }
 
 use Moose;
@@ -156,7 +156,7 @@ sub error {
 
 sub input_log {
     my $self = shift;
-    $self->_wrap( sub { $self->set_global_log_at('debug') } );
+    $self->_wrap( sub { $self->set_global_log_at('notice') } );
 }
 
 # call some perl code which might die, so catch that and create a kind-of
@@ -262,7 +262,7 @@ Net::Appliance::Session::APIv2 - Back-compatibility with API version 2
 
 =head1 VERSION
 
-version 3.122100
+version 3.122530
 
 =head1 INTRODUCTION
 
@@ -416,7 +416,7 @@ C<set_global_log_at> method instead, for similar dumping of communications
 (and more). There's actually much more powerful logging, if you check out the
 main Net::Appliance::Session manual pages.
 
- $s->set_global_log_at('debug');
+ $s->set_global_log_at('notice');
 
 =head2 Useful New Features
 

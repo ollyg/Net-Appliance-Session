@@ -23,7 +23,7 @@ my $s = Net::Appliance::Session->new({
     personality => 'ios', # or many others, see docs
     host => $host,
 });
-$s->set_global_log_at('debug'); # maximum debugging
+$s->set_global_log_at('notice'); # maximum debugging is 'debug'
 
 eval {
     $s->connect({
