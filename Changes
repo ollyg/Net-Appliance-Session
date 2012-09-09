@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+  * should be checking for "user" prompt not macro!
+  * alter default suggested log level to 'notice'
+
 3.122100  2012-07-29 00:44:52 Europe/London
 
   * Support serial console servers where the console might be asleep (C. Tucker)

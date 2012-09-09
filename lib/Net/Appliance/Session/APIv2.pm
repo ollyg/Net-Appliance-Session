@@ -153,7 +153,7 @@ sub error {
 
 sub input_log {
     my $self = shift;
-    $self->_wrap( sub { $self->set_global_log_at('debug') } );
+    $self->_wrap( sub { $self->set_global_log_at('notice') } );
 }
 
 # call some perl code which might die, so catch that and create a kind-of
@@ -401,7 +401,7 @@ C<set_global_log_at> method instead, for similar dumping of communications
 (and more). There's actually much more powerful logging, if you check out the
 main Net::Appliance::Session manual pages.
 
- $s->set_global_log_at('debug');
+ $s->set_global_log_at('notice');
 
 =head2 Useful New Features
 

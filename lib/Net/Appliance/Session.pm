@@ -448,9 +448,9 @@ depending on device and connection transport.
 To see a log of all the processes within this module, and a copy of all data
 sent to and received from the device, call the following method:
 
- $s->set_global_log_at('debug');
+ $s->set_global_log_at('notice');
 
-In place of C<debug> you can have other log levels, and via the embedded
+In place of C<notice> you can have other log levels, and via the embedded
 L<Logger|Net::CLI::Interact::Logger> at C<< $s->nci->logger >> it's possible
 to finely control the diagnostics.
 
