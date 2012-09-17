@@ -1,6 +1,6 @@
 package Net::Appliance::Session::Async;
 
-use Moose::Role;
+use Moo::Role;
 
 sub put {
     my ($self, $cmd, $opts) = @_;

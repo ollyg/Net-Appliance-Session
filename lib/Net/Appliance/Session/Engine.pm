@@ -1,19 +1,21 @@
 package Net::Appliance::Session::Engine;
 
-use Moose::Role;
+use Moo::Role;
+use Sub::Quote;
+use MooX::Types::MooseLike::Base qw(Int);
 
 has 'pager_enable_lines' => (
     is => 'rw',
-    isa => 'Int',
+    isa => Int,
     required => 0,
-    default => 24,
+    default => quote_sub('24'),
 );
 
 has 'pager_disable_lines' => (
     is => 'rw',
-    isa => 'Int',
+    isa => Int,
     required => 0,
-    default => 0,
+    default => quote_sub('0'),
 );
 
 sub enable_paging {
