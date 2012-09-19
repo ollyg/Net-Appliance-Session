@@ -7,16 +7,13 @@ Makefile.PL
 README
 examples/example-1.pl
 lib/Net/Appliance/Session.pm
-lib/Net/Appliance/Session/APIv2.pm
 lib/Net/Appliance/Session/Async.pm
 lib/Net/Appliance/Session/Engine.pm
 lib/Net/Appliance/Session/Transport.pm
 t/10-use.t
 t/author-10_route_server.t
-t/author-11_route_server_v2.t
 t/author-12_route_server_nonblock.t
 t/author-20_local_device.t
-t/author-21_local_device_v2.t
 t/author-22_local_privileged_pass.t
 t/author-30_local_device_ssh.t
 t/author-31_local_device_ssh_extra.t

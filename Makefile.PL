@@ -22,12 +22,13 @@ my %WriteMakefileArgs = (
   'LICENSE' => 'perl',
   'NAME' => 'Net::Appliance::Session',
   'PREREQ_PM' => {
-    'Moose' => '0',
-    'Moose::Role' => '0',
-    'Net::CLI::Interact' => '1.122530',
-    'overload' => '0'
+    'Moo' => '0',
+    'Moo::Role' => '0',
+    'MooX::Types::MooseLike::Base' => '0',
+    'Net::CLI::Interact' => '2.122630',
+    'Sub::Quote' => '0'
   },
-  'VERSION' => '3.122530',
+  'VERSION' => '4.122630',
   'test' => {
     'TESTS' => 't/*.t'
   }

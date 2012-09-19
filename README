@@ -3,13 +3,7 @@ NAME
     appliances
 
 VERSION
-    version 3.122530
-
-IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
-    Between version 2.x and 3.x of this module the programmer's interface
-    changed in a number of ways. If you have existing code to migrate to
-    this new version, please see the Upgrading document which details all
-    steps necessary.
+    version 4.122630
 
 SYNOPSIS
      use Net::Appliance::Session;

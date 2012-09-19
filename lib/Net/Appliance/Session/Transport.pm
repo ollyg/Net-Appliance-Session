@@ -1,36 +1,37 @@
 package Net::Appliance::Session::Transport;
 {
-  $Net::Appliance::Session::Transport::VERSION = '3.122530';
+  $Net::Appliance::Session::Transport::VERSION = '4.122630';
 }
 
 {
     package # hide from pause
         Net::Appliance::Session::Transport::ConnectOptions;
-    use Moose;
+    use Moo;
+    use MooX::Types::MooseLike::Base qw(Str);
 
     has username => (
         is => 'ro',
-        isa => 'Str',
+        isa => Str,
         required => 0,
-        predicate => 'has_username',
+        predicate => 1,
     );
 
     has password => (
         is => 'ro',
-        isa => 'Str',
+        isa => Str,
         required => 0,
-        predicate => 'has_password',
+        predicate => 1,
     );
 
     has privileged_password => (
         is => 'ro',
-        isa => 'Str',
+        isa => Str,
         required => 0,
-        predicate => 'has_privileged_password',
+        predicate => 1,
     );
 }
 
-use Moose::Role;
+use Moo::Role;
 
 sub connect {
     my $self = shift;
@@ -49,7 +50,7 @@ sub connect {
     # SSH transport takes a username if we have one
     $self->nci->transport->connect_options->username($self->get_username)
         if $self->has_username
-           and $self->nci->transport->connect_options->meta->find_attribute_by_name('username');
+           and $self->nci->transport->connect_options->can('username');
 
     # poke remote device (whether logging in or not)
     $self->find_prompt($self->wake_up);

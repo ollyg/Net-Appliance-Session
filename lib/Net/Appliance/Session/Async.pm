@@ -1,9 +1,9 @@
 package Net::Appliance::Session::Async;
 {
-  $Net::Appliance::Session::Async::VERSION = '3.122530';
+  $Net::Appliance::Session::Async::VERSION = '4.122630';
 }
 
-use Moose::Role;
+use Moo::Role;
 
 sub put {
     my ($self, $cmd, $opts) = @_;

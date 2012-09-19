@@ -1,3 +1,8 @@
+4.122630  2012-09-19 17:23:45 Europe/London
+
+  * Port from Moose to Moo
+  * Remove APIv2 back-compat module
+
 3.122530  2012-09-09 15:54:04 Europe/London
 
   * should be checking for "user" prompt not macro!
