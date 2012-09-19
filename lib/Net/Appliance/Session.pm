@@ -125,17 +125,6 @@ sub _build_nci {
 
 # ABSTRACT: Run command-line sessions to network appliances
 
-=begin :prelude
-
-=head1 IMPORTANT NOTE ABOUT UPGRADING FROM VERSION 2.x
-
-Between version 2.x and 3.x of this module the programmer's interface changed
-in a number of ways. If you have existing code to migrate to this new version,
-please see the L<Upgrading|Net::Appliance::Session::APIv2>
-document which details all steps necessary.
-
-=end :prelude
-
 =head1 SYNOPSIS
 
  use Net::Appliance::Session;
