@@ -1,6 +1,8 @@
 package Net::Appliance::Session;
 
-use Moose;
+use Moo;
+use Sub::Quote;
+use MooX::Types::MooseLike::Base qw(Bool Str HashRef InstanceOf);
 use Net::CLI::Interact;
 
 with 'Net::Appliance::Session::Transport';
@@ -16,9 +18,9 @@ foreach my $slot (qw/
 /) {
     has $slot => (
         is => 'rw',
-        isa => 'Bool',
+        isa => Bool,
         required => 0,
-        default => 0,
+        default => quote_sub('0'),
     );
 }
 
@@ -31,9 +33,9 @@ foreach my $slot (qw/
 /) {
     has $slot => (
         is => 'rw',
-        isa => 'Bool',
+        isa => Bool,
         required => 0,
-        default => 1,
+        default => quote_sub('1'),
     );
 }
 
@@ -44,11 +46,11 @@ foreach my $slot (qw/
 /) {
     has $slot => (
         is => 'rw',
-        isa => 'Str',
+        isa => Str,
         required => 0,
+        predicate => 1,
         reader => "get_$slot",
         writer => "set_$slot",
-        predicate => "has_$slot",
     );
 }
 
@@ -58,7 +60,7 @@ foreach my $slot (qw/
 /) {
     has $slot => (
         is => 'rw',
-        isa => 'Str',
+        isa => Str,
         required => 1,
     );
 }
@@ -70,23 +72,25 @@ foreach my $slot (qw/
 /) {
     has $slot => (
         is => 'ro',
-        isa => 'Str',
+        isa => Str,
         required => 0,
-        predicate => "has_$slot",
+        predicate => 1,
     );
 }
 
 has 'connect_options' => (
     is => 'ro',
-    isa => 'HashRef',
+    isa => HashRef,
     required => 0,
     default => sub { {} },
 );
 
 has 'nci' => (
-    is => 'ro',
-    isa => 'Net::CLI::Interact',
-    lazy_build => 1,
+    is => 'lazy',
+    isa => InstanceOf['Net::CLI::Interact'],
+    required => 1,
+    predicate => 1,
+    clearer => 1,
     handles => [qw/
         cmd
         macro
