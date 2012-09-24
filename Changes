@@ -1,6 +1,7 @@
 {{$NEXT}}
 
   * Improve documentation on use of custom phrasebook libraries
+  * Export Try::Tiny methods as better alternative to eval()
 
 4.122630  2012-09-19 17:23:45 Europe/London
 

@@ -25,7 +25,7 @@ my $s = Net::Appliance::Session->new({
 });
 $s->set_global_log_at('notice'); # maximum debugging is 'debug'
 
-eval {
+try {
     $s->connect({
         name     => $username,
         password => $password,
@@ -53,7 +53,10 @@ eval {
     $s->end_configure;
     # $s->cmd('write memory');
     $s->end_privileged;
+}
+catch {
+    warn $_;
+}
+finally {
+    $s->close;
 };
-warn $@ if $@;
-
-$s->close;
