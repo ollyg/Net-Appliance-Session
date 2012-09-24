@@ -222,9 +222,15 @@ L<Serial|Net::CLI::Interact::Transport::Serial>).
 
 If you've added to the built-in phrasebook with your own macros, then use
 this option to load your new phrasebook file(s). The path here should be the
-root within which the personality is installed, such as:
+directory within which all your personalities are located, such as:
 
  ${directory}/cisco/ios/pb
+ ${directory}/other/device/pb
+
+Usually the phrasebook files are called "C<pb>" and to the C<personality>
+option you pass the containing directory name, for example C<ios> or C<device>
+in the examples shown. See L<Net::CLI::Interact::Manual::Tutorial> for
+further details.
 
 =back
 
