@@ -3,6 +3,7 @@
   * Improve documentation on use of custom phrasebook libraries
   * Export Try::Tiny methods as better alternative to eval()
   * Update for the prompts named "prompt" which are now called "generic"
+  * Add scripting system bin/nas
 
 4.122630  2012-09-19 17:23:45 Europe/London
 

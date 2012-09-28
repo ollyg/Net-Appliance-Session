@@ -1,0 +1,222 @@
+#!/usr/bin/perl
+
+use lib '/home/oliver/git/Net-CLI-Interact/lib';
+use lib '/home/oliver/git/Net-Appliance-Session/lib';
+
+use strict;
+use warnings FATAL => 'all';
+
+use Getopt::Long 2.24 qw(:config bundling);
+use Getopt::LongUsage qw(GetLongUsage);
+use Term::ANSIColor qw(colored);
+use Text::ParseWords qw(shellwords);
+use Term::ReadPassword qw(read_password);
+$Term::ReadPassword::USE_STARS = 1;
+
+use Net::Appliance::Session;
+use IO::Prompt::Tiny qw(prompt);
+our $VERSION = $Net::Appliance::Session::VERSION || '0.00031412';
+my $banner = colored(['blue bold'],
+  "Net Appliance Session scripting - v$VERSION - (c) Oliver Gorwits, 2012\n"),
+# TODO: (c) symbol here
+
+my %options = ();
+my @getoptconf = (qw/
+  personality|p=s
+  transport|t=s
+  username|u=s
+  hostname|h=s
+
+  record|R
+  playback|P
+  outfile|o=s
+  script|s=s
+
+  exit-last|l
+  cloginrc|c=s
+  echo|e
+  paging|M
+
+  quiet|q
+  verbose|v=s
+  help
+  version|V
+/);
+my %getlongusageconf = (
+    header  => $banner,
+    footer  => <<ENDFOOTER,
+
+footer here
+ENDFOOTER
+    cli_use => <<ENDCLIUSE,
+$0 [options] [hostname]
+$0 [options] [hostname]
+$0 [options] [hostname]
+ENDCLIUSE
+    descriptions => [
+      p => 'Device <personality> (default: "ios")',
+      t => '<transport> method (Serial, Telnet, default: SSH)',
+      u => '<username> to connect as on device (default: $USER)',
+      h => '<hostname> or IP (if omitted, will loop on standard input)',
+      '' => '',
+      record   => 'Record session',
+      playback => 'Play back session',
+      o => 'When recording, save Perl program to this <filename>',
+      s => 'NAS <script> to record commands to, or play them back from',
+      l => 'Num. of output lines from last command is program exit status',
+      e => 'Echo commands sent, when running the recorded program/script',
+      '' => '',
+      c => 'RANCID cloginrc <file> with device credentials',
+      paging => 'Do not attempt to disable command output paging',
+      '' => '',
+      q => 'Hide informational messages',
+      verbose => 'NCI log <level> ("debug", "notice", "info", etc)',
+      version => 'Display this program\'s version number',
+      help => 'Display this help text',
+    ],
+    Getopt_Long  => \@getoptconf,
+);
+my $usage = sub { GetLongUsage(%getlongusageconf) };
+
+unshift @ARGV, shellwords($ENV{PERL_NAS_OPT});
+GetOptions(\%options, @getoptconf) || die ($usage->(), "\n");
+
+sub bailout {
+  print "\n", colored(['magenta bold'], @_) if scalar @_;
+  print $usage->(), "\n";
+  exit(0);
+}
+bailout() if exists $options{help};
+
+if (exists $options{version}) {
+  print "$0 version $VERSION\n";
+  exit(0);
+}
+
+# checks for incompatible/nonsense command option combinations
+
+bailout("error: Cannot Record (-R) and Playback (-P) at the same time.\n\n")
+  if $options{record} and $options{playback};
+
+bailout("error: Record needs either output file (-o) or script name (-s).\n\n")
+  if $options{record} and not ($options{outfile} or $options{script});
+
+bailout("error: Playback needs a script name (-s).\n\n")
+  if $options{playback} and not $options{script};
+
+# hello there, user
+print $banner if not exists $options{quiet};
+delete $getlongusageconf{header}; # already displayed, now
+
+# login credentials
+
+if (not exists $options{cloginrc}) {
+  if (not exists $options{username}) {
+    $options{username} = prompt('Username:', $ENV{USER});
+  }
+  if (not exists $options{password}) {
+    $options{password} = read_password('Password (required): ');
+    bailout("error: No login password and no cloginrc (-c) file.\n\n")
+      if not length $options{password};
+  }
+  if (not exists $options{privileged_password}) {
+    $options{privileged_password}
+      = read_password('Privileged level password (optional): ');
+  }
+}
+else {
+  die "sorry, cloginrc unsupported at this time :-(\n";
+}
+
+# informational messages if not in quiet mode
+
+if (not exists $options{quiet}) {
+  my @messages = ();
+  if (not exists $options{personality}) {
+    push @messages, qq{personality "/cisco/ios"};
+    $options{personality} = 'ios';
+  }
+  if (not exists $options{transport}) {
+    push @messages, 'transport SSH';
+    $options{transport} = 'SSH';
+  }
+  if (scalar @messages) {
+    print colored ['green bold'], 'Assuming '. (join ' and ', @messages), ".\n";
+  }
+}
+
+# =====================================================================
+
+if (exists $options{verbose}) {
+  $ENV{NCI_LOG_AT} = $options{verbose};
+}
+
+if (not exists $options{hostname}) {
+  if (not exists $options{quiet}) {
+    print colored ['green bold'],
+      qq{Now looping, waiting for hostnames on standard input...\n};
+  }
+
+  while (<>) {
+    $options{hostname} = $_;
+    chomp $options{hostname};
+    next if not length $options{hostname};
+    do_session(%options);
+  }
+}
+else {
+  do_session(%options);
+}
+
+sub do_session {
+  my (%options) = @_;
+  print colored ['white bold'], "Connecting to [$options{hostname}]...\n"
+    if not $options{quiet};
+
+  my $s = Net::Appliance::Session->new({
+    personality => $options{personality},
+    transport => $options{transport},
+    host => $options{hostname},
+  });
+
+  if ($options{paging}
+      or not ($s->nci->phrasebook->has_macro('enable_paging')
+                or $s->nci->phrasebook->has_macro('paging'))) {
+    $s->do_paging(0);
+  }
+
+  try {
+    $s->connect({password => ' '});
+    while (1) {
+      my $cmd = prompt($s->last_prompt);
+      if ($cmd =~ m/^!ml/) {
+        print colored ['white bold'], "Macro Names:\n";
+        foreach my $m ($s->nci->phrasebook->macro_names) {
+          print colored ['white bold'], "  $m\n";
+        }
+        next;
+      }
+      elsif ($cmd =~ m/^!m\s+(\S+)(?:\s+(.+))?/) {
+        my ($name, $args) = ($1, $2);
+        $args = '' if not defined $args;
+        print colored ['white bold'], "Running macro [$name]...\n";
+        $s->macro($name, { params => [split /\s+/, $args] });
+        next;
+      }
+      elsif ($cmd =~ m/^\\!m/) {
+        $cmd =~ s/^\\//;
+      }
+      print $s->cmd($cmd);
+    }
+  }
+  catch {
+    print $_;
+  }
+  finally {
+    $s->close;
+  };
+}
+
+# =====================================================================
+
+__END__
