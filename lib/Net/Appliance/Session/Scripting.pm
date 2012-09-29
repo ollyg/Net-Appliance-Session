@@ -12,6 +12,7 @@ use IO::Prompt::Tiny qw(prompt);
 use IO::Handle ();
 use Cwd qw(abs_path);
 use Data::Dumper ();
+use Try::Tiny;
 use Net::Appliance::Session;
 
 our $VERSION = $Net::Appliance::Session::VERSION || '0.00031412';
