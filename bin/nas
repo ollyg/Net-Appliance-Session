@@ -3,6 +3,7 @@
 use strict;
 use warnings FATAL => 'all';
 
+use lib './lib';
 use Net::Appliance::Session::Scripting;
 
 Net::Appliance::Session::Scripting::run();

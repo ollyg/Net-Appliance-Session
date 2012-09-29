@@ -211,7 +211,7 @@ sub do_session {
     if ($options{record} and $options{script}) {
         open $command_log, '>', $options{script};
         open my $source, '<', abs_path($0);
-        while (<$source>) { print $command_log $_ }
+        while (<$source>) { print $command_log $_ unless $_ =~ m/__END__/ }
         close $source;
 
         my %settings = (%options, playback => 1);
@@ -254,8 +254,10 @@ sub do_session {
             my $cmd = get_next_cmd($s, $script_read);
             last if not defined $cmd;
             next if $cmd =~ m/^\s+$/;
-            print $command_log "$cmd\n" if $command_log->opened;
-            $command_log->flush;
+            if ($command_log->opened) {
+                print $command_log "$cmd\n";
+                $command_log->flush;
+            }
 
             if ($cmd =~ m/^!m\s+(\S+)(?:\s+(.+))?/) {
                 my ($name, $args) = ($1, $2);
