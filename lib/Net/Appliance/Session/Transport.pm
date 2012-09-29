@@ -1,6 +1,6 @@
 package Net::Appliance::Session::Transport;
 {
-  $Net::Appliance::Session::Transport::VERSION = '4.122630';
+  $Net::Appliance::Session::Transport::VERSION = '4.122730';
 }
 
 {
@@ -56,7 +56,7 @@ sub connect {
     $self->find_prompt($self->wake_up);
 
     # optionally, log in to the remote host
-    if ($self->do_login and not $self->prompt_looks_like('prompt')) {
+    if ($self->do_login and not $self->prompt_looks_like('generic')) {
 
         if ($self->nci->phrasebook->has_prompt('user')
             and $self->prompt_looks_like('user')) {
@@ -75,7 +75,7 @@ sub connect {
         $self->find_prompt($self->wake_up);
     }
 
-    $self->prompt_looks_like('prompt')
+    $self->prompt_looks_like('generic')
         or die 'login failed to remote host - prompt does not match';
 
     $self->close_called(0);

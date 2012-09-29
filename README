@@ -3,7 +3,7 @@ NAME
     appliances
 
 VERSION
-    version 4.122630
+    version 4.122730
 
 SYNOPSIS
      use Net::Appliance::Session;
@@ -16,18 +16,19 @@ SYNOPSIS
                                  # and there are other behaviour options, see below
      });
  
-     eval {
+     try {
          $s->connect({ username => 'username', password => 'loginpass' });
  
          $s->begin_privileged({ password => 'privilegedpass' });
          print $s->cmd('show access-list');
          $s->end_privileged;
-     };
-     if ($@) {
-         warn "failed to execute command: $@";
      }
- 
-     $s->close;
+     catch {
+         warn "failed to execute command: $_";
+     }
+     finally {
+         $s->close;
+     };
 
 DESCRIPTION
     Use this module to establish an interactive command-line session with a
@@ -46,10 +47,15 @@ DESCRIPTION
 
 METHODS
     As in the synopsis above, the first step is to create a new instance.
-    Recommended practice is to wrap all other method calls in a Perl "eval"
-    block to catch errors (typically time-outs waiting for CLI response).
-    For a demonstration of usage, see the example script shipped with this
-    distribution.
+
+    Recommended practice is to wrap all other calls (except "close()") in a
+    "try" block, to catch errors (typically time-outs waiting for CLI
+    response). This module exports the "try/catch/finally" methods (from
+    Try::Tiny) into your namespace as a simpler alternative to using
+    "eval()".
+
+    For a full demonstration of usage, see the example script shipped with
+    this distribution.
 
   Net::Appliance::Session->new( \%options )
      my $s = Net::Appliance::Session->new({
@@ -88,10 +94,16 @@ METHODS
     "add_library => $directory"
         If you've added to the built-in phrasebook with your own macros,
         then use this option to load your new phrasebook file(s). The path
-        here should be the root within which the personality is installed,
-        such as:
+        here should be the directory within which all your personalities are
+        located, such as:
 
          ${directory}/cisco/ios/pb
+         ${directory}/other/device/pb
+
+        Usually the phrasebook files are called ""pb"" and to the
+        "personality" option you pass the containing directory name, for
+        example "ios" or "device" in the examples shown. See
+        Net::CLI::Interact::Manual::Tutorial for further details.
 
   connect( \%options )
      $s->connect({ username => $myname, password => $mysecret });
@@ -288,18 +300,17 @@ DIAGNOSTICS
 
      $s->set_global_log_at('notice');
 
-    In place of "notice" you can have other log levels, and via the embedded
-    Logger at "$s->nci->logger" it's possible to finely control the
-    diagnostics.
+    In place of "notice" you can have other log levels (e.g. "debug" for
+    more, or "info" for less), and via the embedded Logger at
+    "$s->nci->logger" it's possible to finely control the diagnostics.
 
 INTERNALS
     See Net::CLI::Interact.
 
 THANKS
-    The following people have kindly reported bugs with patches or
-    contributed to the development in some other way:
-
-    *   Carlos Vicente
+    Over several years I have received many patches and suggestions for
+    improvement from users of this module. My heartfelt thanks to all, for
+    their contributions.
 
 AUTHOR
     Oliver Gorwits <oliver@cpan.org>

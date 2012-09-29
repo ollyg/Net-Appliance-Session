@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '4.122630';
+  $Net::Appliance::Session::VERSION = '4.122730';
 }
 
 use Moo;
@@ -11,6 +11,20 @@ use Net::CLI::Interact;
 with 'Net::Appliance::Session::Transport';
 with 'Net::Appliance::Session::Engine';
 with 'Net::Appliance::Session::Async';
+
+# import Try::Tiny try/catch/finally into caller's namespace
+sub import {
+    my $caller = caller;
+
+    eval <<ENDEVAL;
+        package $caller;
+        use Class::Load ();
+        Class::Load::load_class('Try::Tiny');
+        Try::Tiny->import();
+ENDEVAL
+
+    die $@ if $@;
+}
 
 foreach my $slot (qw/
     logged_in
@@ -138,7 +152,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 4.122630
+version 4.122730
 
 =head1 SYNOPSIS
 
@@ -152,18 +166,19 @@ version 4.122630
                              # and there are other behaviour options, see below
  });
  
- eval {
+ try {
      $s->connect({ username => 'username', password => 'loginpass' });
  
      $s->begin_privileged({ password => 'privilegedpass' });
      print $s->cmd('show access-list');
      $s->end_privileged;
- };
- if ($@) {
-     warn "failed to execute command: $@";
  }
- 
- $s->close;
+ catch {
+     warn "failed to execute command: $_";
+ }
+ finally {
+     $s->close;
+ };
 
 =head1 DESCRIPTION
 
@@ -183,9 +198,14 @@ the connection are configurable for different device behaviours.
 =head1 METHODS
 
 As in the synopsis above, the first step is to create a new instance.
-Recommended practice is to wrap all other method calls in a Perl C<eval> block
-to catch errors (typically time-outs waiting for CLI response). For a
-demonstration of usage, see the example script shipped with this distribution.
+
+Recommended practice is to wrap all other calls (except C<close()>) in a
+C<try> block, to catch errors (typically time-outs waiting for CLI response).
+This module exports the C<try/catch/finally> methods (from L<Try::Tiny>) into
+your namespace as a simpler alternative to using C<eval()>.
+
+For a full demonstration of usage, see the example script shipped with this
+distribution.
 
 =head2 Net::Appliance::Session->new( \%options )
 
@@ -237,9 +257,15 @@ L<Serial|Net::CLI::Interact::Transport::Serial>).
 
 If you've added to the built-in phrasebook with your own macros, then use
 this option to load your new phrasebook file(s). The path here should be the
-root within which the personality is installed, such as:
+directory within which all your personalities are located, such as:
 
  ${directory}/cisco/ios/pb
+ ${directory}/other/device/pb
+
+Usually the phrasebook files are called "C<pb>" and to the C<personality>
+option you pass the containing directory name, for example C<ios> or C<device>
+in the examples shown. See L<Net::CLI::Interact::Manual::Tutorial> for
+further details.
 
 =back
 
@@ -458,7 +484,8 @@ sent to and received from the device, call the following method:
 
  $s->set_global_log_at('notice');
 
-In place of C<notice> you can have other log levels, and via the embedded
+In place of C<notice> you can have other log levels (e.g. C<debug> for more,
+or C<info> for less), and via the embedded
 L<Logger|Net::CLI::Interact::Logger> at C<< $s->nci->logger >> it's possible
 to finely control the diagnostics.
 
@@ -468,16 +495,9 @@ See L<Net::CLI::Interact>.
 
 =head1 THANKS
 
-The following people have kindly reported bugs with patches or contributed to
-the development in some other way:
-
-=over 4
-
-=item *
-
-Carlos Vicente
-
-=back
+Over several years I have received many patches and suggestions for
+improvement from users of this module. My heartfelt thanks to all, for their
+contributions.
 
 =head1 AUTHOR
 

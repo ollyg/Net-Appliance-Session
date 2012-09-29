@@ -1,6 +1,6 @@
 package Net::Appliance::Session::Engine;
 {
-  $Net::Appliance::Session::Engine::VERSION = '4.122630';
+  $Net::Appliance::Session::Engine::VERSION = '4.122730';
 }
 
 use Moo::Role;
