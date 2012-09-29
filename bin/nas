@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-use lib '/home/oliver/git/Net-CLI-Interact/lib';
-use lib '/home/oliver/git/Net-Appliance-Session/lib';
+use lib '/home/oliver/perl/Net-CLI-Interact/lib';
+use lib '/home/oliver/perl/Net-Appliance-Session/lib';
 
 use strict;
 use warnings FATAL => 'all';
@@ -186,21 +186,22 @@ sub do_session {
   }
 
   try {
-    $s->connect({password => ' '});
+    $s->connect({password => $options{password}});
+    print $s->last_response;
     while (1) {
       my $cmd = prompt($s->last_prompt);
-      if ($cmd =~ m/^!ml/) {
-        print colored ['white bold'], "Macro Names:\n";
-        foreach my $m ($s->nci->phrasebook->macro_names) {
-          print colored ['white bold'], "  $m\n";
-        }
-        next;
-      }
-      elsif ($cmd =~ m/^!m\s+(\S+)(?:\s+(.+))?/) {
+      if ($cmd =~ m/^!m\s+(\S+)(?:\s+(.+))?/) {
         my ($name, $args) = ($1, $2);
         $args = '' if not defined $args;
         print colored ['white bold'], "Running macro [$name]...\n";
         $s->macro($name, { params => [split /\s+/, $args] });
+        next;
+      }
+      elsif ($cmd =~ m/^!m/) {
+        print colored ['white bold'], "Macro Names:\n";
+        foreach my $m ($s->nci->phrasebook->macro_names) {
+          print colored ['white bold'], "  $m\n";
+        }
         next;
       }
       elsif ($cmd =~ m/^\\!m/) {
