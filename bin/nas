@@ -1,223 +1,122 @@
-#!/usr/bin/perl
-
-use lib '/home/oliver/perl/Net-CLI-Interact/lib';
-use lib '/home/oliver/perl/Net-Appliance-Session/lib';
+#!/usr/bin/env perl
 
 use strict;
 use warnings FATAL => 'all';
 
-use Getopt::Long 2.24 qw(:config bundling);
-use Getopt::LongUsage qw(GetLongUsage);
-use Term::ANSIColor qw(colored);
-use Text::ParseWords qw(shellwords);
-use Term::ReadPassword qw(read_password);
-$Term::ReadPassword::USE_STARS = 1;
+use Net::Appliance::Session::Scripting;
 
-use Net::Appliance::Session;
-use IO::Prompt::Tiny qw(prompt);
-our $VERSION = $Net::Appliance::Session::VERSION || '0.00031412';
-my $banner = colored(['blue bold'],
-  "Net Appliance Session scripting - v$VERSION - (c) Oliver Gorwits, 2012\n"),
-# TODO: (c) symbol here
+Net::Appliance::Session::Scripting::run();
 
-my %options = ();
-my @getoptconf = (qw/
-  personality|p=s
-  transport|t=s
-  username|u=s
-  hostname|h=s
+# ABSTRACT: Create Reusable Session Scripts
+# PODNAME: nas
 
-  record|R
-  playback|P
-  outfile|o=s
-  script|s=s
+=head1 SYNOPSIS
 
-  exit-last|l
-  cloginrc|c=s
-  echo|e
-  paging|M
+ $ nas --help
 
-  quiet|q
-  verbose|v=s
-  help
-  version|V
-/);
-my %getlongusageconf = (
-    header  => $banner,
-    footer  => <<ENDFOOTER,
+  nas [options] [hostname or IP]
 
-footer here
-ENDFOOTER
-    cli_use => <<ENDCLIUSE,
-$0 [options] [hostname]
-$0 [options] [hostname]
-$0 [options] [hostname]
-ENDCLIUSE
-    descriptions => [
-      p => 'Device <personality> (default: "ios")',
-      t => '<transport> method (Serial, Telnet, default: SSH)',
-      u => '<username> to connect as on device (default: $USER)',
-      h => '<hostname> or IP (if omitted, will loop on standard input)',
-      '' => '',
-      record   => 'Record session',
-      playback => 'Play back session',
-      o => 'When recording, save Perl program to this <filename>',
-      s => 'NAS <script> to record commands to, or play them back from',
-      l => 'Num. of output lines from last command is program exit status',
-      e => 'Echo commands sent, when running the recorded program/script',
-      '' => '',
-      c => 'RANCID cloginrc <file> with device credentials',
-      paging => 'Do not attempt to disable command output paging',
-      '' => '',
-      q => 'Hide informational messages',
-      verbose => 'NCI log <level> ("debug", "notice", "info", etc)',
-      version => 'Display this program\'s version number',
-      help => 'Display this help text',
-    ],
-    Getopt_Long  => \@getoptconf,
-);
-my $usage = sub { GetLongUsage(%getlongusageconf) };
+  -p, --personality  Device <personality> (default: "ios")
+  -t, --transport    <transport> method (Serial, Telnet, default: SSH)
+  -u, --username     <username> to connect as on device (default: $USER)
+                     
+  -R, --record       Record session
+  -P, --playback     Play back session
+  -s, --script       When recording, save playback script to this <filename>
+  -l, --cmdlog       NAS <file> to record commands to, or play them back from
+                     
+  -e, --exit-last    Num. of output lines from last command is program exit status
+  -c, --cloginrc     RANCID cloginrc <file> with device credentials
+  -z, --nopasswords  Do not ask for device passwords (if not using cloginrc)
+  -o, --echo         Echo commands sent, when playing back the recorded script/cmdlog
+  -M, --paging       Do not attempt to disable command output paging
+  -B, --nobanner     Suppress display of any login banner received from the device
+                     
+  -q, --quiet        Hide informational messages
+  -v, --verbose      NCI log <level> ("debug", "notice", "info", etc)
+  -V, --version      Display this program's version number
+  -h, --help         Display this help text
 
-unshift @ARGV, shellwords($ENV{PERL_NAS_OPT});
-GetOptions(\%options, @getoptconf) || die ($usage->(), "\n");
+=head1 DESCRIPTION
 
-sub bailout {
-  print "\n", colored(['magenta bold'], @_) if scalar @_;
-  print $usage->(), "\n";
-  exit(0);
-}
-bailout() if exists $options{help};
+Use this program to help write reusable L<Net::Appliance::Session> scripts,
+play them back, and also to more easily connect to network devices.
 
-if (exists $options{version}) {
-  print "$0 version $VERSION\n";
-  exit(0);
-}
+=over 4
 
-# checks for incompatible/nonsense command option combinations
+=item *
 
-bailout("error: Cannot Record (-R) and Playback (-P) at the same time.\n\n")
-  if $options{record} and $options{playback};
+Connect easily to a network device using CLI switches and prompts for
+credentials. This is easier than writing short Perl programs.
 
-bailout("error: Record needs either output file (-o) or script name (-s).\n\n")
-  if $options{record} and not ($options{outfile} or $options{script});
+=item *
 
-bailout("error: Playback needs a script name (-s).\n\n")
-  if $options{playback} and not $options{script};
+Record a set of commands issued to one network device into a command log, then
+replay that log against other devices.
 
-# hello there, user
-print $banner if not exists $options{quiet};
-delete $getlongusageconf{header}; # already displayed, now
+=item *
 
-# login credentials
+Record a session and produce a Perl script which when run, replays the session
+to the same host, or overridable to other devices.
 
-if (not exists $options{cloginrc}) {
-  if (not exists $options{username}) {
-    $options{username} = prompt('Username:', $ENV{USER});
-  }
-  if (not exists $options{password}) {
-    $options{password} = read_password('Password (required): ');
-    bailout("error: No login password and no cloginrc (-c) file.\n\n")
-      if not length $options{password};
-  }
-  if (not exists $options{privileged_password}) {
-    $options{privileged_password}
-      = read_password('Privileged level password (optional): ');
-  }
-}
-else {
-  die "sorry, cloginrc unsupported at this time :-(\n";
-}
+=back
 
-# informational messages if not in quiet mode
+Once connected to the device you can enter any command and it will be run.
 
-if (not exists $options{quiet}) {
-  my @messages = ();
-  if (not exists $options{personality}) {
-    push @messages, qq{personality "/cisco/ios"};
-    $options{personality} = 'ios';
-  }
-  if (not exists $options{transport}) {
-    push @messages, 'transport SSH';
-    $options{transport} = 'SSH';
-  }
-  if (scalar @messages) {
-    print colored ['green bold'], 'Assuming '. (join ' and ', @messages), ".\n";
-  }
-}
+=head1 GENERAL USAGE NOTES
 
-# =====================================================================
+Please see the C<SYNOPSIS> section and the command line help for the available
+options. In the future more documentation will be forthcoming, I promise. Here
+are some highlights:
 
-if (exists $options{verbose}) {
-  $ENV{NCI_LOG_AT} = $options{verbose};
-}
+The C<exit-last> option can be useful for creating a session script which
+checks for some error condition. Assuming the last command should have no
+output on success, then the exit status of the script will be non-zero when
+there's a problem. Use this with C<-R> to make a reuseable script.
 
-if (not exists $options{hostname}) {
-  if (not exists $options{quiet}) {
-    print colored ['green bold'],
-      qq{Now looping, waiting for hostnames on standard input...\n};
-  }
+To play a script with no output other than that returned from the device in
+response to sent commands, use the switch combination C<-Bqoz>. Note that you
+will need to be able to login automatically, and RANCID config isn't yet
+supported.
 
-  while (<>) {
-    $options{hostname} = $_;
-    chomp $options{hostname};
-    next if not length $options{hostname};
-    do_session(%options);
-  }
-}
-else {
-  do_session(%options);
-}
+Oh, yes, in the future the script will read a RANCID C<.cloginrc> file for the
+device credentials, but it doesn't do that, yet.
 
-sub do_session {
-  my (%options) = @_;
-  print colored ['white bold'], "Connecting to [$options{hostname}]...\n"
-    if not $options{quiet};
+If you don't provide a hostname or IP then the script goes into a loop waiting
+for the hostname on standard input. This way, you can pipe a list of device
+names to the script and it will execute the commands on each one.
 
-  my $s = Net::Appliance::Session->new({
-    personality => $options{personality},
-    transport => $options{transport},
-    host => $options{hostname},
-  });
+In case you didn't know, the library has support for connecting to linux boxes
+using the C<-p bash> setting to chose the Bash shell personality.
 
-  if ($options{paging}
-      or not ($s->nci->phrasebook->has_macro('enable_paging')
-                or $s->nci->phrasebook->has_macro('paging'))) {
-    $s->do_paging(0);
-  }
+Getting to be a super-user is a little clunky at the moment. I need to work on
+that a little more. Take care that your scripts don't contain any passwords!
 
-  try {
-    $s->connect({password => $options{password}});
-    print $s->last_response;
-    while (1) {
-      my $cmd = prompt($s->last_prompt);
-      if ($cmd =~ m/^!m\s+(\S+)(?:\s+(.+))?/) {
-        my ($name, $args) = ($1, $2);
-        $args = '' if not defined $args;
-        print colored ['white bold'], "Running macro [$name]...\n";
-        $s->macro($name, { params => [split /\s+/, $args] });
-        next;
-      }
-      elsif ($cmd =~ m/^!m/) {
-        print colored ['white bold'], "Macro Names:\n";
-        foreach my $m ($s->nci->phrasebook->macro_names) {
-          print colored ['white bold'], "  $m\n";
-        }
-        next;
-      }
-      elsif ($cmd =~ m/^\\!m/) {
-        $cmd =~ s/^\\//;
-      }
-      print $s->cmd($cmd);
-    }
-  }
-  catch {
-    print $_;
-  }
-  finally {
-    $s->close;
-  };
-}
+=head1 SPECIAL FEATURES
 
-# =====================================================================
+The methods of L<Net::Appliance::Session> are available by using the command
+C<< !s <method-name> >>. The best use of this is to gracefully disconnect, by
+issuing:
 
-__END__
+ !s close
+
+You can also enter the command C<!m> to see a list of available Macros. If you
+don't know what a Macro is, don't worry. You run a Macro with the C<< !m
+<macro-name> [params] >> command.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+https://github.com/aol/trigger
+
+=item *
+
+http://www.shrubbery.net/rancid/
+
+=back
+
+=cut
+
