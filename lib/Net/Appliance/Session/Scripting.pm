@@ -21,7 +21,7 @@ our $VERSION = $Net::Appliance::Session::VERSION || '0.00031412';
 my $banner = colored ['blue'],
   "Net Appliance Session scripting - v$VERSION - © 2012 by Oliver Gorwits\n";
 
-my %options = ();
+my %options = (cloginrc_opts => {});
 my $exit_status = 0;
 
 sub bailout {
@@ -178,21 +178,6 @@ sub get_creds_from_cloginrc {
             }
         }
     }
-
-    # informational messages if not in quiet mode
-    if (not exists $options{quiet}) {
-        my @messages = ();
-        if (not exists $options{personality}) {
-            push @messages, qq{personality "/cisco/ios"};
-        }
-        if (not exists $options{transport}
-                or not exists $options{cloginrc_opts}{transport}) {
-            push @messages, 'transport SSH';
-        }
-        if (scalar @messages) {
-            print colored ['green'], 'Assuming '. (join ' and ', @messages), ".\n";
-        }
-    }
 }
 
 sub run {
@@ -258,6 +243,21 @@ sub do_session {
 
         print colored ['green blink'], "Recording session!\n"
             if not $options{quiet};
+    }
+
+    # informational messages if not in quiet mode
+    if (not exists $options{quiet}) {
+        my @messages = ();
+        if (not exists $options{personality}) {
+            push @messages, qq{personality "/cisco/ios"};
+        }
+        if (not exists $options{transport}
+                or not exists $options{cloginrc_opts}{transport}) {
+            push @messages, 'transport SSH';
+        }
+        if (scalar @messages) {
+            print colored ['green'], 'Assuming '. (join ' and ', @messages), ".\n";
+        }
     }
 
     print colored ['white'], "Connecting to [$options{hostname}]...\n\n"
