@@ -13,6 +13,8 @@ use IO::Handle ();
 use Cwd qw(abs_path);
 use Data::Dumper ();
 use Try::Tiny;
+use Text::Glob qw(match_glob);
+
 use Net::Appliance::Session;
 
 our $VERSION = $Net::Appliance::Session::VERSION || '0.00031412';
@@ -223,14 +225,12 @@ sub do_session {
         print $command_log "}\n\n";
         print $command_log "__DATA__\n";
 
-        if (not $options{quiet}) {
-            print colored ['green blink'], "Recording session!\n";
-        }
+        print colored ['green blink'], "Recording session!\n"
+            if not $options{quiet};
     }
 
-    if (not $options{quiet}) {
-        print colored ['white'], "Connecting to [$options{hostname}]...\n\n";
-    }
+    print colored ['white'], "Connecting to [$options{hostname}]...\n\n"
+        if not $options{quiet};
 
     my $s = Net::Appliance::Session->new({
         host => $options{hostname},
@@ -263,9 +263,8 @@ sub do_session {
             if ($cmd =~ m/^!m\s+(\S+)(?:\s+(.+))?/) {
                 my ($name, $args) = ($1, $2);
                 $args = '' if not defined $args;
-                if (not $options{quiet}) {
-                    print colored ['white bold'], "Running macro [$name]...\n";
-                }
+                print colored ['white bold'], "Running macro [$name]...\n"
+                    if not $options{quiet};
                 $s->macro($name, { params => [split /\s+/, $args] });
                 next;
             }
@@ -278,13 +277,11 @@ sub do_session {
             }
             elsif ($cmd =~ m/^!s\s+(\S+)/) {
                 my $call = $1;
-                if (not $s->can($call)) {
-                    print colored ['red bold'], "NAS cannot do [$call]\n";
-                }
+                print colored ['red bold'], "NAS cannot do [$call]\n"
+                    if not $s->can($call);
                 else {
-                    if (not $options{quiet}) {
-                        print colored ['white bold'], "Running session call [$call]...\n";
-                    }
+                    print colored ['white bold'], "Running session call [$call]...\n"
+                        if not $options{quiet};
                     $s->$call;
                     last if not $s->logged_in;
                 }
@@ -316,9 +313,8 @@ sub get_next_cmd {
         my $cmd = ($options{cmdlog} ? <$script_read> : <main::DATA>);
         return if not defined $cmd;
         chomp $cmd;
-        if (not $options{echo}) {
-            print $turtle, $s->nci->last_prompt, $cmd, "\n";
-        }
+        print $turtle, $s->nci->last_prompt, $cmd, "\n"
+            if not $options{echo};
         return $cmd;
     }
     else {
