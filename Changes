@@ -1,3 +1,7 @@
+4.122741  2012-09-30 15:05:51 Europe/London
+
+  * Bug fix for info messages in nas script
+
 4.122740  2012-09-30 14:35:47 Europe/London
 
   * RANCID .cloginrc support for nas script
