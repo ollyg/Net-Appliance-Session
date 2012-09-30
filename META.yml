@@ -26,6 +26,7 @@ requires:
   Sub::Quote: 0
   Term::ANSIColor: 0
   Term::ReadPassword: 0
+  Text::Glob: 0
   Text::ParseWords: 0
   Try::Tiny: 0
   strict: 0
@@ -34,4 +35,4 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Net-Appliance-Session
   homepage: https://github.com/ollyg/Net-Appliance-Session/wiki
   repository: git://github.com/ollyg/Net-Appliance-Session.git
-version: 4.122730
+version: 4.122740

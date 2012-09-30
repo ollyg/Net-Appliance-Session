@@ -3,7 +3,7 @@ NAME
     appliances
 
 VERSION
-    version 4.122730
+    version 4.122740
 
 SYNOPSIS
      use Net::Appliance::Session;
@@ -29,6 +29,10 @@ SYNOPSIS
      finally {
          $s->close;
      };
+
+    or, try the bundled "nas" helper script (beta feature!):
+
+     nas --help
 
 DESCRIPTION
     Use this module to establish an interactive command-line session with a

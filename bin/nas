@@ -22,7 +22,7 @@ nas - Create Reusable Session Scripts
 
 =head1 VERSION
 
-version 4.122730
+version 4.122740
 
 =head1 SYNOPSIS
 
@@ -41,7 +41,7 @@ version 4.122730
                      
   -e, --exit-last    Num. of output lines from last command is program exit status
   -c, --cloginrc     RANCID cloginrc <file> with device credentials
-  -z, --nopasswords  Do not ask for device passwords (if not using cloginrc)
+  -z, --nopassword   Do not ask for device password (if not using cloginrc)
   -o, --echo         Echo commands sent, when playing back the recorded script/cmdlog
   -M, --paging       Do not attempt to disable command output paging
   -B, --nobanner     Suppress display of any login banner received from the device
@@ -60,18 +60,20 @@ play them back, and also to more easily connect to network devices.
 
 =item *
 
-Connect easily to a network device using CLI switches and prompts for
+Start a connection to a network device using CLI switches, and prompts for
 credentials. This is easier than writing short Perl programs.
 
 =item *
 
 Record a set of commands issued to one network device into a command log, then
-replay that log against other devices.
+replay that log against other devices (C<< -R -l <log> >> and C<< -P -l <log>
+>>).
 
 =item *
 
 Record a session and produce a Perl script which when run, replays the session
-to the same host, or overridable to other devices.
+to the same host, or overridable to other devices (C<< -R -s <script> >> and
+then run the script).
 
 =back
 
@@ -93,9 +95,6 @@ response to sent commands, use the switch combination C<-Bqoz>. Note that you
 will need to be able to login automatically, and RANCID config isn't yet
 supported.
 
-Oh, yes, in the future the script will read a RANCID C<.cloginrc> file for the
-device credentials, but it doesn't do that, yet.
-
 If you don't provide a hostname or IP then the script goes into a loop waiting
 for the hostname on standard input. This way, you can pipe a list of device
 names to the script and it will execute the commands on each one.
@@ -115,8 +114,8 @@ issuing:
  !s close
 
 You can also enter the command C<!m> to see a list of available Macros. If you
-don't know what a Macro is, don't worry. You run a Macro with the C<< !m
-<macro-name> [params] >> command.
+don't know what a Macro is, please move a long, there's nothing to see here.
+You run a Macro with the C<< !m <macro-name> [params] >> command.
 
 =head1 SEE ALSO
 

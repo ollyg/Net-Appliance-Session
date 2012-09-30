@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '4.122730';
+  $Net::Appliance::Session::VERSION = '4.122740';
 }
 
 use Moo;
@@ -152,7 +152,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 4.122730
+version 4.122740
 
 =head1 SYNOPSIS
 
@@ -179,6 +179,10 @@ version 4.122730
  finally {
      $s->close;
  };
+
+or, try the bundled C<nas> helper script (beta feature!):
+
+ nas --help
 
 =head1 DESCRIPTION
 

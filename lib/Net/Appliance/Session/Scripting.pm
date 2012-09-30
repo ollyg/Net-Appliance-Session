@@ -13,6 +13,8 @@ use IO::Handle ();
 use Cwd qw(abs_path);
 use Data::Dumper ();
 use Try::Tiny;
+use Text::Glob qw(match_glob);
+
 use Net::Appliance::Session;
 
 our $VERSION = $Net::Appliance::Session::VERSION || '0.00031412';
@@ -44,7 +46,7 @@ sub bailout {
                      
   -e, --exit-last    Num. of output lines from last command is program exit status
   -c, --cloginrc     RANCID cloginrc <file> with device credentials
-  -z, --nopasswords  Do not ask for device passwords (if not using cloginrc)
+  -z, --nopassword   Do not ask for device password (if not using cloginrc)
   -o, --echo         Echo commands sent, when playing back the recorded script/cmdlog
   -M, --paging       Do not attempt to disable command output paging
   -B, --nobanner     Suppress display of any login banner received from the device
@@ -78,7 +80,7 @@ sub getopt {
 
         exit-last|e
         cloginrc|c=s
-        nopasswords|z
+        nopassword|z
         echo|o
         paging|M
         nobanner|B
@@ -128,21 +130,53 @@ sub commandline {
         if (not exists $options{username}) {
             $options{username} = prompt('Username:', $ENV{USER});
         }
-        if (not exists $options{nopasswords}) {
-            if (not exists $options{password}) {
-                $options{password} = read_password(colored ['white'], 'Password (optional): ');
-                bailout("error: No login password and no cloginrc (-c) file.\n")
-                    if not length $options{password};
-            }
-            if (not exists $options{privileged_password}) {
-                $options{privileged_password}
-                    = read_password('Privileged level password (optional): ');
-            }
+        if (not exists $options{nopassword}) {
+            $options{password} = read_password(colored ['white'], 'Password (optional): ');
+            bailout("error: No login password and no cloginrc (-c) file (need -z ?).\n")
+                if not length $options{password};
         }
     }
-    else {
-        print colored ['red'], "sorry, cloginrc unsupported at this time :-(\n";
-        exit(0);
+}
+
+sub get_creds_from_cloginrc {
+    return unless $options{cloginrc} and -e $options{cloginrc};
+    open my $cloginrc, '<', $options{cloginrc} or bailout("$!\n");
+
+    my %t_map = (telnet => 'Telnet', 'ssh' => 'SSH');
+    my @find = qw(autoenable method timeout user password);
+    my %found = (map {$_ => 0} @find);
+
+    while (<$cloginrc>) {
+        my $line = $_;
+        next unless defined $line and length $line and $line =~ m/^add /;
+
+        foreach my $f (@find) {
+            next unless $line =~ m/^add\s+$f\s+(\S+)\s+(\S+)(?:\s+(\S+))?/;
+            my ($host, $value, $value2) = ($1, $2, $3);
+
+            next unless match_glob($host, $options{hostname});
+            next if $found{$f}++;
+
+            if ($f eq 'autoenable') {
+                $options{cloginrc_opts}{do_privileged_mode} = not $value;
+            }
+            elsif ($f eq 'method') {
+                $options{cloginrc_opts}{transport} = $t_map{$value}
+                    if not exists $options{transport};
+            }
+            elsif ($f eq 'timeout') {
+                $options{cloginrc_opts}{timeout} = $value;
+            }
+            elsif ($f eq 'user') {
+                $options{cloginrc_opts}{username} = $value
+                    if not exists $options{username};
+            }
+            elsif ($f eq 'password') {
+                $options{cloginrc_opts}{password} = $value;
+                $options{cloginrc_opts}{privileged_password} = $value2
+                    if defined $value2 and length $value2;
+            }
+        }
     }
 
     # informational messages if not in quiet mode
@@ -151,16 +185,14 @@ sub commandline {
         if (not exists $options{personality}) {
             push @messages, qq{personality "/cisco/ios"};
         }
-        if (not exists $options{transport}) {
+        if (not exists $options{transport}
+                or not exists $options{cloginrc_opts}{transport}) {
             push @messages, 'transport SSH';
         }
         if (scalar @messages) {
             print colored ['green'], 'Assuming '. (join ' and ', @messages), ".\n";
         }
     }
-
-    $options{personality} ||= 'ios';
-    $options{transport}   ||= 'SSH';
 }
 
 sub run {
@@ -177,6 +209,7 @@ sub run {
             $options{hostname} = $_;
             chomp $options{hostname};
             next if not length $options{hostname};
+            get_creds_from_cloginrc();
             do_session(%options);
         }
     }
@@ -217,28 +250,30 @@ sub do_session {
 
         my %settings = (%options, playback => 1);
         delete $settings{$_}
-            for qw/record script cmdlog password privileged_password nopasswords/;
+            for qw/record script cmdlog password nopassword cloginrc_opts/;
         print $command_log "BEGIN {\n    our ";
         print $command_log Data::Dumper->Dump([\%settings], ['defaults']);
         print $command_log "}\n\n";
         print $command_log "__DATA__\n";
 
-        if (not $options{quiet}) {
-            print colored ['green blink'], "Recording session!\n";
-        }
+        print colored ['green blink'], "Recording session!\n"
+            if not $options{quiet};
     }
 
-    if (not $options{quiet}) {
-        print colored ['white'], "Connecting to [$options{hostname}]...\n\n";
-    }
+    print colored ['white'], "Connecting to [$options{hostname}]...\n\n"
+        if not $options{quiet};
 
     my $s = Net::Appliance::Session->new({
         host => $options{hostname},
-        transport => $options{transport},
-        personality => $options{personality},
-        (($options{quiet} and $options{transport} eq 'SSH') ? (
+        transport => ($options{transport} || 'SSH'),
+        personality => ($options{personality} || 'ios'),
+        ($options{username} ? (username => $options{username}) : ()),
+        ($options{password} ? (password => $options{password}) : ()),
+        (($options{quiet} and ($options{transport} eq 'SSH'
+                or $options{cloginrc_opts}{transport} eq 'SSH')) ? (
             connect_options => { opts => ['-q'] },
         ) : ()),
+        %{ $options{cloginrc_opts} || {} },
     });
 
     if ($options{paging}
@@ -248,7 +283,7 @@ sub do_session {
     }
 
     try {
-        $s->connect({password => $options{password}});
+        $s->connect();
         print $s->last_response if not $options{nobanner};
 
         while (1) {
@@ -263,9 +298,8 @@ sub do_session {
             if ($cmd =~ m/^!m\s+(\S+)(?:\s+(.+))?/) {
                 my ($name, $args) = ($1, $2);
                 $args = '' if not defined $args;
-                if (not $options{quiet}) {
-                    print colored ['white bold'], "Running macro [$name]...\n";
-                }
+                print colored ['white bold'], "Running macro [$name]...\n"
+                    if not $options{quiet};
                 $s->macro($name, { params => [split /\s+/, $args] });
                 next;
             }
@@ -282,9 +316,8 @@ sub do_session {
                     print colored ['red bold'], "NAS cannot do [$call]\n";
                 }
                 else {
-                    if (not $options{quiet}) {
-                        print colored ['white bold'], "Running session call [$call]...\n";
-                    }
+                    print colored ['white bold'], "Running session call [$call]...\n"
+                        if not $options{quiet};
                     $s->$call;
                     last if not $s->logged_in;
                 }
@@ -316,9 +349,8 @@ sub get_next_cmd {
         my $cmd = ($options{cmdlog} ? <$script_read> : <main::DATA>);
         return if not defined $cmd;
         chomp $cmd;
-        if (not $options{echo}) {
-            print $turtle, $s->nci->last_prompt, $cmd, "\n";
-        }
+        print $turtle, $s->nci->last_prompt, $cmd, "\n"
+            if not $options{echo};
         return $cmd;
     }
     else {

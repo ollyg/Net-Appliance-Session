@@ -36,12 +36,13 @@ my %WriteMakefileArgs = (
     "Sub::Quote" => 0,
     "Term::ANSIColor" => 0,
     "Term::ReadPassword" => 0,
+    "Text::Glob" => 0,
     "Text::ParseWords" => 0,
     "Try::Tiny" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "4.122730",
+  "VERSION" => "4.122740",
   "test" => {
     "TESTS" => "t/*.t"
   }

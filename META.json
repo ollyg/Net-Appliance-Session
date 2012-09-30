@@ -33,6 +33,7 @@
             "Sub::Quote" : "0",
             "Term::ANSIColor" : "0",
             "Term::ReadPassword" : "0",
+            "Text::Glob" : "0",
             "Text::ParseWords" : "0",
             "Try::Tiny" : "0",
             "strict" : "0",
@@ -57,6 +58,6 @@
          "web" : "https://github.com/ollyg/Net-Appliance-Session"
       }
    },
-   "version" : "4.122730"
+   "version" : "4.122740"
 }
 
