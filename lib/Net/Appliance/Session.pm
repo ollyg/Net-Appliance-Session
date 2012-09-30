@@ -165,6 +165,10 @@ sub _build_nci {
      $s->close;
  };
 
+or, try the bundled C<nas> helper script (beta feature!):
+
+ nas --help
+
 =head1 DESCRIPTION
 
 Use this module to establish an interactive command-line session with a
