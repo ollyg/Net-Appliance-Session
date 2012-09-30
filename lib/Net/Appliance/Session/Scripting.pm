@@ -46,7 +46,7 @@ sub bailout {
                      
   -e, --exit-last    Num. of output lines from last command is program exit status
   -c, --cloginrc     RANCID cloginrc <file> with device credentials
-  -z, --nopasswords  Do not ask for device passwords (if not using cloginrc)
+  -z, --nopassword   Do not ask for device password (if not using cloginrc)
   -o, --echo         Echo commands sent, when playing back the recorded script/cmdlog
   -M, --paging       Do not attempt to disable command output paging
   -B, --nobanner     Suppress display of any login banner received from the device
@@ -80,7 +80,7 @@ sub getopt {
 
         exit-last|e
         cloginrc|c=s
-        nopasswords|z
+        nopassword|z
         echo|o
         paging|M
         nobanner|B
@@ -130,15 +130,11 @@ sub commandline {
         if (not exists $options{username}) {
             $options{username} = prompt('Username:', $ENV{USER});
         }
-        if (not exists $options{nopasswords}) {
+        if (not exists $options{nopassword}) {
             if (not exists $options{password}) {
                 $options{password} = read_password(colored ['white'], 'Password (optional): ');
                 bailout("error: No login password and no cloginrc (-c) file.\n")
                     if not length $options{password};
-            }
-            if (not exists $options{privileged_password}) {
-                $options{privileged_password}
-                    = read_password('Privileged level password (optional): ');
             }
         }
     }
@@ -219,7 +215,7 @@ sub do_session {
 
         my %settings = (%options, playback => 1);
         delete $settings{$_}
-            for qw/record script cmdlog password privileged_password nopasswords/;
+            for qw/record script cmdlog password nopassword/;
         print $command_log "BEGIN {\n    our ";
         print $command_log Data::Dumper->Dump([\%settings], ['defaults']);
         print $command_log "}\n\n";
