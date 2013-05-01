@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+  * Expose global timeout setting
+  * Add nci_options setting for passing not-natively-supported options to NCI
+
 4.122741  2012-09-30 15:05:51 Europe/London
 
   * Bug fix for info messages in nas script
