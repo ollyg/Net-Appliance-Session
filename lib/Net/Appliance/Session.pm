@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '4.122741';
+  $Net::Appliance::Session::VERSION = '4.131210';
 }
 
 use Moo;
@@ -86,6 +86,7 @@ foreach my $slot (qw/
     host
     app
     add_library
+    timeout
 /) {
     has $slot => (
         is => 'ro',
@@ -96,6 +97,13 @@ foreach my $slot (qw/
 }
 
 has 'connect_options' => (
+    is => 'ro',
+    isa => HashRef,
+    required => 0,
+    default => sub { {} },
+);
+
+has 'nci_options' => (
     is => 'ro',
     isa => HashRef,
     required => 0,
@@ -131,6 +139,8 @@ sub _build_nci {
         connect_options => $self->connect_options,
         ($self->has_app ? (app => $self->app) : ()),
         ($self->has_add_library ? (add_library => $self->add_library) : ()),
+        ($self->has_timeout ? (timeout => $self->timeout) : ()),
+        %{ $self->nci_options },
     });
 
     $nci->logger->log('engine', 'notice',
@@ -152,7 +162,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 4.122741
+version 4.131210
 
 =head1 SYNOPSIS
 
@@ -248,6 +258,12 @@ its location in this parameter.
 When using the Telnet and SSH transports, you B<must> provide the IP or host
 name of the target device in this parameter.
 
+=item C<< timeout => $seconds >>
+
+Configures a global default timeout value, in seconds, for interaction with
+the remote device. The default is 10 seconds. You can also set timeout on a
+per-command or per-macro call (see below).
+
 =item C<< connect_options => \%options >>
 
 Some of the transport backends can take their own options. For example with a
@@ -270,6 +286,12 @@ Usually the phrasebook files are called "C<pb>" and to the C<personality>
 option you pass the containing directory name, for example C<ios> or C<device>
 in the examples shown. See L<Net::CLI::Interact::Manual::Tutorial> for
 further details.
+
+=item C<< nci_options => \%options >>
+
+Should you wish to reconfigure the L<Net::CLI::Interact> instance used inside
+of C<Net::Appliance::Session>, perhaps for an option not supported above, this
+generic setting is available.
 
 =back
 
@@ -509,7 +531,7 @@ Oliver Gorwits <oliver@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Oliver Gorwits.
+This software is copyright (c) 2013 by Oliver Gorwits.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

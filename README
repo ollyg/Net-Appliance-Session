@@ -3,7 +3,7 @@ NAME
     appliances
 
 VERSION
-    version 4.122741
+    version 4.131210
 
 SYNOPSIS
      use Net::Appliance::Session;
@@ -89,6 +89,11 @@ METHODS
         When using the Telnet and SSH transports, you must provide the IP or
         host name of the target device in this parameter.
 
+    "timeout => $seconds"
+        Configures a global default timeout value, in seconds, for
+        interaction with the remote device. The default is 10 seconds. You
+        can also set timeout on a per-command or per-macro call (see below).
+
     "connect_options => \%options"
         Some of the transport backends can take their own options. For
         example with a serial line connection you might specify the port
@@ -108,6 +113,11 @@ METHODS
         "personality" option you pass the containing directory name, for
         example "ios" or "device" in the examples shown. See
         Net::CLI::Interact::Manual::Tutorial for further details.
+
+    "nci_options => \%options"
+        Should you wish to reconfigure the Net::CLI::Interact instance used
+        inside of "Net::Appliance::Session", perhaps for an option not
+        supported above, this generic setting is available.
 
   connect( \%options )
      $s->connect({ username => $myname, password => $mysecret });
@@ -320,7 +330,7 @@ AUTHOR
     Oliver Gorwits <oliver@cpan.org>
 
 COPYRIGHT AND LICENSE
-    This software is copyright (c) 2012 by Oliver Gorwits.
+    This software is copyright (c) 2013 by Oliver Gorwits.
 
     This is free software; you can redistribute it and/or modify it under
     the same terms as the Perl 5 programming language system itself.
