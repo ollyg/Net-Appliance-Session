@@ -2,7 +2,7 @@ package Net::Appliance::Session;
 
 use Moo;
 use Sub::Quote;
-use MooX::Types::MooseLike::Base qw(Bool Str HashRef InstanceOf);
+use MooX::Types::MooseLike::Base qw(Bool Int Str HashRef InstanceOf);
 use Net::CLI::Interact;
 
 with 'Net::Appliance::Session::Transport';
@@ -83,7 +83,6 @@ foreach my $slot (qw/
     host
     app
     add_library
-    timeout
 /) {
     has $slot => (
         is => 'ro',
@@ -92,6 +91,13 @@ foreach my $slot (qw/
         predicate => 1,
     );
 }
+
+has 'timeout' => (
+    is => 'ro',
+    isa => Int,
+    required => 0,
+    predicate => 1,
+);
 
 has 'connect_options' => (
     is => 'ro',
