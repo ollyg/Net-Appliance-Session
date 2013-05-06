@@ -1,11 +1,11 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '4.131210';
+  $Net::Appliance::Session::VERSION = '4.131260';
 }
 
 use Moo;
 use Sub::Quote;
-use MooX::Types::MooseLike::Base qw(Bool Str HashRef InstanceOf);
+use MooX::Types::MooseLike::Base qw(Bool Int Str HashRef InstanceOf);
 use Net::CLI::Interact;
 
 with 'Net::Appliance::Session::Transport';
@@ -86,7 +86,6 @@ foreach my $slot (qw/
     host
     app
     add_library
-    timeout
 /) {
     has $slot => (
         is => 'ro',
@@ -95,6 +94,13 @@ foreach my $slot (qw/
         predicate => 1,
     );
 }
+
+has 'timeout' => (
+    is => 'ro',
+    isa => Int,
+    required => 0,
+    predicate => 1,
+);
 
 has 'connect_options' => (
     is => 'ro',
@@ -162,7 +168,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 4.131210
+version 4.131260
 
 =head1 SYNOPSIS
 

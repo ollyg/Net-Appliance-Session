@@ -32,7 +32,7 @@ my %WriteMakefileArgs = (
     "Moo" => 0,
     "Moo::Role" => 0,
     "MooX::Types::MooseLike::Base" => 0,
-    "Net::CLI::Interact" => "2.122730",
+    "Net::CLI::Interact" => "2.131260",
     "Sub::Quote" => 0,
     "Term::ANSIColor" => 0,
     "Term::ReadPassword" => 0,
@@ -42,7 +42,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "4.131210",
+  "VERSION" => "4.131260",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -21,6 +21,8 @@ my $s = new_ok( 'Net::Appliance::Session' => [{
     personality => "cisco",
     do_login => 0,
     do_paging => 0,
+    timeout => 5,
+    nci_options => { timeout => 5 },
 }]);
 
 ok( $s->connect );

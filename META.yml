@@ -22,7 +22,7 @@ requires:
   Moo: 0
   Moo::Role: 0
   MooX::Types::MooseLike::Base: 0
-  Net::CLI::Interact: 2.122730
+  Net::CLI::Interact: 2.131260
   Sub::Quote: 0
   Term::ANSIColor: 0
   Term::ReadPassword: 0
@@ -35,4 +35,4 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Net-Appliance-Session
   homepage: https://github.com/ollyg/Net-Appliance-Session/wiki
   repository: git://github.com/ollyg/Net-Appliance-Session.git
-version: 4.131210
+version: 4.131260

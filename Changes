@@ -1,3 +1,7 @@
+4.131260  2013-05-06 20:36:23 Europe/London
+
+  * Minor fix for incorrect data type on timeout
+
 4.131210  2013-05-01 21:45:36 Europe/London
 
   * Expose global timeout setting
