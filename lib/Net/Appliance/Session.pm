@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '4.131260';
+  $Net::Appliance::Session::VERSION = '4.140230';
 }
 
 use Moo;
@@ -168,7 +168,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 4.131260
+version 4.140230
 
 =head1 SYNOPSIS
 
@@ -537,7 +537,7 @@ Oliver Gorwits <oliver@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Oliver Gorwits.
+This software is copyright (c) 2014 by Oliver Gorwits.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

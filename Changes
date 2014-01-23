@@ -1,3 +1,7 @@
+4.140230  2014-01-23 20:48:04 Europe/London
+
+  * [RT#92376] timeout when incorrect privileged password
+
 4.131260  2013-05-06 20:36:23 Europe/London
 
   * Minor fix for incorrect data type on timeout

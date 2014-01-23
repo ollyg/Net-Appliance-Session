@@ -1,6 +1,6 @@
 package Net::Appliance::Session::Engine;
 {
-  $Net::Appliance::Session::Engine::VERSION = '4.131260';
+  $Net::Appliance::Session::Engine::VERSION = '4.140230';
 }
 
 use Moo::Role;
@@ -104,7 +104,8 @@ sub begin_privileged {
         die 'a set password is required before begin_privileged'
             if not $password;
 
-        $self->cmd($password, { match => 'privileged' });
+        # rt.cpan#92376 timeout when incorrect password
+        $self->cmd($password, { match => 'generic' });
     }
 
     $self->prompt_looks_like('privileged')
