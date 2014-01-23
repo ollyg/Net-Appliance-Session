@@ -101,7 +101,8 @@ sub begin_privileged {
         die 'a set password is required before begin_privileged'
             if not $password;
 
-        $self->cmd($password, { match => 'privileged' });
+        # rt.cpan#92376 timeout when incorrect password
+        $self->cmd($password, { match => 'generic' });
     }
 
     $self->prompt_looks_like('privileged')

@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  * [RT#92376] timeout when incorrect privileged password
+
 4.131260  2013-05-06 20:36:23 Europe/London
 
   * Minor fix for incorrect data type on timeout
