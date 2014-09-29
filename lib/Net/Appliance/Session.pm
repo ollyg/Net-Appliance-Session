@@ -392,7 +392,7 @@ the start, then it's likely you need to set the terminal width. This prevents
 the connected device from line-wrapping long commands. Issue something like:
 
  $s->begin_privileged;
- $s->cmd('terminal width 512');
+ $s->cmd('terminal width 510');
 
 =head2 close
 
