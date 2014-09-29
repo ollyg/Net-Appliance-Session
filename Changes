@@ -1,3 +1,7 @@
+4.142720  2014-09-29 19:44:29 Europe/London
+
+  * Docs update for Cisco NX-OS which has max terminal of 511
+
 4.140230  2014-01-23 20:48:04 Europe/London
 
   * [RT#92376] timeout when incorrect privileged password

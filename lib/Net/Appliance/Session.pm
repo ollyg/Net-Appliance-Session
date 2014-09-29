@@ -1,6 +1,6 @@
 package Net::Appliance::Session;
 {
-  $Net::Appliance::Session::VERSION = '4.140230';
+  $Net::Appliance::Session::VERSION = '4.142720';
 }
 
 use Moo;
@@ -168,7 +168,7 @@ Net::Appliance::Session - Run command-line sessions to network appliances
 
 =head1 VERSION
 
-version 4.140230
+version 4.142720
 
 =head1 SYNOPSIS
 
@@ -407,7 +407,7 @@ the start, then it's likely you need to set the terminal width. This prevents
 the connected device from line-wrapping long commands. Issue something like:
 
  $s->begin_privileged;
- $s->cmd('terminal width 512');
+ $s->cmd('terminal width 510');
 
 =head2 close
 

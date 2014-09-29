@@ -3,7 +3,7 @@ NAME
     appliances
 
 VERSION
-    version 4.140230
+    version 4.142720
 
 SYNOPSIS
      use Net::Appliance::Session;
@@ -217,7 +217,7 @@ METHODS
     something like:
 
      $s->begin_privileged;
-     $s->cmd('terminal width 512');
+     $s->cmd('terminal width 510');
 
   close
      $s->close;
