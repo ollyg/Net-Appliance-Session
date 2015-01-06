@@ -1,17 +1,14 @@
-Changes
-LICENSE
-MANIFEST
-META.json
-META.yml
-Makefile.PL
-README
 bin/nas
+Changes
 examples/example-1.pl
 lib/Net/Appliance/Session.pm
 lib/Net/Appliance/Session/Async.pm
 lib/Net/Appliance/Session/Engine.pm
 lib/Net/Appliance/Session/Scripting.pm
 lib/Net/Appliance/Session/Transport.pm
+Makefile.PL
+MANIFEST			This list of files
+META.yml
 t/10-use.t
 t/author-10_route_server.t
 t/author-12_route_server_nonblock.t

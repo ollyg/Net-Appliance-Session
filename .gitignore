@@ -1,0 +1,8 @@
+Net-Appliance-Session-*
+examples/cisco
+*.swp
+*.pid
+test.*
+MYMETA.*
+*.tar.gz
+*.komodo*
