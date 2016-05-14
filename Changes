@@ -1,3 +1,7 @@
+4.200001  2015-05-14
+
+  * Remove dangerous use lib from nas script (ppisar)
+
 4.200000  2015-01-06
 
   * Migrate away from Dist::Zilla
