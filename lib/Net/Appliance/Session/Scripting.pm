@@ -199,6 +199,7 @@ sub run {
         }
     }
     else {
+        get_creds_from_cloginrc();
         do_session(%options);
     }
 
