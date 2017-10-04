@@ -46,7 +46,6 @@ foreach my $slot (qw/
     do_login
     do_privileged_mode
     do_configure_mode
-    wake_up
 /) {
     has $slot => (
         is => 'rw',
@@ -55,6 +54,13 @@ foreach my $slot (qw/
         default => quote_sub('1'),
     );
 }
+
+has wake_up => (
+	is => 'rw',
+	isa => Int,
+	required => 0,
+	default => quote_sub('1'),
+		);
 
 foreach my $slot (qw/
     username
