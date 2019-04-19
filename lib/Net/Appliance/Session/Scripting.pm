@@ -1,5 +1,5 @@
 package Net::Appliance::Session::Scripting;
-{ $Net::Appliance::Session::Scripting::VERSION = '4.300004' }
+{ $Net::Appliance::Session::Scripting::VERSION = '4.300005' }
 
 use strict;
 use warnings FATAL => 'all';
