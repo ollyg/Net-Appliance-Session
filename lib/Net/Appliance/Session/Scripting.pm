@@ -253,7 +253,7 @@ sub do_session {
             push @messages, qq{personality "/cisco/ios"};
         }
         if (not exists $options{transport}
-                or not exists $options{cloginrc_opts}{transport}) {
+                and not exists $options{cloginrc_opts}{transport}) {
             push @messages, 'transport SSH';
         }
         if (scalar @messages) {
@@ -264,14 +264,17 @@ sub do_session {
     print colored ['white'], "Connecting to [$options{hostname}]...\n\n"
         if not $options{quiet};
 
+    my $transport = ($options{transport}
+                  || $options{cloginrc_opts}{transport}
+                  || 'SSH');
+
     my $s = Net::Appliance::Session->new({
         host => $options{hostname},
-        transport => ($options{transport} || 'SSH'),
+        transport => $transport,
         personality => ($options{personality} || 'ios'),
         ($options{username} ? (username => $options{username}) : ()),
         ($options{password} ? (password => $options{password}) : ()),
-        (($options{quiet} and ($options{transport} eq 'SSH'
-                or $options{cloginrc_opts}{transport} eq 'SSH')) ? (
+        (($options{quiet} and ($transport eq 'SSH')) ? (
             connect_options => { opts => ['-q'] },
         ) : ()),
         %{ $options{cloginrc_opts} || {} },
