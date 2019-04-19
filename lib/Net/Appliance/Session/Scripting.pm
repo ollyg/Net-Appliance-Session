@@ -19,7 +19,7 @@ use Text::Glob qw(match_glob);
 use Net::Appliance::Session;
 
 my $banner = colored ['blue'],
-  "Net Appliance Session scripting - v$VERSION - © 2012-2017 by Oliver Gorwits\n";
+  sprintf "Net Appliance Session scripting - v%s - © 2012-2017 by Oliver Gorwits\n", $Net::Appliance::Session::Scripting::VERSION;
 
 my %options = (cloginrc_opts => {});
 my $exit_status = 0;
@@ -101,7 +101,7 @@ sub commandline {
     bailout() if exists $options{help};
 
     if (exists $options{version}) {
-        print "nas version $VERSION\n";
+        printf "nas version %s\n", $Net::Appliance::Session::Scripting::VERSION;
         exit(0);
     }
 
