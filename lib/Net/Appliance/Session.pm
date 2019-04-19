@@ -1,5 +1,5 @@
 package Net::Appliance::Session;
-{ $Net::Appliance::Session::VERSION = '4.300002' }
+{ $Net::Appliance::Session::VERSION = '4.300003' }
 
 use Moo;
 use Sub::Quote;
