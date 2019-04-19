@@ -5,7 +5,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use Getopt::Long 2.24 qw(:config bundling);
-use Term::ANSIColor qw(colored);
+use Term::ANSIColor qw(colored color);
 use Text::ParseWords qw(shellwords);
 use Term::ReadPassword qw(read_password);
 $Term::ReadPassword::USE_STARS = 1;
@@ -304,7 +304,13 @@ sub do_session {
                 $args = '' if not defined $args;
                 print colored ['white bold'], "Running macro [$name]...\n"
                     if not $options{quiet};
-                $s->macro($name, { params => [split /\s+/, $args] });
+                if ($name eq 'disconnect') {
+                    $s->close;
+                    last
+                }
+                else {
+                    $s->macro($name, { params => [split /\s+/, $args] });
+                }
                 next;
             }
             elsif ($cmd =~ m/^!m/) {
@@ -340,7 +346,7 @@ sub do_session {
         print colored ['white bold'], $_;
     }
     finally {
-        $s->close;
+        eval { $s->close };
     };
 }
 
@@ -358,7 +364,11 @@ sub get_next_cmd {
         return $cmd;
     }
     else {
-        prompt($turtle . $s->last_prompt);
+        my $cmd = prompt($turtle . $s->last_prompt);
+        print color ('reset');
+        chomp $cmd;
+        print $cmd, "\n";
+        return $cmd;
     }
 }
 
