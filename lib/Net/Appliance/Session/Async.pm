@@ -1,5 +1,5 @@
 package Net::Appliance::Session::Async;
-{ $Net::Appliance::Session::Async::VERSION = '4.300003' }
+{ $Net::Appliance::Session::Async::VERSION = '4.300004' }
 
 use Moo::Role;
 

@@ -1,5 +1,5 @@
 package Net::Appliance::Session::Scripting;
-{ $Net::Appliance::Session::Scripting::VERSION = '4.300003' }
+{ $Net::Appliance::Session::Scripting::VERSION = '4.300004' }
 
 use strict;
 use warnings FATAL => 'all';
@@ -19,7 +19,7 @@ use Text::Glob qw(match_glob);
 use Net::Appliance::Session;
 
 my $banner = colored ['blue'],
-  sprintf "Net Appliance Session scripting - v%s - © 2012-2017 by Oliver Gorwits\n", $Net::Appliance::Session::Scripting::VERSION;
+  sprintf "Net Appliance Session scripting - v%s - © 2012-2019 by Oliver Gorwits\n", $Net::Appliance::Session::Scripting::VERSION;
 
 my %options = (cloginrc_opts => {});
 my $exit_status = 0;
